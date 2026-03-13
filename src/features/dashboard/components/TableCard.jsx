@@ -1,0 +1,60 @@
+import TblCardHeader from "./TblCardHeader";
+
+function TableCard(){
+
+    const activities = [
+       {memberName:"Michael Chen1",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+        {memberName:"Michael Chen2",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"available" , time:"2 mins ago"},
+        {memberName:"Michael Chen3",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+        {memberName:"Michael Chen4",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+        {memberName:"Michael Chen5",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"borrowed" , time:"2 mins ago"},
+        {memberName:"Michael Chen6",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+         {memberName:"Michael Chen5",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+        {memberName:"Michael Chen6",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+        {memberName:"Michael Chen5",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
+        {memberName:"Michael Chen6",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"}
+       
+    ];
+    return (
+       <div className="flex flex-col col-span-4 rounded-lg bg-white shadow-gray-300 shadow-md pb-4" >
+        <TblCardHeader/>
+
+         <table className="w-full">
+            <thead>
+                <tr className="h-12 bg-gray-200 text-left">
+                    <th className="p-2">Member Name</th>
+                    <th>Book Title</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    activities.map((activity) => 
+                    (
+                 <tr>
+                    <td className="p-4">{activity.memberName}</td>
+                    <td>{activity.bookTitle}</td>
+                    <td>{activity.action}</td>
+                    <td><span className={activity.status==="borrowed"?"bg-red-500": activity.status==="Completed"?" bg-red-300" :activity.status=="available"?"bg-blue-600":"bg-green-400"}>{activity.status}</span></td>
+                    <td> {activity.time}</td>
+              </tr>
+                    ))
+                }
+                
+                
+            </tbody>
+         </table>
+         <div className="flex justify-end items-center gap-4 p-4">
+           <button className="bg-green-400 h-10 w-10 text-white ">1</button>
+           <button className="bg-green-400 h-10 w-10 text-white">2</button>
+           <button className="bg-green-400 h-10 w-10 text-white">3</button>
+           <button className="bg-green-400 h-10 w-10 text-white">4</button>
+         </div>
+         
+       </div>
+    );
+}
+
+export default TableCard;

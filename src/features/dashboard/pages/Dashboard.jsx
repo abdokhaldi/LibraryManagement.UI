@@ -12,7 +12,15 @@ function Dashboard() {
   {title:"INVENTORY UTIL %", value:"2,842",percentage:"+3.1% vs prev.", color:"yellow"}
   ]
    
+  
+
   const title = {1:"Loans trend" , 2:"Most Popular Categories"};
+
+  const activities = [
+    { memberName: "John Doe", bookTitle: "The Great Gatsby", action: "Borrowed", status: "borrowed", time: "10:30 AM" },
+    { memberName: "Jane Smith", bookTitle: "1984", action: "Returned", status: "Completed", time: "2:15 PM" },
+    // Add more activities as needed
+  ];
 
   return (
     
@@ -27,7 +35,7 @@ function Dashboard() {
     
     <WeekChartCard title={title[1]} />
       <PopularCategoriesCard title={title[2]} />
-      <TableCard />
+      <TableCard activities={activities} />
     </div>
    );
   }

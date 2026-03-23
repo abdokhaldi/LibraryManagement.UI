@@ -12,7 +12,7 @@ function TotalAnalyticsCard({title, value, percentage,color}){
     const colorClass = colorMap[color] || "bg-gray-400";
     return (
     
-    <div className="grid grid-cols-5 grid-rows-5 h-40 w-full p-4  rounded-br-[4rem] rounded-tl-4xl bg-white shadow-gray-400 shadow-lg col-span-1">
+    <div className="grid grid-cols-5 grid-rows-5 h-40 w-full p-4  rounded-br-[4rem] rounded-tl-4xl bg-white shadow-gray-300 shadow-md col-span-1">
      <div className="col-span-4 row-span-2">
          <h1 className="font-bold text-gray-300">
           {title}

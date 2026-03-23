@@ -3,7 +3,7 @@ import { FaFilter, FaSearch } from "react-icons/fa";
 function SearchBar ({ searchTerm, setSearchTerm, onFilterClick }) {
 
  return ( <div className='flex items-center gap-3 w-full max-w-2xl'>
-    <div className="relative flex-grow">
+    <div className="relative flex-1">
       <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
         <FaSearch size={18} />
       </span>

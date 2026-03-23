@@ -1,9 +1,11 @@
 
 import SearchBar from '../components/SearchBar';
-import { useState } from 'react';
-import { FiPlus, FiEdit, FiTrash } from 'react-icons/fi';
+import { useEffect, useRef, useState } from 'react';
+import { FiPlus } from 'react-icons/fi';
 import NewBookModal from '../components/NewBookModal';
-import BookDetailsModal from '../components/BookDetailsModal';
+import BookDetailsModal from './BookDetailsModal';
+import BookTable from '../components/BookTable';
+import BookPagination from '../components/BookPagination';
 
 import cover1 from '../assets/OIP.jpg';
 import cover2 from '../assets/OIP (1).jpg';
@@ -19,9 +21,11 @@ function BookInventory() {
  
   const [filters, setFilters] = useState({ category: "All", status: "All" });
   const [currentPage, setCurrentPage] = useState(1);
+  const actionRef = useRef(null);
   const itemsPerPage = 10;
   const covers = [cover1, cover2, cover3, cover4, cover5, cover6];
 
+  // Book list
   const [books, setBooks] = useState([
     {id: 1, title: "Design Patterns", author: "Gang of Four", isbn: "978-0201633610", availableCopies: 5, category: "Tech", coverImage: covers[0 % covers.length]},
     {id: 2, title: "Clean Code", author: "Robert C. Martin", isbn: "978-0132350884", availableCopies: 3, category: "Tech", coverImage: covers[1 % covers.length]},
@@ -36,17 +40,18 @@ function BookInventory() {
     {id: 11, title: "Operating System Concepts", author: "Silberschatz", isbn: "978-1118064672", availableCopies: 5, category: "Tech", coverImage: covers[10 % covers.length]},
     {id: 12, title: "Computer Architecture", author: "Hennessy & Patterson", isbn: "978-0128119051", availableCopies: 4, category: "Tech", coverImage: covers[11 % covers.length]},
   ]);
+  // copies list
   const [copies, setCopies] = useState([
     // For book 1: 5 copies
-    {id: 1, bookId: 1, barcode: 'COPY-1-1', status: 'available'},
-    {id: 2, bookId: 1, barcode: 'COPY-1-2', status: 'available'},
-    {id: 3, bookId: 1, barcode: 'COPY-1-3', status: 'available'},
-    {id: 4, bookId: 1, barcode: 'COPY-1-4', status: 'available'},
-    {id: 5, bookId: 1, barcode: 'COPY-1-5', status: 'available'},
+    {id: 1, bookId: 1, barcode: 'COPY-1-1', status: 'available', condition:'new'},
+    {id: 2, bookId: 1, barcode: 'COPY-1-2', status: 'available', condition:'good'},
+    {id: 3, bookId: 1, barcode: 'COPY-1-3', status: 'lost', condition:'old'},
+    {id: 4, bookId: 1, barcode: 'COPY-1-4', status: 'available', condition:'old'},
+    {id: 5, bookId: 1, barcode: 'COPY-1-5', status: 'borrowed', condition:'new'},
     // For book 2: 3 copies
-    {id: 6, bookId: 2, barcode: 'COPY-2-1', status: 'available'},
-    {id: 7, bookId: 2, barcode: 'COPY-2-2', status: 'available'},
-    {id: 8, bookId: 2, barcode: 'COPY-2-3', status: 'available'},
+    {id: 6, bookId: 2, barcode: 'COPY-2-1', status: 'lost', condition:'new'},
+    {id: 7, bookId: 2, barcode: 'COPY-2-2', status: 'borrowed', condition:'old'},
+    {id: 8, bookId: 2, barcode: 'COPY-2-3', status: 'available', condition:'good'},
     // And so on for others, but for brevity, I'll add a few
   ]);
 
@@ -68,8 +73,25 @@ const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, cur
   const [showModal, setShowModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [actionRow, setActionRow] = useState(null); // id of row with actions open
+  const [actionRow, setActionRow] = useState(null); 
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
+  useEffect(() => {
+    if (!actionRow) return;
+
+    const handleClickOutside = (event) => {
+      if (actionRef.current && !actionRef.current.contains(event.target)) {
+        setActionRow(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [actionRow]);
+  
+  
+  
   const handleAddBook = (newBook) => {
     const newBookId = books.length + 1;
     const newCopies = [];
@@ -81,6 +103,7 @@ const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, cur
         status: 'available',
       });
     }
+    
     setCopies(prev => [...prev, ...newCopies]);
     setBooks(prev => [
       ...prev,
@@ -124,10 +147,31 @@ const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, cur
     console.log('edit', book);
     setActionRow(null);
   };
-  const handleDelete = (book) => {
-    console.log('delete', book);
+  const handleDelete = (bookId) => {
+    console.log('delete', bookId);
+    setBooks(prevBooks => prevBooks.filter(book => book.id !== bookId));
     setActionRow(null);
   };
+
+ const handleRowClick = (id, index) => {
+  setSelectedRowId(id);
+  setSelectedIndex(index);
+};
+
+
+const handleKeyDown = (e) => {
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    const nextIndex = Math.min(selectedIndex + 1, paginatedBooks.length - 1);
+    setSelectedIndex(nextIndex);
+    setSelectedRowId(paginatedBooks[nextIndex].id);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    const prevIndex = Math.max(selectedIndex - 1, 0);
+    setSelectedIndex(prevIndex);
+    setSelectedRowId(paginatedBooks[prevIndex].id);
+  }
+};
 
   return (
     <div className="p-4 bg-gray-100 min-h-screen">
@@ -174,85 +218,26 @@ const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, cur
       </div>
       <div className="bg-white shadow-md overflow-hidden">
        
-        <table className="w-full">
-            <thead>
-                <tr className="h-12 bg-gray-200 text-left">
-                    <th className="p-4">Cover</th>
-                    <th className="p-4">Title</th>
-                    <th className="p-4">Author</th>
-                    <th className="p-4">ISBN</th>
-                    <th className="p-4">Available Copies</th>
-                </tr>
-            </thead>
-            <tbody>
-                {paginatedBooks.map(book => (
-                    <tr
-                      key={book.id}
-                      className="border-b hover:bg-gray-50 cursor-pointer group relative"
-                      onClick={() => openDetails(book)}
-                    >
-                        <td className="p-4 flex items-center">
-                          <span className="mr-2 opacity-0 group-hover:opacity-100">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); openDetails(book); }}
-                              className="text-blue-500 underline text-sm"
-                            >
-                              Details
-                            </button>
-                          </span>
-                          <img src={book.coverImage} alt={book.title} className="w-12 h-16 object-cover" />
-                        </td>
-                        <td className="p-4">{book.title}</td>
-                        <td className="p-4">{book.author}</td>
-                        <td className="p-4">{book.isbn}</td>
-                        <td className="p-4">{book.availableCopies}
-                          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setActionRow(book.id === actionRow ? null : book.id); }}
-                              className="text-gray-500"
-                            >
-                              ⋮
-                            </button>
-                            {actionRow === book.id && (
-                              <div className="absolute right-0 mt-2 w-20 bg-white border rounded shadow-lg z-10 flex flex-col">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleEdit(book); }}
-                                  className="p-2 hover:bg-gray-100 flex justify-center"
-                                >
-                                  <FiEdit />
-                                </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleDelete(book); }}
-                                  className="p-2 hover:bg-gray-100 flex justify-center"
-                                >
-                                  <FiTrash />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+       <BookTable 
+        books={paginatedBooks}
+         selectedRowId={selectedRowId}
+          onRowClick={handleRowClick}
+          onKeyDown={handleKeyDown} 
+          onOpenDetails={openDetails}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          actionRow={actionRow} 
+          setActionRow={setActionRow}
+          actionRef={actionRef}
+       />
       </div>
-      <div className="flex justify-center items-center p-4 bg-white gap-4">
-        <button 
-          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} 
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-green-500 text-white rounded disabled:bg-gray-300"
-        >
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button 
-          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} 
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-green-500 text-white rounded disabled:bg-gray-300"
-        >
-          Next
-        </button>
-      </div>
+      <BookPagination
+        onNext={()=>setCurrentPage(Math.min(totalPages, currentPage + 1))}
+        onPrev={()=>setCurrentPage(Math.max(1, currentPage - 1))}
+        currentPage={currentPage}
+        totalPages={totalPages}
+     />
+     
     </div>
     </div>
   );

@@ -1,20 +1,8 @@
 import TblCardHeader from "./TblCardHeader";
 
-function TableCard(){
+function TableCard({activities}){
 
-    const activities = [
-       {memberName:"Michael Chen1",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-        {memberName:"Michael Chen2",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"available" , time:"2 mins ago"},
-        {memberName:"Michael Chen3",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-        {memberName:"Michael Chen4",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-        {memberName:"Michael Chen5",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"borrowed" , time:"2 mins ago"},
-        {memberName:"Michael Chen6",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-         {memberName:"Michael Chen5",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-        {memberName:"Michael Chen6",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-        {memberName:"Michael Chen5",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"},
-        {memberName:"Michael Chen6",bookTitle:"Design Patterns: Elements of Reusable Object-Oriented Software", action:"return", status:"Completed" , time:"2 mins ago"}
-       
-    ];
+    
     return (
        <div className="flex flex-col col-span-4 rounded-lg bg-white shadow-gray-300 shadow-md pb-4" >
         <TblCardHeader/>

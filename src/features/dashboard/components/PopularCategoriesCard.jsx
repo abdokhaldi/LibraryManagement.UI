@@ -11,7 +11,7 @@ function PopularCategoriesCard({title}){
    {categoryName:"Languages", percentage:60},
   ];
     return (
-        <div className="flex flex-col col-span-2 h-80 w-full bg-white rounded-lg shadow-gray-400 shadow-lg p-4">
+        <div className="flex flex-col col-span-2 h-80 w-full bg-white rounded-lg shadow-gray-300 shadow-md p-4">
          <HeaderChart title={title} />
          <div className="flex flex-col h-full w-full">
          {

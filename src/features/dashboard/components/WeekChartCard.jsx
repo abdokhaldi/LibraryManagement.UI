@@ -13,7 +13,7 @@ function WeekChartCard({title}){
 
  
     return (
-        <div className="flex flex-col h-80 w-full bg-white rounded-lg shadow-gray-400 shadow-lg col-span-2 p-4">
+        <div className="flex flex-col h-80 w-full bg-white rounded-lg shadow-gray-300 shadow-md col-span-2 p-4">
                         <HeaderChart title={title} />
             <div className="grid grid-cols-7 h-full w-full items-end gap-2 "> 
            {

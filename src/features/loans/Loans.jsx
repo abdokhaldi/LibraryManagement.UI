@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState } from 'react';
 import {FaSearch ,FaFilter , FaPlus } from 'react-icons/fa';
 import BorrowNew from './components/BorrowModal';
 
@@ -8,15 +8,15 @@ export default function Loans(){
     const [filters, setFilters] = useState({status:"all"});
     const [searchTerm, setSearchTerm] = useState("");
     const [showBorrowModal, setShowBorrowModal] = useState(false);
-
+    
     const [pageNumber, setPageNumber] = useState(1);
     const pageSize = 2;
 
  const loans = [
     {id:1,barcode:"bk-1-1",title:"Clean code",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"returned"},
-    {id:2,barcode:"bk-1-1",title:"The art of computer programming",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"borrowed"},
-    {id:3,barcode:"bk-1-1",title:"The art of war",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"completed"},
-    {id:4,barcode:"bk-1-1",title:"48 Laws of power",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"returned"},
+    {id:2,barcode:"bk-1-2",title:"The art of computer programming",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"borrowed"},
+    {id:3,barcode:"bk-1-3",title:"The art of war",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"completed"},
+    {id:4,barcode:"bk-1-4",title:"48 Laws of power",member:"abdenabi khaldi", borrowingDate:"08/04-2026",dueDate:"08/04-2026",returnDate:"09/04-2026",status:"returned"},
 ];
 
 const filteredLoans = loans.filter(loan => 
@@ -49,6 +49,7 @@ const onClose = ()=>{
    setShowBorrowModal(false);
 }
 
+
 const hasNext = pageNumber < totalPages;
 const hasPrevious = pageNumber > 1;
 
@@ -80,10 +81,10 @@ const hasPrevious = pageNumber > 1;
                 
                 <button 
                 onClick={() => setShowBorrowModal(true)}
-                className='flex items-center justify-start p-3 bg-green-500 text-white w-1/5 gap-2 rounded-xl' 
+                className='flex items-center justify-start p-3 bg-green-500 text-white w-50 gap-2 rounded-xl' 
                 >
                      <FaPlus size={20} />
-                     borrow new 
+                     loan new 
                   </button>
           </div>
       {

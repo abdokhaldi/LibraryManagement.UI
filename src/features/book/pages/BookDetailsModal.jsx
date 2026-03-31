@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { FiPlus, FiEdit, FiTrash, FiBook } from 'react-icons/fi';
 import {FaEllipsisV} from 'react-icons/fa';
 
+
  function BookDetailsModal({ isOpen, onClose, book, copies, onAddCopy }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -9,7 +10,8 @@ import {FaEllipsisV} from 'react-icons/fa';
   const [actionRow, setActionRow] = useState(null);
   const actionRef = useRef(null);
   const itemsPerPage = 5;
-
+   
+  
   useEffect(() => {
     if (!actionRow) return;
 
@@ -31,6 +33,8 @@ import {FaEllipsisV} from 'react-icons/fa';
 
   const totalPages = Math.max(1, Math.ceil(filteredCopies.length / itemsPerPage));
   const paginatedCopies = filteredCopies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  
+  
 
   const handleEdit = (copy) => {
     console.log('edit copy', copy);
@@ -51,8 +55,10 @@ import {FaEllipsisV} from 'react-icons/fa';
   const primaryActions = {borrowed:'Reserve' , lost:'Delete', available:'Loan'};
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black opacity-100 z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[80vh] overflow-y-auto border-green-400 border-2">
+     
+   <div className="fixed flex-col inset-0 flex items-center justify-center bg-black opacity-100 z-50">
+    
+     <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[80vh] overflow-y-auto border-green-400 border-2">
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl">"{book.title}" Details</h2>
@@ -110,7 +116,9 @@ import {FaEllipsisV} from 'react-icons/fa';
                       <td className="border border-gray-300 p-3 w-40"> <span className={`rounded-md ${copy.status==='available'? 'bg-green-300' : copy.status==='lost'? 'bg-red-600': 'bg-amber-400'}`}>{copy.status}</span></td>
                      <td className="border border-gray-300 p-3">{copy.condition}</td>
                       <td className='relative border border-gray-300 p-3 w-40'> 
-                        <button className={`${copy.status==='borrowed'?'bg-orange-600':copy.status==='lost'?'bg-red-600':'bg-green-500'} text-white rounded-md w-[50%] cursor-pointer hover:bg-gray-300 hover:translate-0.5 hover:text-black active:bg-black`}>{primaryActions[copy.status]}</button>
+                        <button  className={`${copy.status==='borrowed'?'bg-orange-600':copy.status==='lost'?'bg-red-600':'bg-green-500'} text-white rounded-md w-[50%] cursor-pointer hover:bg-gray-300 hover:translate-0.5 hover:text-black active:bg-black`}>
+                          {primaryActions[copy.status]}
+                          </button>
                         <div
                           ref={actionRef}
                           className="relative h-full w-full"
@@ -186,8 +194,12 @@ import {FaEllipsisV} from 'react-icons/fa';
           </div>
         </div>
       </div>
-    </div>
+
+    </div> 
+  
+    
   );
 }
+
 
 export default BookDetailsModal;

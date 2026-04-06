@@ -3,22 +3,35 @@ import { FaEllipsisV } from "react-icons/fa";
 import DropDownActions from './DropDownActions';
 
 function BookRow({ book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef }) {
+ const bookCoverUrl = "http://localhost:5016/";
   return (
     <tr
       className={`border-b cursor-pointer ${isSelected ? 'relative z-50 bg-gray-100' : ''}`}
       onClick={onSelect}
+      onDoubleClick={(e) => {e.stopPropagation(); onOpenDetails(book)} }
     >
       <td className="p-4 flex items-center gap-5">
         <span className={`mr-2 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
           <button
-            onClick={(e) => { e.stopPropagation(); onOpenDetails(book); }}
+            onClick={(e) => {e.stopPropagation(); onOpenDetails(book); }}
             className="text-blue-500 underline text-sm"
           >
             Details
           </button>
         </span>
-        <img src={book.coverImage} alt={book.title} className="w-14 h-18 object-cover" />
+        
+      <img
+       src={`${bookCoverUrl}${book.imagePath}`} 
+       alt={book.title} 
+       className="w-14 h-18 object-cover"
+       onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = "/placeholder-cover.jpg";
+       }}
+       />
+       
       </td>
+
       <td className="p-4 font-medium">{book.title}</td>
       <td className="p-4">{book.author}</td>
       <td className="p-4 text-gray-600">{book.isbn}</td>
@@ -31,8 +44,9 @@ function BookRow({ book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, 
       <button
         onClick={(e) => {
           e.stopPropagation();
+          
+          setActionRow(isActionsOpen ? null : book.bookID);
          
-          setActionRow(isActionsOpen ? null : book.id);
         }}
         disabled={!isSelected}
         className=" text-gray-400 hover:text-gray-700 p-2 block"

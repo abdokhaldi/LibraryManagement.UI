@@ -9,8 +9,8 @@ function BookTable({books, selectedRowId, onRowClick, onKeyDown, onOpenDetails, 
         tabIndex={0}
       >
         <thead>
-          <tr className="bg-gray-50 border-b text-gray-700 uppercase text-xs font-semibold">
-            <th className="p-4">Cover</th>
+          <tr className="bg-gray-400 border-b text-gray-700 uppercase text-xm font-semibold h-16">
+             <th className="p-4">Cover</th>
             <th className="p-4">Title</th>
             <th className="p-4">Author</th>
             <th className="p-4">ISBN</th>
@@ -20,16 +20,17 @@ function BookTable({books, selectedRowId, onRowClick, onKeyDown, onOpenDetails, 
         <tbody>
           {books.map((book, index) => (
             <BookRow 
-              key={book.id}
+              key={book.bookID}
               book={book}
-              isSelected={selectedRowId === book.id}
-              onSelect={() => onRowClick(book.id, index)}
+              isSelected={selectedRowId === book.bookID}
+              onSelect={() => onRowClick(book.bookID, index)}
               onOpenDetails={onOpenDetails}
               onEdit={onEdit}
               onDelete={onDelete}
-              isActionsOpen={actionRow === book.id}
+              isActionsOpen={actionRow === book.bookID}
               setActionRow={setActionRow}
               actionRef={actionRef}
+             
             />
           ))}
         </tbody>

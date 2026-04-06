@@ -59,13 +59,13 @@ const hasPrevious = pageNumber > 1;
        {showBorrowModal && <BorrowNew onClose={onClose}  />}
        {!showBorrowModal && <div className="h-full w-full flex flex-col gap-3 bg-white rounded-xl py-3">
           <div className='flex justify-between items-center px-3'> 
-          <div className=" w-full flex items-center gap-4">
-              <div className='flex items-center gap-2 px-2 bg-gray-200 rounded-xl w-[50%]'>
-               <span  >
-                <FaSearch size={18} />
+          <div className="flex items-center w-150 gap-4">
+              <div className='relative flex-1'>
+               <span className='absolute inset-y-0 left-3 flex items-center text-white'>
+                <FaSearch size={18}  />
                  </span>
                <input  type="text"
-                className="h-12 w-full outline-0 border-none"
+                className="w-full h-12 pl-10 pr-4 rounded-xl bg-gray-400 border-none outline-none text-white placeholder:text-white"
                  placeholder="search by barcode,member,title" 
                  onChange={(e)=> setSearchTerm(e.target.value)}
                  />
@@ -73,18 +73,18 @@ const hasPrevious = pageNumber > 1;
 
                <button 
                onClick={() => setShowFilter(!showFilter)}
-               className='bg-gray-300 text-black h-full p-3 rounded-xl hover:bg-gray-400 transition-colors'>
-                <FaFilter size={20}/>
+               className='p-3 rounded-xl bg-gray-400 active:bg-black transition-colors'>
+                <FaFilter size={20} color='white'/>
                 </button>
 
                 </div> 
                 
                 <button 
                 onClick={() => setShowBorrowModal(true)}
-                className='flex items-center justify-start p-3 bg-green-500 text-white w-50 gap-2 rounded-xl' 
+                className='px-4 py-3 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-bold text-xm  gap-2' 
                 >
                      <FaPlus size={20} />
-                     loan new 
+                     New Loan
                   </button>
           </div>
       {

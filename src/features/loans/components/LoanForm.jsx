@@ -31,7 +31,9 @@ export default function LoanForm({barcode, setCopy}){
               <button type="button" onClick={setCopy} className="bg-gray-400 w-[30%] text-white rounded">
                 Cancel
               </button>
-              <button type="submit" className="bg-green-500 w-[60%] text-white rounded">
+              <button 
+              onClick={setCopy}
+              type="submit" className="bg-green-500 w-[60%] text-white rounded">
                 Confirm
               </button>
             </div>

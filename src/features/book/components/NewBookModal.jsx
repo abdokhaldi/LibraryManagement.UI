@@ -1,29 +1,44 @@
 import { useState } from 'react';
 
-export default function NewBookModal({ isOpen, onClose, onAdd }) {
+export default function NewBookModal({categories, isOpen, onClose, onAdd }) {
+
   const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [publisher, setPublisher] = useState('');
+  const [yearPublished, setYearPublished] = useState('');
   const [isbn, setIsbn] = useState('');
-  const [category, setCategory] = useState('Tech');
+  const [categoryID, setCategoryID] = useState(categories[0]?.categoryID || '');
   const [description, setDescription] = useState('');
   const [copies, setCopies] = useState(1);
-
+  const [image, setImage] = useState(null);
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title || !isbn) return;
-    onAdd({ title, isbn, category, description, copies });
+    onAdd({ title, isbn,author, publisher,yearPublished, categoryID, description,image});
     setTitle('');
     setIsbn('');
-    setCategory('Tech');
+    setCategoryID('');
+    setAuthor('');
+    setPublisher('');
+    setYearPublished('');
     setDescription('');
     setCopies(1);
+    setImage(null);
     onClose();
   };
+ 
+   const handleFileChange = (e) => {
+   if(e.target.files && e.target.files.length > 0){
+      setImage(e.target.files[0]);
+   }
+   }
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center opacity-100 bg-black z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md border-2 border-green-400">
+    <div className="fixed inset-0 flex items-center justify-center  bg-gray-600/50 z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-lg max-h-lg border-2  border-green-400">
         <h2 className="text-xl mb-4">Add New Book</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
@@ -42,15 +57,44 @@ export default function NewBookModal({ isOpen, onClose, onAdd }) {
             className="p-2 border rounded"
             required
           />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+          <input
+            type="text"
+            placeholder="Author"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
             className="p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Publisher"
+            value={publisher}
+            onChange={(e) => setPublisher(e.target.value)}
+            className="p-2 border rounded"
+            required
+          />
+          <div className='flex  w-full gap-5'>
+          <input
+            type="number"
+            placeholder="Year published"
+            value={yearPublished}
+            onChange={(e) => setYearPublished(e.target.value)}
+            className="flex-1 p-2 border rounded "
+            required
+            min={1450}
+            max={new Date().getUTCFullYear() + 1}
+          />
+          <select
+            value={categoryID}
+            onChange={(e) => setCategoryID(e.target.value)}
+            className=" flex-1 p-2 border rounded"
           >
-            <option value="Tech">Tech</option>
-            <option value="History">History</option>
-            <option value="Science">Science</option>
+            {
+              categories.map((category) => (
+               <option key={category.categoryID} value={category.categoryID}>{category.categoryName}</option>
+            ))}
           </select>
+          </div>
           <input
             type="number"
             min="1"
@@ -60,6 +104,12 @@ export default function NewBookModal({ isOpen, onClose, onAdd }) {
             className="p-2 border rounded"
             required
           />
+          <input 
+          type="file" 
+          className='file:p-2 file:border file:rounded file:w-[50%] file:cursor-pointer file:bg-gray-200 file:mr-5'
+          onChange={handleFileChange}
+          />
+
           <textarea
             placeholder="Description"
             value={description}
@@ -78,7 +128,7 @@ export default function NewBookModal({ isOpen, onClose, onAdd }) {
             <button
               type="submit"
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
+             >
               Add
             </button>
           </div>

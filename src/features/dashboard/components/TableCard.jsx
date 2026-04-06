@@ -8,7 +8,7 @@ function TableCard({activities}){
         <TblCardHeader/>
 
          <table className="w-full">
-            <thead>
+            <thead >
                 <tr className="h-12 bg-gray-200 text-left">
                     <th className="p-2">Member Name</th>
                     <th>Book Title</th>
@@ -34,12 +34,7 @@ function TableCard({activities}){
                 
             </tbody>
          </table>
-         <div className="flex justify-end items-center gap-4 p-4">
-           <button className="bg-green-400 h-10 w-10 text-white ">1</button>
-           <button className="bg-green-400 h-10 w-10 text-white">2</button>
-           <button className="bg-green-400 h-10 w-10 text-white">3</button>
-           <button className="bg-green-400 h-10 w-10 text-white">4</button>
-         </div>
+         
          
        </div>
     );

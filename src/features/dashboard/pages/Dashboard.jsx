@@ -17,9 +17,12 @@ function Dashboard() {
   const title = {1:"Loans trend" , 2:"Most Popular Categories"};
 
   const activities = [
-    { memberName: "John Doe", bookTitle: "The Great Gatsby", action: "Borrowed", status: "borrowed", time: "10:30 AM" },
-    { memberName: "Jane Smith", bookTitle: "1984", action: "Returned", status: "Completed", time: "2:15 PM" },
-    // Add more activities as needed
+    {id:1, memberName: "John Doe", bookTitle: "The Great Gatsby", action: "Borrowed", status: "borrowed", time: "10:30 AM" },
+    {id:2, memberName: "Jane Smith", bookTitle: "1984", action: "Returned", status: "Completed", time: "2:15 PM" },
+     {id:3, memberName: "John Doe", bookTitle: "The Great Gatsby", action: "Borrowed", status: "borrowed", time: "10:30 AM" },
+    {id:4, memberName: "Jane Smith", bookTitle: "1984", action: "Returned", status: "Completed", time: "2:15 PM" },
+     {id:5, memberName: "John Doe", bookTitle: "The Great Gatsby", action: "Borrowed", status: "borrowed", time: "10:30 AM" }
+   
   ];
 
   return (

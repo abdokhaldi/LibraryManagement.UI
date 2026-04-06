@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FiPlus, FiEdit, FiTrash, FiBook } from 'react-icons/fi';
 import {FaEllipsisV} from 'react-icons/fa';
+import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
 
 
  function BookDetailsModal({ isOpen, onClose, book, copies, onAddCopy }) {
@@ -52,7 +53,7 @@ import {FaEllipsisV} from 'react-icons/fa';
     setActionRow(null);
   };
 
-  const primaryActions = {borrowed:'Reserve' , lost:'Delete', available:'Loan'};
+  const primaryActions = {borrowed:'Return', available:'Loan'};
 
   return (
      
@@ -116,7 +117,7 @@ import {FaEllipsisV} from 'react-icons/fa';
                       <td className="border border-gray-300 p-3 w-40"> <span className={`rounded-md ${copy.status==='available'? 'bg-green-300' : copy.status==='lost'? 'bg-red-600': 'bg-amber-400'}`}>{copy.status}</span></td>
                      <td className="border border-gray-300 p-3">{copy.condition}</td>
                       <td className='relative border border-gray-300 p-3 w-40'> 
-                        <button  className={`${copy.status==='borrowed'?'bg-orange-600':copy.status==='lost'?'bg-red-600':'bg-green-500'} text-white rounded-md w-[50%] cursor-pointer hover:bg-gray-300 hover:translate-0.5 hover:text-black active:bg-black`}>
+                        <button  className={`${copy.status==='borrowed'?'bg-blue-500':copy.status==='available'?'bg-green-500': ''} text-white rounded-md w-[50%] cursor-pointer hover:bg-gray-300 hover:translate-0.5 hover:text-black active:bg-black`}>
                           {primaryActions[copy.status]}
                           </button>
                         <div
@@ -132,31 +133,48 @@ import {FaEllipsisV} from 'react-icons/fa';
                             aria-label="Show actions"
                           >
                             <FaEllipsisV />
+                           
                           </button>
 
                           {actionRow === copy.id && (
                             <div className="absolute -right-8 -top-2 mt-2 w-28 bg-white border rounded shadow-lg z-10 flex flex-col">
-                              <button
+                             {copy.status === 'available' && (<button
                                 onClick={(e) => { e.stopPropagation(); handleEdit(copy); }}
-                                className="p-2 hover:bg-gray-100 flex justify-center"
+                                className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center gap-2"
                                 aria-label="Edit"
                               >
                                 <FiEdit className="text-blue-500" />
-                              </button>
-                              <button
+                                 
+                              </button>)}
+                              {(copy.status==='available' || copy.status==='lost') && <button
                                 onClick={(e) => { e.stopPropagation(); handleDelete(copy); }}
-                                className="p-2 hover:bg-gray-100 flex justify-center"
+                                className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center"
                                 aria-label="Delete"
                               >
                                 <FiTrash className="text-red-500" />
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleBorrow(copy); }}
-                                className="p-2 hover:bg-gray-100 flex justify-center"
-                                aria-label="Borrow"
-                              >
-                                <FiBook className="text-green-500" />
-                              </button>
+                              </button>}
+
+                            {copy.status === 'available' && 
+                            <button 
+                            className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center">
+                               <FaBarcode className="text-gray-600" />
+ 
+                              </button> }
+                                      
+
+                               {copy.status === 'borrowed' &&
+                                <button
+                                 className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center">
+                                <FaArrowsRotate className="text-blue-600" />
+  
+                                </button> }
+
+                                {copy.status === 'borrowed' && 
+                                <button
+                                 className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center">
+                                 <FaCalendarCheck className="text-orange-600" />
+ 
+                                  </button>}
                             </div>
                           )}
                         </div>

@@ -148,6 +148,34 @@ fetchBooksData();
     }
   };
 
+  const handleUpdateBook = async (bookToUpdate) => {
+    const formData = new FormData();
+      formData.append("title",bookToUpdate.title || "");
+      formData.append("isbn", bookToUpdate.isbn || "");
+      formData.append("author", bookToUpdate.author || "");
+      formData.append("publisher", bookToUpdate.publisher || "");
+      formData.append("yearPublished", bookToUpdate.yearPublished || "");
+      formData.append("categoryID", bookToUpdate.categoryID || "");
+      formData.append("description", bookToUpdate.description || "");
+      if(newBook.image){
+      formData.append("image", newBook.image);
+      }
+
+      try{
+       const res = await fetch(`http://localhost:5016/api/Book/${bookForUpdate?.bookID}` , {
+        method:'PUT',
+        body:formData,
+       });
+       if(res.status === 204){
+          setShowModal(false);
+          console.log('the book was saved successfuly');
+       }
+
+      }catch(error){
+        console.log(error);
+      }
+  }
+  
   const openDetails = (book) => {
     setSelectedBook(book);
     setShowDetails(true);
@@ -173,15 +201,47 @@ fetchBooksData();
     setCopies(prev => [...prev, ...newCopies]);
   };
 
-  const handleEdit = (book) => {
-    console.log('edit', book);
-    setActionRow(null);
+const [bookToUpdate, setBookToUpdate] = useState(null);
+
+  const handleOpenEditModal = (book) => {
+    
+    if(book){
+      setBookToUpdate(book);
+      setShowModal(true);
+      
+      setActionRow(null); 
+     
+    }
+   };
+
+  const handleDelete = async (bookId) => {
+    try{
+      console.log("book id is : ", bookId );
+     const res =  await fetch(`http://localhost:5016/api/Book/${bookId}/DeactivateBook`,
+       {
+        method: 'PATCH',
+        headers:{
+          "Content-Type": "application/json"
+        }
+       }
+     );
+   
+     if(res.status === 204){
+       console.log("The book was deleted successfuly", );
+       setBooksData(prevBooks => prevBooks.filter(book => book.bookID !== bookId));
+       setActionRow(null);
+       return;
+     }
+
+     
+     console.log("Delete book was failed in status: " , res.status);
+    }
+    catch(error){
+      console.log("an error occured :", error);
+    }
+    
   };
-  const handleDelete = (bookId) => {
-    console.log('delete', bookId);
-    setBooks(prevBooks => prevBooks.filter(book => book.id !== bookId));
-    setActionRow(null);
-  };
+
 
  const handleRowClick = (id, index) => {
   setSelectedRowId(id);
@@ -203,6 +263,8 @@ const handleKeyDown = (e) => {
   }
 };
 
+
+
 if (loading) {
   return (
     <div className="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
@@ -216,10 +278,13 @@ if (loading) {
    
     <div className="p-4 bg-gray-100 min-h-screen">
       <NewBookModal
+      key={bookToUpdate?.bookID || "new"}
+        bookForUpdate={bookToUpdate}
         categories={categories}
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => {setShowModal(false); setBookToUpdate(null)}}
         onAdd={handleAddBook}
+        onEdit={()=>{}}
       />
       <BookDetailsModal
         isOpen={showDetails}
@@ -262,12 +327,13 @@ if (loading) {
       
      
        <BookTable 
-        books={booksData}
+         
+         books={booksData}
          selectedRowId={selectedRowId}
           onRowClick={handleRowClick}
           onKeyDown={handleKeyDown} 
           onOpenDetails={openDetails}
-          onEdit={handleEdit}
+          onEdit={handleOpenEditModal}
           onDelete={handleDelete}
           actionRow={actionRow} 
           setActionRow={setActionRow}

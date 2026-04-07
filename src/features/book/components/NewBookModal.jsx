@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function NewBookModal({categories, isOpen, onClose, onAdd }) {
+export default function NewBookModal({bookForUpdate,categories, isOpen, onClose, onAdd , onEdit}) {
 
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [publisher, setPublisher] = useState('');
-  const [yearPublished, setYearPublished] = useState('');
-  const [isbn, setIsbn] = useState('');
-  const [categoryID, setCategoryID] = useState(categories[0]?.categoryID || '');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(bookForUpdate?.title || '');
+  const [author, setAuthor] = useState(bookForUpdate?.author ||'');
+  const [publisher, setPublisher] = useState(bookForUpdate?.publisher || '');
+  const [yearPublished, setYearPublished] = useState(bookForUpdate?.yearPublished || '');
+  const [isbn, setIsbn] = useState(bookForUpdate?.isbn || '');
+  const [categoryID, setCategoryID] = useState( bookForUpdate?.category || categories[0]?.categoryID);
+  const [description, setDescription] = useState(bookForUpdate?.description || '');
   const [copies, setCopies] = useState(1);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(bookForUpdate?.image || null);
   
+  const [isUpdateMode, setMode] = useState(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title || !isbn) return;
@@ -33,13 +35,26 @@ export default function NewBookModal({categories, isOpen, onClose, onAdd }) {
       setImage(e.target.files[0]);
    }
    }
+   
+  useEffect(()=>{
+     const handleMode = () =>{
+      if(bookForUpdate){
+        setMode(true);
+        console.log("this is update mode");
+      }else{
+        setMode(false);
+         console.log("this is add new mode");
+      }
+     }
+     handleMode();
+  }, []);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center  bg-gray-600/50 z-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-lg max-h-lg border-2  border-green-400">
-        <h2 className="text-xl mb-4">Add New Book</h2>
+        <h2 className="text-xl mb-4">{bookForUpdate?"Update Book" :"Add New Book"}</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"
@@ -129,7 +144,7 @@ export default function NewBookModal({categories, isOpen, onClose, onAdd }) {
               type="submit"
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
              >
-              Add
+              {bookForUpdate?"Update" : "Add"}
             </button>
           </div>
         </form>

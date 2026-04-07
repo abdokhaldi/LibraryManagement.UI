@@ -58,7 +58,7 @@ function BookRow({ book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, 
         <div className="absolute right-0 top-full mt-1">
            <DropDownActions 
              onEdit={(e) => { e.stopPropagation(); onEdit(book); }}
-             onDelete={(e) => { e.stopPropagation(); onDelete(book.id); }}
+             onDelete={(e) => { e.stopPropagation(); onDelete(book.bookID); }}
              onBorrow={(e) => { e.stopPropagation(); onOpenDetails(book); }}
            />
         </div>

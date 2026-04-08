@@ -1,223 +1,245 @@
 import { useState, useEffect, useRef } from 'react';
-import { FiPlus, FiEdit, FiTrash, FiBook } from 'react-icons/fi';
-import {FaEllipsisV} from 'react-icons/fa';
+import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; // FiTool للصيانة
+import { FaEllipsisV, FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
 
-
- function BookDetailsModal({ isOpen, onClose, book, copies, onAddCopy }) {
+function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
+  const bookCover = "http://localhost:5016/images/covers/";
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [actionRow, setActionRow] = useState(null);
   const actionRef = useRef(null);
-  const itemsPerPage = 5;
-   
-  
+  const itemsPerPage = 3;
+
+  const [loadedCopies, setLoadedCopies] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+
+  // تعريف الحالات الأربعة ومنطق الأزرار
+  const statusConfig = {
+    available: { label: 'Loan', color: 'bg-green-500', text: 'Available' },
+    borrowed: { label: 'Return', color: 'bg-blue-500', text: 'Borrowed' },
+    damaged: { label: 'Repair', color: 'bg-orange-500', text: 'Damaged' },
+    lost: { label: '---', color: 'bg-red-600', text: 'Lost' }
+  };
+
+  useEffect(() => {
+    if (!isOpen || !book.bookID) return;
+    const loadBookCopies = async () => {
+      try {
+        const res = await fetch(`http://localhost:5016/api/bookCopy?bookID=${book.bookID}&searchTerm=${searchTerm}&pageSize=${itemsPerPage}&pageNumber=${currentPage}`);
+        if (res.ok) {
+          const copies = await res.json();
+          setLoadedCopies(copies);
+        }
+        const paginationHeader = res.headers.get('x-pagination');
+        if (paginationHeader) {
+          const paginationData = JSON.parse(paginationHeader);
+          setTotalPages(paginationData.TotalPages || 0);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    loadBookCopies();
+  }, [book, currentPage, searchTerm, isOpen]);
+
   useEffect(() => {
     if (!actionRow) return;
-
     const handleClickOutside = (event) => {
       if (actionRef.current && !actionRef.current.contains(event.target)) {
         setActionRow(null);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [actionRow]);
 
   if (!isOpen || !book) return null;
 
-  const filteredCopies = copies.filter(copy =>
-    copy.barcode.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.max(1, Math.ceil(filteredCopies.length / itemsPerPage));
-  const paginatedCopies = filteredCopies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  
-  
-
-  const handleEdit = (copy) => {
-    console.log('edit copy', copy);
+  const handleAction = (type, copy) => {
+    console.log(`${type} copy:`, copy);
     setActionRow(null);
   };
-
-  const handleDelete = (copy) => {
-    console.log('delete copy', copy);
-    
-    setActionRow(null);
-  };
-
-  const handleBorrow = (copy) => {
-    console.log('borrow copy', copy);
-    setActionRow(null);
-  };
-
-  const primaryActions = {borrowed:'Return', available:'Loan'};
 
   return (
-     
-   <div className="fixed flex-col inset-0 flex items-center justify-center bg-black opacity-100 z-50">
-    
-     <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[80vh] overflow-y-auto border-green-400 border-2">
-        <div className="flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl">"{book.title}" Details</h2>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                value={numberOfCopies}
-                onChange={(e) => setNumberOfCopies(parseInt(e.target.value, 10) || 1)}
-                className="w-16 p-2 border rounded"
-              />
-              <button
-                onClick={() => onAddCopy(book.id, numberOfCopies)}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2"
-              >
-                <FiPlus size={20} />
-                Add New Copies
-              </button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col border-green-400 border-2">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold italic">"{book.title}" Details</h2>
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              min="1"
+              value={numberOfCopies}
+              onChange={(e) => setNumberOfCopies(parseInt(e.target.value, 10) || 1)}
+              className="w-20 p-2 border rounded shadow-sm"
+            />
+            <button
+              onClick={() => onAddCopy(book.id, numberOfCopies)}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2 transition-colors"
+            >
+              <FiPlus size={20} /> Add New Copies
+            </button>
+          </div>
+        </div>
+
+        <div className="flex gap-8 overflow-y-auto">
+          {/* Left Side: Book Info */}
+          <div className="w-1/4 sticky top-0">
+            <img 
+              src={`${bookCover}${book.imagePath}`} 
+              alt={book.title} 
+              className="w-full h-auto rounded shadow-md mb-4 object-cover"
+              onError={(e) => { e.target.src = "/placeholder-cover.jpg"; }}
+            />
+            <div className="space-y-2 text-sm text-gray-700">
+              <p><strong>Author:</strong> {book.author}</p>
+              <p><strong>Year:</strong> {book.yearPublished || 'N/A'}</p>
+              <p className="line-clamp-4"><strong>Desc:</strong> {book.description || 'No description'}</p>
             </div>
           </div>
-          <div className="flex gap-6">
-            <div className="w-1/3 shrink-0">
-              <img src={book.coverImage} alt={book.title} className="w-1/2 h-auto object-cover mb-4" />
-              <p><strong>Title:</strong> {book.title}</p>
-              <p><strong>Author:</strong> {book.author}</p>
-              <p><strong>Year Published:</strong> {book.yearPublished || 'N/A'}</p>
-              <p><strong>Publisher:</strong> {book.publisher || 'N/A'}</p>
-              <p><strong>Description:</strong> {book.description || 'N/A'}</p>
+
+          {/* Right Side: Copies Table */}
+          <div className="flex-1">
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search by barcode..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-green-400 outline-none"
+              />
             </div>
-            <div className="flex-1">
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Search by barcode..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border border-gray-300 p-2">Barcode</th>
-                    <th className="border border-gray-300 p-2">Status</th>
-                    <th className="border border-gray-300 p-2">condition</th>
-                    <th className="border border-gray-300 p-2">actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedCopies.map(copy => (
-                   
-                    <tr key={copy.id} className="border border-gray-300 h-15">
-                     
-                      <td className="border border-gray-300 p-3">{copy.barcode}</td>
-                      <td className="border border-gray-300 p-3 w-40"> <span className={`rounded-md ${copy.status==='available'? 'bg-green-300' : copy.status==='lost'? 'bg-red-600': 'bg-amber-400'}`}>{copy.status}</span></td>
-                     <td className="border border-gray-300 p-3">{copy.condition}</td>
-                      <td className='relative border border-gray-300 p-3 w-40'> 
-                        <button  className={`${copy.status==='borrowed'?'bg-blue-500':copy.status==='available'?'bg-green-500': ''} text-white rounded-md w-[50%] cursor-pointer hover:bg-gray-300 hover:translate-0.5 hover:text-black active:bg-black`}>
-                          {primaryActions[copy.status]}
-                          </button>
-                        <div
-                          ref={actionRef}
-                          className="relative h-full w-full"
+
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100 border-b-2 border-gray-300 text-left">
+                  <th className="p-3">Barcode</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3">Condition</th>
+                  <th className="p-3 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loadedCopies.map(copy => (
+                  <tr key={copy.bookCopyID} className="border-b hover:bg-gray-50 transition-colors h-16">
+                    <td className="p-3 font-mono">{copy.barcode}</td>
+                    <td className="p-3">
+                      <span className={`px-3 py-1 rounded-full text-xs text-white font-bold uppercase ${statusConfig[copy.status.toLowerCase()]?.color || 'bg-gray-400'}`}>
+                        {copy.status}
+                      </span>
+                    </td>
+                    <td className="p-3 text-gray-600">{copy.condition}</td>
+                    <td className="p-3 relative">
+                      <div className="flex items-center justify-center gap-2">
+                        {/* Primary Action Button */}
+                        <button 
+                          disabled={copy.status.toLowerCase() === 'lost'}
+                          className={`px-4 py-1 text-white rounded shadow-sm text-sm w-24 transition-transform active:scale-95 ${statusConfig[copy.status.toLowerCase()]?.color} disabled:bg-gray-300`}
                         >
+                          {statusConfig[copy.status.toLowerCase()]?.label}
+                        </button>
+
+                        {/* More Actions Dropdown */}
+                        <div className="relative">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setActionRow(copy.id === actionRow ? null : copy.id);
+                              setActionRow(copy.bookCopyID === actionRow ? null : copy.bookCopyID);
                             }}
-                            className="absolute right-0 -top-5 text-gray-500"
-                            aria-label="Show actions"
+                            className="p-2 text-gray-400 hover:text-black rounded-full hover:bg-gray-200"
                           >
                             <FaEllipsisV />
-                           
                           </button>
 
-                          {actionRow === copy.id && (
-                            <div className="absolute -right-8 -top-2 mt-2 w-28 bg-white border rounded shadow-lg z-10 flex flex-col">
-                             {copy.status === 'available' && (<button
-                                onClick={(e) => { e.stopPropagation(); handleEdit(copy); }}
-                                className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center gap-2"
-                                aria-label="Edit"
-                              >
-                                <FiEdit className="text-blue-500" />
-                                 
-                              </button>)}
-                              {(copy.status==='available' || copy.status==='lost') && <button
-                                onClick={(e) => { e.stopPropagation(); handleDelete(copy); }}
-                                className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center"
-                                aria-label="Delete"
-                              >
-                                <FiTrash className="text-red-500" />
-                              </button>}
+                          {actionRow === copy.bookCopyID && (
+                            <div 
+                              ref={actionRef}
+                              className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-xl z-60 flex flex-col py-1 animate-in fade-in zoom-in duration-100"
+                            >
+                              {/* Available Actions */}
+                              {copy.status.toLowerCase() === 'available' && (
+                                <>
+                                  <button onClick={() => handleAction('edit', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FiEdit className="text-blue-500" /> Edit Copy</button>
+                                  <button onClick={() => handleAction('barcode', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FaBarcode /> Print Label</button>
+                                  <button onClick={() => handleAction('damage', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm text-orange-600"><FaExclamationTriangle /> Mark Damaged</button>
+                                </>
+                              )}
 
-                            {copy.status === 'available' && 
-                            <button 
-                            className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center">
-                               <FaBarcode className="text-gray-600" />
- 
-                              </button> }
-                                      
+                              {/* Borrowed Actions */}
+                              {copy.status.toLowerCase() === 'borrowed' && (
+                                <>
+                                  <button onClick={() => handleAction('extend', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FaArrowsRotate className="text-blue-600" /> Extend Date</button>
+                                  <button onClick={() => handleAction('history', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FaCalendarCheck className="text-orange-600" /> History</button>
+                                  <button onClick={() => handleAction('lost', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm text-red-600"><FiTrash /> Mark Lost</button>
+                                </>
+                              )}
 
-                               {copy.status === 'borrowed' &&
-                                <button
-                                 className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center">
-                                <FaArrowsRotate className="text-blue-600" />
-  
-                                </button> }
+                              {/* Damaged Actions */}
+                              {copy.status.toLowerCase() === 'damaged' && (
+                                <button onClick={() => handleAction('repair', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FiTool className="text-orange-500" /> Fixed / Ready</button>
+                              )}
 
-                                {copy.status === 'borrowed' && 
-                                <button
-                                 className="border-b border-gray-200 p-2 hover:bg-gray-100 flex justify-center">
-                                 <FaCalendarCheck className="text-orange-600" />
- 
-                                  </button>}
+                              {/* Common Actions */}
+                              {(['available', 'lost', 'damaged'].includes(copy.status.toLowerCase())) && (
+                                <button onClick={() => handleAction('delete', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm text-red-700 border-t"><FiTrash /> Delete</button>
+                              )}
                             </div>
                           )}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="flex justify-center items-center mt-4 gap-4">
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+           
+            {totalPages === 0 && (
+              <div className='flex flex-col justify-center items-center py-10 opacity-40'>
+                <FiBook size={50} />
+                <p className='text-lg font-medium'>No copies found</p>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 0 && (
+              <div className="flex justify-center items-center mt-6 gap-6">
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-green-500 text-white rounded disabled:bg-gray-300"
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                  disabled={currentPage <= 1}
+                  className="px-5 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
                 >
                   Previous
                 </button>
-                <span>Page {currentPage} of {totalPages}</span>
+                <span className="font-semibold text-gray-600">Page {currentPage} of {totalPages}</span>
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-green-500 text-white rounded disabled:bg-gray-300"
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  disabled={currentPage >= totalPages}
+                  className="px-5 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
                 >
                   Next
                 </button>
               </div>
-            </div>
-          </div>
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded"
-            >
-              Close
-            </button>
+            )}
           </div>
         </div>
-      </div>
 
-    </div> 
-  
-    
+        {/* Footer */}
+        <div className="flex justify-end mt-6 pt-4 border-t">
+          <button
+            onClick={() => { setCurrentPage(1); onClose(); }}
+            className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-black transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
-
 
 export default BookDetailsModal;

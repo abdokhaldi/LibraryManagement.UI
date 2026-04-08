@@ -7,16 +7,10 @@ import BookDetailsModal from './BookDetailsModal';
 import BookTable from '../components/BookTable';
 import BookPagination from '../components/BookPagination';
 
-import cover1 from '../assets/OIP.jpg';
-import cover2 from '../assets/OIP (1).jpg';
-import cover3 from '../assets/OIP (2).jpg';
-import cover4 from '../assets/OIP (3).jpg';
-import cover5 from '../assets/OIP (4).jpg';
-import cover6 from '../assets/OIP (6).jpg';
 
 
 function BookInventory() {
-  const covers = [cover1, cover2, cover3, cover4, cover5, cover6];
+  
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);

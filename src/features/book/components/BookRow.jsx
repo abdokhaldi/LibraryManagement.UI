@@ -2,8 +2,8 @@
 import { FaEllipsisV } from "react-icons/fa";
 import DropDownActions from './DropDownActions';
 
-function BookRow({ book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef }) {
- const bookCoverUrl = "http://localhost:5016/";
+function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef }) {
+ const bookCoverUrl = "http://localhost:5016/images/covers/";
   return (
     <tr
       className={`border-b cursor-pointer ${isSelected ? 'relative z-50 bg-gray-100' : ''}`}

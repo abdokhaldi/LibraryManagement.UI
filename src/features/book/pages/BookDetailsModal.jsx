@@ -15,7 +15,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
   const [loadedCopies, setLoadedCopies] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
 
-  // تعريف الحالات الأربعة ومنطق الأزرار
+ 
   const statusConfig = {
     available: { label: 'Loan', color: 'bg-green-500', text: 'Available' },
     borrowed: { label: 'Return', color: 'bg-blue-500', text: 'Borrowed' },
@@ -63,10 +63,10 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col border-green-400 border-2">
         
-        {/* Header */}
+        
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold italic">"{book.title}" Details</h2>
           <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
         </div>
 
         <div className="flex gap-8 overflow-y-auto">
-          {/* Left Side: Book Info */}
+          
           <div className="w-1/4 sticky top-0">
             <img 
               src={`${bookCover}${book.imagePath}`} 
@@ -102,7 +102,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
             </div>
           </div>
 
-          {/* Right Side: Copies Table */}
+         
           <div className="flex-1">
             <div className="mb-4">
               <input
@@ -135,7 +135,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                     <td className="p-3 text-gray-600">{copy.condition}</td>
                     <td className="p-3 relative">
                       <div className="flex items-center justify-center gap-2">
-                        {/* Primary Action Button */}
+                        
                         <button 
                           disabled={copy.status.toLowerCase() === 'lost'}
                           className={`px-4 py-1 text-white rounded shadow-sm text-sm w-24 transition-transform active:scale-95 ${statusConfig[copy.status.toLowerCase()]?.color} disabled:bg-gray-300`}
@@ -143,7 +143,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                           {statusConfig[copy.status.toLowerCase()]?.label}
                         </button>
 
-                        {/* More Actions Dropdown */}
+                       
                         <div className="relative">
                           <button
                             onClick={(e) => {
@@ -160,7 +160,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                               ref={actionRef}
                               className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-xl z-60 flex flex-col py-1 animate-in fade-in zoom-in duration-100"
                             >
-                              {/* Available Actions */}
+                              
                               {copy.status.toLowerCase() === 'available' && (
                                 <>
                                   <button onClick={() => handleAction('edit', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FiEdit className="text-blue-500" /> Edit Copy</button>
@@ -169,7 +169,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                                 </>
                               )}
 
-                              {/* Borrowed Actions */}
+                              
                               {copy.status.toLowerCase() === 'borrowed' && (
                                 <>
                                   <button onClick={() => handleAction('extend', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FaArrowsRotate className="text-blue-600" /> Extend Date</button>
@@ -178,12 +178,12 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                                 </>
                               )}
 
-                              {/* Damaged Actions */}
+                             
                               {copy.status.toLowerCase() === 'damaged' && (
                                 <button onClick={() => handleAction('repair', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FiTool className="text-orange-500" /> Fixed / Ready</button>
                               )}
 
-                              {/* Common Actions */}
+                              
                               {(['available', 'lost', 'damaged'].includes(copy.status.toLowerCase())) && (
                                 <button onClick={() => handleAction('delete', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm text-red-700 border-t"><FiTrash /> Delete</button>
                               )}
@@ -205,7 +205,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
               </div>
             )}
 
-            {/* Pagination */}
+           
             {totalPages > 0 && (
               <div className="flex justify-center items-center mt-6 gap-6">
                 <button

@@ -4,7 +4,7 @@ import { FaLevelDownAlt, FaBarcode, FaArrowRight } from 'react-icons/fa';
 import LoanForm from './LoanForm';
 import { API_URL } from '../../../services/config';
 
-export default function BorrowModal() {
+export default function ScanModal({onClose}) {
   // اجعل الحالة الافتراضية null لتجنب مشاكل المصفوفات الفارغة
   const [copy, setCopy] = useState(null);
   const [inputValue, setInputValue] = useState("");
@@ -35,7 +35,11 @@ export default function BorrowModal() {
   return (
     <div className="fixed bg-white w-screen h-screen flex items-center justify-center inset-0">
     <div className="relative flex-col items-center justify-center p-6 max-w-lg mx-auto bg-slate-300 rounded-xl shadow-sm z-50">
-      <FaArrowRight size={24} className="absolute top-2 right-2 text-slate-800 "/>
+     <button 
+      onClick={() => {copy && setCopy(null) || !copy && onClose(false)} }
+     className="absolute top-2 right-2 text-slate-800 hover:text-slate-400">
+      <FaArrowRight size={24} />
+      </button> 
       {!copy && (
         <div className="w-full space-y-6  ">
           <div className="flex flex-col justify-center items-center text-center">
@@ -75,7 +79,7 @@ export default function BorrowModal() {
       )}
 
       
-      {copy && (
+    { copy && (
         <div className="w-full animate-in fade-in zoom-in duration-300">
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
               <span className="text-sm font-semibold text-[#10b981] bg-blue-50 px-3 py-1 rounded-full">

@@ -8,10 +8,8 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   const [error, setError] = useState(null);
   const [takeWaive, setTakeWaive] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen || !borrowingId) return;
 
-    const fetchFinesHistory = async () => {
+  const fetchFinesHistory = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -28,12 +26,68 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
         setLoading(false);
       }
     };
-
+  useEffect(() => {
+    if (!isOpen || !borrowingId) return;
+    
     fetchFinesHistory();
   }, [isOpen, borrowingId]);
-
  
+ const handlePay = async (id)=> {
+  try{
+    const res = await fetch(`http://localhost:5016/api/fines/${id}/Pay`, {
+      method:'PATCH',
+      headers:{
+        "Content-Type":"application/json"
+      },
+    });
 
+    if(res.ok){
+       console.log("fine paid succeessfully");
+        fetchFinesHistory();
+    }
+    console.log("fine not paid");
+
+  }catch(error){
+   console.log("an error occured while paying the fine: " , error)
+  }
+ }
+ 
+ const [waiveReason, setWaiveReason] = useState(null);
+ const [fineId ,setFineId] = useState(0);
+
+ const handleWaive = async (id)=> {
+  if(!waiveReason) return;
+  if(!fineId) return;
+  try{
+    const res = await fetch(`http://localhost:5016/api/Fines/${id}/Waive`, {
+      method:'PATCH',
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(waiveReason),
+    });
+     
+    let data = null;
+    let contentType = res.headers.get("content-type");
+    if(contentType && contentType.includes("application/json")){
+       data = await res.json();
+    }
+   
+    if(res.ok){
+       console.log("fine waived succeessfully");
+      fetchFinesHistory(); 
+      setTakeWaive(false);
+        
+    }else{
+
+       console.log("Server error: ", data?.message || "something went wrong");
+    }
+   
+
+  }catch(error){
+   console.log( "Network error: ", error)
+  }
+ }
 
   if (!isOpen) return null;
 
@@ -106,11 +160,13 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex gap-2 justify-center">
-                          <button className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow-sm transition-all">
+                          <button 
+                          onClick={() => handlePay(fine.fineID)}
+                          className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow-sm transition-all">
                             <FaMoneyBillWave /> Pay
                           </button>
                           <button
-                            onClick={() => setTakeWaive(!takeWaive)}
+                            onClick={() => {setTakeWaive(!takeWaive); setFineId(fine.fineID) }}
                             className="flex items-center gap-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded shadow-sm transition-all"
                           >
                             <FaHandHoldingHeart /> Waive
@@ -131,11 +187,15 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
                 <label className="block text-sm font-bold text-amber-800 mb-1">Reason for waiving fine:</label>
                 <input 
                   type="text" 
+                  value={waiveReason}
                   className="w-full border border-amber-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
                   placeholder="e.g. Medical emergency, System error..." 
-                />
+                  onChange={(e) => setWaiveReason(e.target.value)}
+               />
               </div>
-              <button className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all self-end">
+              <button
+               onClick={() => handleWaive(fineId)}
+               className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all self-end">
                 Confirm Waive
               </button>
             </div>

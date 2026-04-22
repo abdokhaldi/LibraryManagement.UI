@@ -28,7 +28,9 @@ export default function LoanForm({barcode, setCopy}){
             
             <div className="flex justify-between w-full h-12 gap-2 mt-4">
               
-              <button type="button" onClick={setCopy} className="bg-gray-400 w-[30%] text-white rounded">
+              <button 
+              type="button" 
+              onClick={setCopy} className="bg-gray-400 w-[30%] text-white rounded">
                 Cancel
               </button>
               <button 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaSearch, FaFilter, FaEllipsisV, FaPlus, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
 import BorrowNew from './components/BorrowModal';
 import ViewFinesModal from './FinesHistoryModal';
+import {getLoans} from '../../services/loanService';
 
 export default function Loans() {
     const [showFilter, setShowFilter] = useState(false);
@@ -19,23 +20,16 @@ export default function Loans() {
 
     // Logic: Loading Data
     useEffect(() => {
-        const loadLoans = async () => {
+        const loadLoansData = async () => {
             try {
-                const res = await fetch(`http://localhost:5016/api/borrowing?SearchTerm=${searchTerm}&pageNumber=${currentPage}&pageSize=${pageSize}`);
-                if (res.ok) {
-                    const loadedLoans = await res.json();
-                    setLoansData(loadedLoans);
-                }
-                const paginationHeader = res.headers.get('x-pagination');
-                if (paginationHeader) {
-                    const PagedHeader = JSON.parse(paginationHeader);
-                    setTotalPages(PagedHeader.TotalPages || 0);
-                }
+               const result = await getLoans({searchTerm,currentPage,pageSize});
+               setLoansData(result.data);
+               setTotalPages(result.totalPages);
             } catch (error) {
                 console.error("Data load failed:", error);
             }
         };
-        loadLoans();
+        loadLoansData();
     }, [currentPage, searchTerm]);
 
     

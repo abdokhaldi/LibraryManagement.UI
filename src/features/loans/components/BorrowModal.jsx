@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {FaLevelDownAlt} from 'react-icons/fa';
 import LoanForm from './LoanForm';
-import { API_URL } from '../../../config';
+import { API_URL } from '../../../services/config';
 
 export default function BorrowModal() {
   const [bookCopyData, setBookCopyData] = useState([]);

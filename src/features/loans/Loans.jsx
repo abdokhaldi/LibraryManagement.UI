@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaSearch, FaFilter, FaEllipsisV, FaPlus, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
-import BorrowNew from './components/BorrowModal';
+import ScanModal from './components/ScanModal.jsx';
 import ViewFinesModal from './FinesHistoryModal';
-import {getLoans} from '../../services/loanService';
+import {getLoans, returnBook} from '../../services/loanService';
 
 export default function Loans() {
     const [showFilter, setShowFilter] = useState(false);
@@ -43,32 +43,21 @@ export default function Loans() {
     }, [showActions]);
 
     const handleReturnBook = async (id) => { 
-        if(!id) return;
+       
         try{
-            const res = await fetch(`http://localhost:5016/api/Borrowing/${id}/ReturnBook`,{
-                method:'PATCH',
-                headers:{
-                    "Content-Type": "application/json"
-                },
-
-            });
-             
-            let data = null;
-            let contentType = res.headers.get("content-type"); 
-            if(contentType && contentType.includes("application/json")){
-                data = await res.json();
-            }
-            
-
-            if(res.ok){
-                console.log("the book returned successfully");
-            }else {
-                console.error(data.message);
-            }
-        }catch(error){
-          console.error(error);
+           const result = await returnBook(id);
+           if(result.success){
+              console.log("the book returned successfully");
+           }else {
+           alert(result.errorMessage);
+           }
+        }
+     catch(error){
+          console.log("Network error: ", error);
+          alert("some error occurred in the server")
         }
     };
+
     const handleCloseFines = () => setIsOpen(false);
 
    
@@ -83,14 +72,14 @@ export default function Loans() {
 
 
     return (
-        <div className="p-6 bg-slate-50 min-h-screen font-sans">
+        <div className="relative p-6 bg-slate-50 min-h-screen font-sans">
             {
             isOpen && <ViewFinesModal 
             isOpen={isOpen} 
             onClose={handleCloseFines} 
             borrowingId={borrowingId} />
             }
-            {showBorrowModal && <BorrowNew onClose={() => setShowBorrowModal(false)} />}
+            {showBorrowModal && <ScanModal onClose={() => setShowBorrowModal(false)} />}
 
           
           {!showBorrowModal && <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">

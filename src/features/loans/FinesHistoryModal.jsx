@@ -135,6 +135,7 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
                     <th className="px-4 py-4">Status</th>
                     <th className="px-4 py-4">Created</th>
                     <th className="px-4 py-4">Paid At</th>
+                     <th className="px-4 py-4">Waive reason</th>
                     <th className="px-4 py-4 text-center">Actions</th>
                   </tr>
                 </thead>
@@ -158,6 +159,7 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
                       <td className="px-4 py-4 text-slate-600 text-sm">
                         {fine.paidAt ? new Date(fine.paidAt).toLocaleDateString() : <span className="text-slate-300">N/A</span>}
                       </td>
+                      <td className="px-4 py-4 text-slate-600 text-sm">{fine.waiveReason}</td>
                       <td className="px-4 py-4">
                         <div className="flex gap-2 justify-center">
                           <button 

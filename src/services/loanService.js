@@ -18,8 +18,46 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
                     data:loadedLoans,
                     totalPages: paginationHeader?JSON.parse(paginationHeader).TotalPages : 0
                  }
+
             } catch (error) {
                 console.error("Server error: ", error);
                 throw error;
             }
         };
+
+      export  const returnBook = async (id) => { 
+        if(!id) return {success:false, errorMessage:"Invalid ID"};
+        try{
+
+            const res = await fetch(`${API_URL}/Borrowing/${id}/ReturnBook`,{
+                method:'PATCH',
+                headers:{
+                    "Content-Type": "application/json"
+                },
+
+            });
+             
+            let data = null;
+            let contentType = res.headers.get("content-type"); 
+            if(contentType && contentType.includes("application/json")){
+                data = await res.json();
+            }
+            
+
+            if(!res.ok){
+
+               return {
+                success:false,
+                errorMessage : data.message
+               }
+            }
+
+            return {
+                success:true
+            }
+
+        }catch(error){
+          
+          throw error;
+        }
+    };

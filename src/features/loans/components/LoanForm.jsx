@@ -3,12 +3,14 @@
 export default function LoanForm({barcode, setCopy}){
 
     return (
-        <div action="" className="absolute flex justify-center items-center top-0 left-0 w-full h-full">
-          <form className="flex flex-col h-fit  w-[40%] rounded-md p-10 gap-5 bg-white shadow-md shadow-gray-500">
+        <div action="" className="flex justify-center items-center top-0 left-0 w-full h-full">
+          <form className="flex flex-col h-fit rounded-md p-10 gap-5 bg-white shadow-md shadow-gray-500">
             <div>
-              <label htmlFor="" className="font-bold text-lg">Book copy :</label>
+              <label htmlFor="book-copy"
+               className="font-bold text-lg">Book copy :</label>
               
-              <input 
+              <input
+                id="book-copy" 
                 type="text" 
                 value={barcode} 
                 disabled 
@@ -17,13 +19,30 @@ export default function LoanForm({barcode, setCopy}){
             </div>
             
             <div>
-              <label htmlFor="">Member :</label>
-              <input type="text" placeholder="enter national number" className="border-gray-400 w-full border rounded-md h-15 p-2" />
+              <label htmlFor="member">Member :</label>
+              <input
+              id="member"
+               type="text" 
+               placeholder="enter national number"
+                className="border-gray-400 w-full border rounded-md h-15 p-2" />
             </div>
 
             <div>
-              <label htmlFor="">End Date :</label>
-              <input type="date" className="border-gray-400 w-full border rounded-md h-15 p-2" />
+              <label htmlFor="fees">Fees :</label>
+              <input
+              id="fees" 
+              type="text" 
+              placeholder="enter national number" 
+              className="border-gray-400 w-full border rounded-md h-15 p-2" />
+            </div>
+
+            <div>
+              <label htmlFor="end-date">End Date :</label>
+              <input 
+              id="end-date"
+              min={new Date().toISOString().split('T')[0]}
+              type="date" 
+              className="border-gray-400 w-full border rounded-md h-15 p-2" />
             </div>
             
             <div className="flex justify-between w-full h-12 gap-2 mt-4">
@@ -35,7 +54,7 @@ export default function LoanForm({barcode, setCopy}){
               </button>
               <button 
               onClick={setCopy}
-              type="submit" className="bg-green-500 w-[60%] text-white rounded">
+              type="submit" className="bg-[#10b981] w-[60%] text-white rounded">
                 Confirm
               </button>
             </div>

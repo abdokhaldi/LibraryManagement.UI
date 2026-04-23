@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaSearch, FaFilter, FaEllipsisV, FaPlus, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
-import ScanModal from './components/ScanModal.jsx';
+import ScanModal from './components/ScanModal';
 import ViewFinesModal from './FinesHistoryModal';
 import {getLoans, returnBook} from '../../services/loanService';
 
@@ -79,7 +79,7 @@ export default function Loans() {
             onClose={handleCloseFines} 
             borrowingId={borrowingId} />
             }
-            {showBorrowModal && <ScanModal onClose={() => setShowBorrowModal(false)} />}
+            {showBorrowModal && <ScanModal onClose={setShowBorrowModal} />}
 
           
           {!showBorrowModal && <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -92,13 +92,13 @@ export default function Loans() {
                             <input 
                                 type="text"
                                 placeholder="Search by barcode, member, or book title..."
-                                className="w-full pl-11 pr-4 py-2.5 bg-red-300 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 placeholder:text-slate-400"
+                                className="w-full pl-11 pr-4 py-2.5 bg-slate-200 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 placeholder:text-slate-400"
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <button 
                             onClick={() => setShowFilter(!showFilter)}
-                            className={`p-2.5 rounded-xl transition-all ${showFilter ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                            className={`p-2.5 rounded-xl transition-all ${showFilter ? 'bg-green-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-200'}`}
                         >
                             <FaFilter size={18} />
                         </button>
@@ -192,19 +192,22 @@ export default function Loans() {
                                         {/* Dropdown Menu */}
                                         {showActions === loan.borrowingID && (
                                             <div ref={actionRef} className="absolute right-6 top-12 w-48 bg-white shadow-xl border border-slate-100 rounded-xl z-50 py-2 animate-in zoom-in-95 duration-100">
-                                                <button className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600">
+                                               {loan.status !=="Returned" && <button className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600">
                                                     <FaCalendarAlt className="text-blue-500" /> Extend Date
                                                 </button>
-                                                <button 
+                                                 }
+
+                                               { loan.status ==="Returned" && <button 
                                                     onClick={() => {setIsOpen(true); setBorrowingId(loan.borrowingID)}}
                                                     className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600"
                                                 >
                                                     <FaInfoCircle className="text-amber-500" /> View Fines
                                                 </button>
+}
                                                 <div className="h-px bg-slate-100 my-1"></div>
-                                                <button className="w-full text-left px-4 py-2 hover:bg-red-50 text-sm text-red-500 font-semibold">
+                                               {loan.status ==="Overdue" && <button className="w-full text-left px-4 py-2 hover:bg-red-50 text-sm text-red-500 font-semibold">
                                                     ⚠️ Mark as Lost
-                                                </button>
+                                                </button>}
                                             </div>
                                         )}
                                     </td>

@@ -92,7 +92,7 @@ export default function ScanModal({onClose}) {
                   Change Copy
               </button>
           </div>
-          <LoanForm barcode={copy?.barcode} setCopy={() => setCopy(null)} />
+          <LoanForm bookCopy={copy} setCopy={() => setCopy(null)} />
         </div>
       )}
     </div>

@@ -9,10 +9,17 @@ import {API_URL} from './config';
  */
 export async function apiRequest(endpoint, options = {}) {
   try {
+
+    let defaultHeader = {};
+
+    if(!(options.body instanceof FormData)){
+        defaultHeader['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...defaultHeader,
         ...(options.headers || {}),
       },
     });

@@ -57,16 +57,19 @@ import { API_URL } from "./config";
   
  export const addBook = async (newBook) => {
    
-    for (const [key,value] of Object.entries(newBook)){
-
-       if(!value && !key === 'image')
+  const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID'];
+    
+  for (const key of requiredFields) {
+    
+       if(!newBook[key])
           return {
+           success: false,
            errorMessage : "Missing one or more required properties",
         }
      }
-    
 
-      const formData = new FormData();
+    
+    const formData = new FormData();
       formData.append("title",newBook.title || "");
       formData.append("isbn", newBook.isbn || "");
       formData.append("author", newBook.author || "");
@@ -75,7 +78,7 @@ import { API_URL } from "./config";
       formData.append("categoryID", newBook.categoryID || "");
       formData.append("description", newBook.description || "");
       if(newBook.image){
-      formData.append("image", newBook.image);
+      formData.append("image", newBook.image); 
       }
     
       try{
@@ -105,6 +108,51 @@ import { API_URL } from "./config";
         data : data , //the value of data is newBookId
         location : locationHeader ,
         newBook : newBook,
+      }
+
+  } catch (error) {
+      console.log('Server error : ', error);
+      return error
+    }
+  };
+
+  export const updateBook = async (bookForUpdate) => {
+   
+  const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID','description' ,'image'];
+    
+    const formData = new FormData();
+     for (const key of requiredFields){
+        if(bookForUpdate[key])
+       formData.append(key, bookForUpdate[key]);
+     }
+
+     const isEmpty = formData.entries().next().done;
+    if(isEmpty){
+      console.log('No value sent to update');
+     return {
+      success:false,
+      errorMessage:"No value sent to update",
+     }
+
+    }
+     try{
+      const {ok,data,status} = await apiRequest(`Book/${bookForUpdate?.bookID}`, {
+        method: 'PUT',
+        body: formData,
+      });
+     
+     if (!ok) {
+
+        console.log("error message: " + data);
+     return {
+          success: false,
+          errorMessage : data.message,
+        }
+      }
+
+  return {
+        success: true,
+        updatedBook : bookForUpdate,
       }
 
   } catch (error) {

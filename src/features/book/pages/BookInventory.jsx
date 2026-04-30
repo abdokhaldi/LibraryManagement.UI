@@ -2,10 +2,12 @@
 import SearchBar from '../components/SearchBar';
 import { useEffect, useRef, useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
-import NewBookModal from '../components/NewBookModal';
+import BookForm from '../components/BookForm';
 import BookDetailsModal from './BookDetailsModal';
 import BookTable from '../components/BookTable';
 import BookPagination from '../components/BookPagination';
+import {getCategoriesList,getBooksList,addBook,updateBook} from '../../../services/bookService';
+
 
 
 
@@ -13,7 +15,7 @@ function BookInventory() {
   
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
  
   const [filters, setFilters] = useState({ category: "All", status: "All" });
   const [categories, setCategories] = useState([]);
@@ -24,67 +26,42 @@ function BookInventory() {
    const itemsPerPage = 10;
 
   const actionRef = useRef(null);
-  useEffect( ()=> {
-   const fetchBooksData = async () =>{
-    try{
-      let url = `http://localhost:5016/api/Book?PageNumber=${currentPage}&PageSize=${itemsPerPage}&searchTerm=${searchTerm}`;
-      
-      if(filters.category!=="All"){
-        url += `&categoryID=${filters.category}`;
-      }
 
-      const res = await fetch(url);
-      if(!res.ok){
-       console.log('Http request status is ', res.status);
-      }
-      const paginationHeader = res.headers.get('x-pagination');
-      if(paginationHeader){
-         const paginationData = JSON.parse(paginationHeader);
-        setTotalPages(paginationData.TotalPages);
-      }
-      const books = await res.json();
-      setBooksData(books);
-      setLoading(false);
+  useEffect( ()=> {
+   const fetchBooksData = async () => {
+
+    try{
+      
+      const result = await getBooksList({currentPage,itemsPerPage,searchTerm, category: filters.category!=="All" ? filters.category : undefined});
+        
+        setBooksData(result.data);
+        setTotalPages(result.totalPages);
+        setLoading(false);
     }catch(error){
      console.log('Failed to fetch users :' , error);
      setLoading(false);
     }
    }
-
 fetchBooksData();
  }, [currentPage,searchTerm,filters.category] );
+
   
  useEffect(() => {
-   const fetchCategories = async () => {
+   const getCategories = async () => {
     try{
-       const res = await fetch('http://localhost:5016/api/category');
-    if(!res.ok){
-      console.log(res.status);
-    }
-    const categoriesData = await res.json();
-    setCategories(categoriesData);
+       const result = await getCategoriesList();
+    
+      setCategories(result.data);
     
     }catch(error){
        console.log('Failed to fetch categories: ', error);
     }
   }
-   fetchCategories();
+   getCategories();
  }, []);
   
-  // copies list
-  const [copies, setCopies] = useState([
-    // For book 1: 5 copies
-    {id: 1, bookId: 1, barcode: 'COPY-1-1', status: 'available', condition:'new'},
-    {id: 2, bookId: 1, barcode: 'COPY-1-2', status: 'available', condition:'good'},
-    {id: 3, bookId: 1, barcode: 'COPY-1-3', status: 'lost', condition:'old'},
-    {id: 4, bookId: 1, barcode: 'COPY-1-4', status: 'available', condition:'old'},
-    {id: 5, bookId: 1, barcode: 'COPY-1-5', status: 'borrowed', condition:'new'},
-    // For book 2: 3 copies
-    {id: 6, bookId: 2, barcode: 'COPY-2-1', status: 'lost', condition:'new'},
-    {id: 7, bookId: 2, barcode: 'COPY-2-2', status: 'borrowed', condition:'old'},
-    {id: 8, bookId: 2, barcode: 'COPY-2-3', status: 'available', condition:'good'},
-    // And so on for others, but for brevity, I'll add a few
-  ]);
+  
+  const [copies, setCopies] = useState([]);
   
   const [showModal, setShowModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -107,34 +84,18 @@ fetchBooksData();
   }, [actionRow]);
   
   const handleAddBook = async (newBook) => {
-    
-      const formData = new FormData();
-      formData.append("title",newBook.title || "");
-      formData.append("isbn", newBook.isbn || "");
-      formData.append("author", newBook.author || "");
-      formData.append("publisher", newBook.publisher || "");
-      formData.append("yearPublished", newBook.yearPublished || "");
-      formData.append("categoryID", newBook.categoryID || "");
-      formData.append("description", newBook.description || "");
-      if(newBook.image){
-      formData.append("image", newBook.image);
-      }
-    
-      try{
-      const res = await fetch('http://localhost:5016/api/Book', {
-        method: 'POST',
-       
-        body: formData,
-      });
+     
+    try{
+      const result = await addBook(newBook);
 
-      if (res.status === 201) {
-       const savedBook = await res.json();
-       
-      setBooksData(prev => [...prev, savedBook]);
-      setShowModal(false);
+      if (result.success) {
       console.log('the book was saved successfuly');
-      }else{
-        console.log(res.status);
+      setBooksData(prev => [...prev, result.newBook]);
+      setShowModal(false);
+   
+    }else{
+        console.log(result.errorMessage);
+         alert(result.errorMessage);
       }
 
   } catch (error) {
@@ -142,28 +103,22 @@ fetchBooksData();
     }
   };
 
-  const handleUpdateBook = async (bookToUpdate) => {
-    const formData = new FormData();
-      formData.append("title",bookToUpdate.title || "");
-      formData.append("isbn", bookToUpdate.isbn || "");
-      formData.append("author", bookToUpdate.author || "");
-      formData.append("publisher", bookToUpdate.publisher || "");
-      formData.append("yearPublished", bookToUpdate.yearPublished || "");
-      formData.append("categoryID", bookToUpdate.categoryID || "");
-      formData.append("description", bookToUpdate.description || "");
-      if(newBook.image){
-      formData.append("image", newBook.image);
-      }
 
-      try{
-       const res = await fetch(`http://localhost:5016/api/Book/${bookForUpdate?.bookID}` , {
-        method:'PUT',
-        body:formData,
-       });
-       if(res.status === 204){
+
+  const handleUpdateBook = async (bookToUpdate) => {
+    
+   try{
+
+         const result = await updateBook(bookToUpdate);
+
+          if(result.success){
+            console.log("the book was updated successfuly");
+            setBooksData(prev => prev.map(b => b.bookID === bookToUpdate.bookID ? {...b, ...result.updatedBook} : b));
           setShowModal(false);
-          console.log('the book was saved successfuly');
-       }
+          
+          }else {
+            alert(result.errorMessage);
+          }
 
       }catch(error){
         console.log(error);
@@ -270,15 +225,15 @@ if (loading) {
 }
   return (
    
-    <div className="p-4 bg-gray-100 min-h-screen">
-      <NewBookModal
-      key={bookToUpdate?.bookID || "new"}
+    <div className="p-4 bg-gray-100 min-h-screen ">
+      <BookForm
+        key={bookToUpdate?.bookID || "new"}
         bookForUpdate={bookToUpdate}
         categories={categories}
         isOpen={showModal}
         onClose={() => {setShowModal(false); setBookToUpdate(null)}}
         onAdd={handleAddBook}
-        onEdit={()=>{}}
+        onEdit={handleUpdateBook}
       />
       <BookDetailsModal
         isOpen={showDetails}
@@ -287,13 +242,14 @@ if (loading) {
         copies={copies.filter(c => c.bookId === selectedBook?.id)}
         onAddCopy={handleAddCopy}
       />
-      <div className={`${(showModal||showDetails) ? 'filter blur-sm' : ''}`}>        
+      <div className={`${(showModal||showDetails) ? 'filter blur-sm' : ''} `}>        
         <div className="bg-white p-4 rounded-t-lg shadow-sm">
         <div className="flex justify-between items-center gap-4 mb-4">
           <SearchBar 
             searchTerm={searchTerm} 
             setSearchTerm={setSearchTerm} 
-            onFilterClick={() => setShowFilters(!showFilters)} 
+            onFilterClick={() => setShowFilter(!showFilter)} 
+            isFilterActive={showFilter}
           />
           <button
             onClick={() => setShowModal(true)}
@@ -305,7 +261,7 @@ if (loading) {
         </div>
         
        
-        {showFilters &&  (
+        {showFilter &&  (
           <div className="mt-4 p-4 bg-gray-50 rounded-lg flex gap-4 animate-in fade-in">
             <select className="p-2 border rounded" onChange={(e) => setFilters({...filters, category: e.target.value})}>
              <option value="All"> all </option>
@@ -317,7 +273,7 @@ if (loading) {
           </div>
         )}
       </div>
-      <div className="bg-white shadow-md overflow-hidden">
+      <div className="bg-white shadow-md overflow-y-visible">
       
      
        <BookTable 
@@ -332,14 +288,16 @@ if (loading) {
           actionRow={actionRow} 
           setActionRow={setActionRow}
           actionRef={actionRef}
-       />
+         />
+         
       </div>
-      <BookPagination
+      
+    {<BookPagination
         onNext={()=>setCurrentPage(currentPage + 1)}
         onPrev={(e)=>{ setCurrentPage(currentPage - 1)}}
         currentPage={currentPage}
         totalPages={totalPages}
-     />
+     />}  
      
     </div>
     </div>

@@ -6,7 +6,7 @@ import BookForm from '../components/BookForm';
 import BookDetailsModal from './BookDetailsModal';
 import BookTable from '../components/BookTable';
 import BookPagination from '../components/BookPagination';
-import {getCategoriesList,getBooksList,addBook,updateBook} from '../../../services/bookService';
+import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../../services/bookService';
 
 
 
@@ -31,7 +31,7 @@ function BookInventory() {
    const fetchBooksData = async () => {
 
     try{
-      
+      console.log("bilal"); 
       const result = await getBooksList({currentPage,itemsPerPage,searchTerm, category: filters.category!=="All" ? filters.category : undefined});
         
         setBooksData(result.data);
@@ -54,7 +54,7 @@ fetchBooksData();
       setCategories(result.data);
     
     }catch(error){
-       console.log('Failed to fetch categories: ', error);
+       alert('Failed to fetch categories: ', error);
     }
   }
    getCategories();
@@ -92,14 +92,13 @@ fetchBooksData();
       console.log('the book was saved successfuly');
       setBooksData(prev => [...prev, result.newBook]);
       setShowModal(false);
-   
-    }else{
-        console.log(result.errorMessage);
-         alert(result.errorMessage);
-      }
+      return;
+    }
 
-  } catch (error) {
-      console.log('Error adding book: ', error);
+         alert(result.errorMessage);
+
+   } catch (error) {
+      alert('Error adding book: ', error);
     }
   };
 
@@ -115,13 +114,13 @@ fetchBooksData();
             console.log("the book was updated successfuly");
             setBooksData(prev => prev.map(b => b.bookID === bookToUpdate.bookID ? {...b, ...result.updatedBook} : b));
           setShowModal(false);
-          
-          }else {
-            alert(result.errorMessage);
+          return;
           }
 
+            alert(result.errorMessage);
+         
       }catch(error){
-        console.log(error);
+        alert(error);
       }
   }
   
@@ -165,28 +164,20 @@ const [bookToUpdate, setBookToUpdate] = useState(null);
 
   const handleDelete = async (bookId) => {
     try{
-      console.log("book id is : ", bookId );
-     const res =  await fetch(`http://localhost:5016/api/Book/${bookId}/DeactivateBook`,
-       {
-        method: 'PATCH',
-        headers:{
-          "Content-Type": "application/json"
-        }
-       }
-     );
    
-     if(res.status === 204){
-       console.log("The book was deleted successfuly", );
+      const result = await deleteBook(bookId);
+   
+     if(result.success){
+       
        setBooksData(prevBooks => prevBooks.filter(book => book.bookID !== bookId));
        setActionRow(null);
        return;
      }
 
-     
-     console.log("Delete book was failed in status: " , res.status);
+     alert("Delete book was failed");
     }
     catch(error){
-      console.log("an error occured :", error);
+      alert("an error occured :", error);
     }
     
   };

@@ -1,5 +1,6 @@
 
 import {API_URL} from './config';
+import { apiRequest } from './helpers';
 
 export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
             try {
@@ -29,31 +30,18 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
         if(!id) return {success:false, errorMessage:"Invalid ID"};
         try{
 
-            const res = await fetch(`${API_URL}/Borrowing/${id}/ReturnBook`,{
-                method:'PATCH',
-                headers:{
-                    "Content-Type": "application/json"
-                },
-
-            });
+            const {ok, data, status, headers} = await apiRequest(`Borrowing/${id}/ReturnBook`);
              
-            let data = null;
-            let contentType = res.headers.get("content-type"); 
-            if(contentType && contentType.includes("application/json")){
-                data = await res.json();
-            }
-            
-
-            if(!res.ok){
+             if(ok){
 
                return {
-                success:false,
-                errorMessage : data.message
-               }
+                success:true,
             }
+        }
 
-            return {
-                success:true
+        return {
+                success:false,
+                errorMessage:data.message
             }
 
         }catch(error){
@@ -69,7 +57,7 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
     }
 
     try {
-        const res = await fetch(`${API_URL}/Borrowing`, {
+        const res = await fetch(`${API_URL}Borrowing`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"

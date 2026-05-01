@@ -2,14 +2,14 @@ import BookRow from './BookRow';
 
 function BookTable({books, selectedRowId, onRowClick, onKeyDown, onOpenDetails, onEdit, onDelete, actionRow, setActionRow, actionRef }) {
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+    <div className="bg-white rounded-lg overflow-hidden">
       <table 
         className="w-full text-left border-collapse"
         onKeyDown={onKeyDown}
         tabIndex={0}
       >
         <thead>
-          <tr className="bg-gray-400 border-b text-gray-700 uppercase text-xm font-semibold h-16">
+          <tr className="bg-slate-50 text-xs font-bold text-gray-500 uppercase">
              <th className="p-4">Cover</th>
             <th className="p-4">Title</th>
             <th className="p-4">Author</th>
@@ -17,7 +17,7 @@ function BookTable({books, selectedRowId, onRowClick, onKeyDown, onOpenDetails, 
             <th className="p-4">Available</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-slate-100 text-xm font-medium text-gray-700">
           {books.map((book, index) => (
             <BookRow 
               key={book.bookID}

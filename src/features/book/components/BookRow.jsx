@@ -6,19 +6,20 @@ function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, i
  const bookCoverUrl = "http://localhost:5016/images/covers/";
   return (
     <tr
-      className={`border-b cursor-pointer ${isSelected ? 'relative z-50 bg-gray-100' : ''}`}
+      className={`border-b cursor-pointer  ${isSelected ? 'relative z-50 bg-slate-100' : ''}`}
       onClick={onSelect}
       onDoubleClick={(e) => {e.stopPropagation(); onOpenDetails(book)} }
     >
       <td className="p-4 flex items-center gap-5">
-        <span className={`mr-2 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
+       {isSelected && <span className={`mr-2 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
           <button
             onClick={(e) => {e.stopPropagation(); onOpenDetails(book); }}
-            className="text-blue-500 underline text-sm"
+            className="text-green-300 underline text-sm"
           >
             Details
           </button>
         </span>
+      }
         
       <img
        src={`${bookCoverUrl}${book.imagePath}`} 

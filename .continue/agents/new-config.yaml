@@ -1,0 +1,14 @@
+name: My SiliconFlow Setup
+version: 0.8.0
+models:
+  - name: "Tencent Hy3 (Free Model)"
+    provider: openai
+    model: "tencent/Hy3-preview"
+    apiKey: "Bearer sk-qkrneslwcyinouyzmvzwimkiywskjmdocfsetrpprsfxmfde" # مفتاحك من SiliconFlow
+    apiBase: "https://api.siliconflow.cn/v1"
+context:
+  - provider: openai
+    model: "Qwen/Qwen2.5-Coder-7B-Instruct"
+    apiKey: "sk-qkrneslwcyinouyzmvzwimkiywskjmdocfsetrpprsfxmfde"
+    apiBase: "https://api.siliconflow.cn/v1"
+

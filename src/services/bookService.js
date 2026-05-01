@@ -57,31 +57,23 @@ import { API_URL } from "./config";
   
  export const addBook = async (newBook) => {
    
-  const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID'];
-    
+  const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID', 'image'];
+  
+  const formData = new FormData();
+
   for (const key of requiredFields) {
     
-       if(!newBook[key])
+       if(!newBook[key] && newBook[key] !== 'image') 
           return {
            success: false,
            errorMessage : "Missing one or more required properties",
         }
+     
+       formData.append(key, newBook[key] || "");
      }
 
-    
-    const formData = new FormData();
-      formData.append("title",newBook.title || "");
-      formData.append("isbn", newBook.isbn || "");
-      formData.append("author", newBook.author || "");
-      formData.append("publisher", newBook.publisher || "");
-      formData.append("yearPublished", newBook.yearPublished || "");
-      formData.append("categoryID", newBook.categoryID || "");
-      formData.append("description", newBook.description || "");
-      if(newBook.image){
-      formData.append("image", newBook.image); 
-      }
-    
       try{
+
       const {ok,data,status,headers} = await apiRequest('Book', {
         method: 'POST',
         body: formData,
@@ -99,7 +91,7 @@ import { API_URL } from "./config";
           errorMessage : data.message,
         }
       }
-    
+     
        
       console.log("The book was added successfully :" ,locationHeader);
       
@@ -116,6 +108,7 @@ import { API_URL } from "./config";
     }
   };
 
+
   export const updateBook = async (bookForUpdate) => {
    
   const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID','description' ,'image'];
@@ -123,7 +116,7 @@ import { API_URL } from "./config";
     const formData = new FormData();
      for (const key of requiredFields){
         if(bookForUpdate[key])
-       formData.append(key, bookForUpdate[key]);
+         formData.append(key, bookForUpdate[key]);
      }
 
      const isEmpty = formData.entries().next().done;
@@ -143,7 +136,7 @@ import { API_URL } from "./config";
      
      if (!ok) {
 
-        console.log("error message: " + data);
+        console.log("error message: " + data.message);
      return {
           success: false,
           errorMessage : data.message,
@@ -160,3 +153,36 @@ import { API_URL } from "./config";
       return error
     }
   };
+
+  
+ export const deleteBook = async (bookId) => {
+    try{
+      console.log("book id is : ", bookId );
+     const {ok,status,data} =  await apiRequest(`Book/${bookId}/DeactivateBook`,
+       {
+        method: 'PATCH',
+        }
+     );
+   
+     if(ok){
+       console.log("The book was deleted successfuly", );
+       return {
+        success: true,
+     
+      }
+     }
+     
+     console.log("Failed to delete the book, status code : ", status, "message : ", data.message);
+
+     return {
+         success:false,
+         errorMessage : data.message || "Failed to delete the book",
+     }
+     
+    } catch(error){
+      console.log("an error occured :", error);
+      return error;
+    }
+    
+  };
+

@@ -27,6 +27,7 @@ export default function Loans() {
                setTotalPages(result.totalPages);
             } catch (error) {
                 console.error("Data load failed:", error);
+                alert("some error occurred in the server")
             }
         };
         loadLoansData();

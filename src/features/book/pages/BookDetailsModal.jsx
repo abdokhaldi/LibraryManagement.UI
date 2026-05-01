@@ -22,6 +22,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
     damaged: { label: 'Repair', color: 'bg-orange-500', text: 'Damaged' },
     lost: { label: '---', color: 'bg-red-600', text: 'Lost' }
   };
+  
 
   useEffect(() => {
     if (!isOpen || !book.bookID) return;
@@ -43,6 +44,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
     };
     loadBookCopies();
   }, [book, currentPage, searchTerm, isOpen]);
+
 
   useEffect(() => {
     if (!actionRow) return;

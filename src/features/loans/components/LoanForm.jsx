@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import {loanBook, returnBook, loanBook} from '../../../services/loanService';
+import {loanBook} from '../../../services/loanService';
 
 export default function LoanForm({bookCopy, setCopy}){
    
@@ -44,7 +44,7 @@ export default function LoanForm({bookCopy, setCopy}){
                 onChange={(e) => setNewLloan({barcode:e.target.value})}
               />
             </div>
-            
+             
             <div>
               <label htmlFor="member">Member :</label>
               <input

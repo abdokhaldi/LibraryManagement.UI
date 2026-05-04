@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; // FiTool للصيانة
 import { FaEllipsisV, FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
+import BookCopyPagination from '../../Pagination/Pagination';
 
 function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
   const bookCover = "http://localhost:5016/images/covers/";
@@ -209,23 +210,12 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
 
            
             {totalPages > 0 && (
-              <div className="flex justify-center items-center mt-6 gap-6">
-                <button
-                  onClick={() => setCurrentPage(prev => prev - 1)}
-                  disabled={currentPage <= 1}
-                  className="px-5 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
-                >
-                  Previous
-                </button>
-                <span className="font-semibold text-gray-600">Page {currentPage} of {totalPages}</span>
-                <button
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  disabled={currentPage >= totalPages}
-                  className="px-5 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
-                >
-                  Next
-                </button>
-              </div>
+              <BookCopyPagination 
+               onNext={() => setCurrentPage(prev => prev +1)}
+               onPrev={() => setCurrentPage(prev => prev -1)}
+               currentPage={currentPage}
+               totalPages={totalPages}
+              />
             )}
           </div>
         </div>

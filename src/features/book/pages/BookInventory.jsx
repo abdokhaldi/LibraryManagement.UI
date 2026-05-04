@@ -5,11 +5,8 @@ import { FiPlus } from 'react-icons/fi';
 import BookForm from '../components/BookForm';
 import BookDetailsModal from './BookDetailsModal';
 import BookTable from '../components/BookTable';
-import BookPagination from '../components/BookPagination';
+import BookPagination from '../../Pagination/Pagination';
 import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../../services/bookService';
-
-
-
 
 function BookInventory() {
   
@@ -23,7 +20,7 @@ function BookInventory() {
   const [loading , setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-   const itemsPerPage = 10;
+   const itemsPerPage =10;
 
   const actionRef = useRef(null);
 
@@ -31,8 +28,8 @@ function BookInventory() {
    const fetchBooksData = async () => {
 
     try{
-      console.log("bilal"); 
-      const result = await getBooksList({currentPage,itemsPerPage,searchTerm, category: filters.category!=="All" ? filters.category : undefined});
+      
+      const result = await getBooksList({pageNumber:currentPage,pageSize: itemsPerPage ,searchTerm:searchTerm, category: filters.category!=="All" ? filters.category : undefined});
         
         setBooksData(result.data);
         setTotalPages(result.totalPages);
@@ -283,12 +280,12 @@ if (loading) {
          
       </div>
       
-    {<BookPagination
-        onNext={()=>setCurrentPage(currentPage + 1)}
-        onPrev={(e)=>{ setCurrentPage(currentPage - 1)}}
-        currentPage={currentPage}
-        totalPages={totalPages}
-     />}  
+    { <BookPagination
+    onNext={() => setCurrentPage(prev => prev +1)}
+    onPrev={() => setCurrentPage(prev => prev -1)}
+    currentPage={currentPage}
+    totalPages={totalPages}
+    />}  
      
     </div>
     </div>

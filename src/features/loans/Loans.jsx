@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { FaSearch, FaFilter, FaEllipsisV, FaPlus, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaEllipsisV, FaPlus, FaCalendarAlt, FaInfoCircle } from 'react-icons/fa';
 import ScanModal from './components/ScanModal';
 import ViewFinesModal from './FinesHistoryModal';
 import {getLoans, returnBook} from '../../services/loanService';
+import LoanPagination from '../Pagination/Pagination';
 
 export default function Loans() {
     const [showFilter, setShowFilter] = useState(false);
@@ -219,28 +220,14 @@ export default function Loans() {
                 </div>
 
                
-              { loansData.length != 0 &&  <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                    <p className="text-sm text-slate-500 font-medium">
-                        Showing page <span className="text-slate-800">{currentPage}</span> of <span className="text-slate-800">{totalPages}</span>
-                    </p>
-                    <div className="flex gap-2">
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-                        >
-                            <FaChevronLeft size={12} /> Previous
-                        </button>
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-                        >
-                            Next <FaChevronRight size={12} />
-                        </button>
-                    </div>
-                </div>
-                   }
+              { loansData.length != 0 &&  
+               < LoanPagination 
+                onNext={() => setCurrentPage(prev => prev + 1)}
+                onPrev={() => setCurrentPage(prev => prev - 1)}
+                currentPage={currentPage}
+                totalPages={totalPages}
+               />  
+                }
             </div>
             }
         </div>

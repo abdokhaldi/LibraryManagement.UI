@@ -2,18 +2,18 @@ import { apiRequest } from "./helpers";
 import { API_URL } from "./config";
 
 
-  export const getBooksList = async ({
-  PageNumber = 1,
-  PageSize = 10,
+  export const getBooksList = async ({ 
+  pageNumber = 1,
+  pageSize = 10,
   searchTerm = '',
   category = 0,
 } = {}) => {
     try {
     console.log('Fetching books list...');
         const query = new URLSearchParams({
-            PageNumber: String(PageNumber),
-            PageSize: String(PageSize),
-      category: category ? String(category) : '',
+            PageNumber: String(pageNumber),
+            PageSize: String(pageSize),
+      Category: category ? String(category) : '',
             SearchTerm: searchTerm,
         }).toString();
 

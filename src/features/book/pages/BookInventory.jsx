@@ -58,7 +58,7 @@ fetchBooksData();
  }, []);
   
   
-  const [copies, setCopies] = useState([]);
+  //const [copies, setCopies] = useState([]);
   
   const [showModal, setShowModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -227,7 +227,6 @@ if (loading) {
         isOpen={showDetails}
         onClose={closeDetails}
         book={selectedBook}
-        copies={copies.filter(c => c.bookId === selectedBook?.id)}
         onAddCopy={handleAddCopy}
       />
       <div className={`${(showModal||showDetails) ? 'filter blur-sm' : ''} `}>        

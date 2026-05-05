@@ -3,6 +3,8 @@ import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; // FiT
 import { FaEllipsisV, FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
 import BookCopyPagination from '../../Pagination/Pagination';
+import { apiRequest } from '../../../services/helpers';
+import { getBookCopies } from '../../../services/bookCopiesService';
 
 function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
   const bookCover = "http://localhost:5016/images/covers/";
@@ -11,7 +13,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [actionRow, setActionRow] = useState(null);
   const actionRef = useRef(null);
-  const itemsPerPage = 3;
+  const itemsPerPage = 10;
 
   const [loadedCopies, setLoadedCopies] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -24,27 +26,31 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
     lost: { label: '---', color: 'bg-red-600', text: 'Lost' }
   };
   
-
   useEffect(() => {
-    if (!isOpen || !book.bookID) return;
+   
+    if (!isOpen || !book?.bookID) { 
+        setLoadedCopies([]);
+        setTotalPages(0);
+        return;
+    }
     const loadBookCopies = async () => {
       try {
-        const res = await fetch(`http://localhost:5016/api/bookCopy?bookID=${book.bookID}&searchTerm=${searchTerm}&pageSize=${itemsPerPage}&pageNumber=${currentPage}`);
-        if (res.ok) {
-          const copies = await res.json();
-          setLoadedCopies(copies);
-        }
-        const paginationHeader = res.headers.get('x-pagination');
-        if (paginationHeader) {
-          const paginationData = JSON.parse(paginationHeader);
-          setTotalPages(paginationData.TotalPages || 0);
-        }
-      } catch (error) {
-        console.log(error);
+        console.log(`currentPage:${currentPage} pageSize:${itemsPerPage} searchTerm:${searchTerm} bookID:${book.bookID}`);
+
+        const queryProps = {pageNumber:currentPage, pageSize:itemsPerPage, searchTerm:searchTerm,bookID:book.bookID};
+        const result = await getBookCopies({...queryProps});
+
+          setLoadedCopies(result.data);
+
+         setTotalPages(result.totalPages);
+
+        } catch (error) {
+        console.log("Network error while fetching book copies :", error)
+        alert("Network error while fetching book copies");
       }
     };
     loadBookCopies();
-  }, [book, currentPage, searchTerm, isOpen]);
+  }, [book, currentPage, isOpen, searchTerm]);
 
 
   useEffect(() => {
@@ -81,7 +87,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
               className="w-20 p-2 border rounded shadow-sm"
             />
             <button
-              onClick={() => onAddCopy(book.id, numberOfCopies)}
+              onClick={() => onAddCopy(book.bookID, numberOfCopies)}
               className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2 transition-colors"
             >
               <FiPlus size={20} /> Add New Copies
@@ -91,7 +97,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
 
         <div className="flex gap-8 overflow-y-auto">
           
-          <div className="w-1/4 sticky top-0">
+          <div className="w-1/4 h-full sticky top-0">
             <img 
               src={`${bookCover}${book.imagePath}`} 
               alt={book.title} 
@@ -127,7 +133,8 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                 </tr>
               </thead>
               <tbody>
-                {loadedCopies.map(copy => (
+                {loadedCopies.map((copy)=> (
+                 
                   <tr key={copy.bookCopyID} className="border-b hover:bg-gray-50 transition-colors h-16">
                     <td className="p-3 font-mono">{copy.barcode}</td>
                     <td className="p-3">

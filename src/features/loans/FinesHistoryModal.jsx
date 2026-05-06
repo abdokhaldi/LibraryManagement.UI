@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { FaTimes, FaMoneyBillWave, FaHandHoldingHeart } from 'react-icons/fa';
-import { getLoanFine, pay } from '../../services/fineService';
+import { getLoanFine, pay, waive } from '../../services/fineService';
 
 export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   const [finesData, setFinesData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [takeWaive, setTakeWaive] = useState(false);
-
+  const [disableActions, setDisableActions] = useState(false);
 
   const loadFineOfLoan = async () => {
       setLoading(true);
@@ -36,6 +36,7 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
 
     if(result.success){
          loadFineOfLoan();
+         setDisableActions(true);
     }else{
       alert(result.errorMessage);
     }
@@ -52,33 +53,21 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   if(!waiveReason) return;
   if(!fineId) return;
   try{
-    const res = await fetch(`http://localhost:5016/api/Fines/${id}/Waive`, {
-      method:'PATCH',
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(waiveReason),
-    });
-     
-    let data = null;
-    let contentType = res.headers.get("content-type");
-    if(contentType && contentType.includes("application/json")){
-       data = await res.json();
-    }
+    const result = await waive({id, waiveReason});
    
-    if(res.ok){
-       console.log("fine waived succeessfully");
+    if(result.success){
       loadFineOfLoan(); 
+      setWaiveReason(null); 
       setTakeWaive(false);
-        
-    }else{
-
-       console.log("Server error: ", data?.message || "something went wrong");
+      setDisableActions(true);
     }
-   
+    else{
 
+       alert(result.errorMessage);
+    }
   }catch(error){
    console.log( "Network error: ", error)
+   alert("An unexpected error occurred while processing the waive request");
   }
  }
 
@@ -156,13 +145,15 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
                       <td className="px-4 py-4">
                         <div className="flex gap-2 justify-center">
                           <button 
+                           disabled={disableActions}
                           onClick={() => handlePayment(fine.fineID)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow-sm transition-all">
+                          className={`flex items-center gap-1 px-3 py-1.5 ${disableActions? " bg-green-600/50": "bg-green-600 hover:bg-green-700"} text-white text-xs font-bold rounded shadow-sm transition-all`}>
                             <FaMoneyBillWave /> Pay
                           </button>
                           <button
+                           disabled={disableActions}
                             onClick={() => {setTakeWaive(!takeWaive); setFineId(fine.fineID) }}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded shadow-sm transition-all"
+                            className={`flex items-center gap-1 px-3 py-1.5 ${disableActions? " bg-slate-700/50": "bg-slate-700 hover:bg-slate-800"} text-white text-xs font-bold rounded shadow-sm transition-all`}
                           >
                             <FaHandHoldingHeart /> Waive
                           </button>

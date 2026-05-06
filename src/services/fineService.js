@@ -45,3 +45,29 @@ export const getLoanFine = async (borrowingID) => {
    throw error;
   }
  }
+
+ export const waive = async ({id, waiveReason }) => {
+  if(!waiveReason) return;
+  if(!id) return;
+  try{
+    const {ok,data,status} = await apiRequest(`Fines/${id}/Waive`, {
+      method:'PATCH',
+      body:JSON.stringify(waiveReason),
+    });
+
+    if(ok)
+    return {
+    success: true,
+  }
+   
+    
+  console.log("fine waive was failed with status code:", status);
+      return {
+       success: false,
+       errorMessage: data.message || 'Failed to waive fine',
+      }
+
+ }catch(error){
+ throw error;
+  }
+}

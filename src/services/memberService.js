@@ -9,8 +9,9 @@ export const checkPersonExist = async (nationalNumber) => {
     };
    
     try{
-        const {ok,data,headers} = await apiRequest(`Person/${encodeURIComponent(nationalNumber)}/CheckPersonExistence`,{})
+        const {ok,data,headers} = await apiRequest(`Person/${encodeURIComponent(nationalNumber)}/CheckPersonExistence`)
         if(ok){
+          console.log(data);
          return  {
             success: true,
            };

@@ -1,17 +1,19 @@
 
 import { useEffect, useState } from 'react';
 import {loanBook} from '../../../services/loanService';
+import {checkPersonExist} from '../../../services/memberService';
 
 export default function LoanForm({bookCopy, setCopy}){
    
-  const [newLoan , setNewLloan] = useState({barcode:"", nationalNumber:"", dueDate:null, fees:0});
+  const [newLoan , setNewLoan] = useState({barcode:"", nationalNumber:"", dueDate:null, initialFees:0});
   
-  
+  const [isPersonExisting,setIsPersonExisting] = useState(false);
+
     const handleLoanBook = async () => {
       
        try{
          const result = await loanBook(newLoan);
-
+    
          if(result.success){
             
             console.log("go to new loan : ", result?.location || "no location");
@@ -22,17 +24,41 @@ export default function LoanForm({bookCopy, setCopy}){
        }
        
     }
-  
-   
 
+
+  useEffect( () => {
+     setIsPersonExisting(false);
+     const nationalNumber = newLoan.nationalNumber;
+    
+     if(!nationalNumber || nationalNumber.length <5 ) return;
+     
+   const timer = setTimeout(async () => {
+    console.log("Checking for person with national number  : ");
+    try{
+        const result = await checkPersonExist(nationalNumber);
+        if(result.success){
+          setIsPersonExisting(true);
+        }
+    }catch(error){
+    alert("An unexpected error occurred while checking member existence");
+    }
+   }, 500);
+
+   return () => clearTimeout();
+
+  }, [newLoan.nationalNumber]);
+
+  
     return (
-        <div action="submit" className="flex justify-center items-center top-0 left-0 w-full h-full">
+        <div  className="flex justify-center items-center top-0 left-0 w-full h-full">
           <form
+          action="submit"
+           onSubmit={handleLoanBook}
            className="flex flex-col h-fit rounded-md p-10 gap-5 bg-white shadow-md shadow-gray-500">
            
             <div>
               <label htmlFor="book-copy"
-               className="font-bold text-lg">Book copy :</label>
+              className="font-bold text-lg">Book copy :</label>
               
               <input
                 id="book-copy" 
@@ -41,19 +67,21 @@ export default function LoanForm({bookCopy, setCopy}){
                 value={bookCopy?.barcode} 
                 disabled 
                 className="w-full border border-gray-400 rounded-md h-15 p-2 bg-gray-100 " 
-                onChange={(e) => setNewLloan({barcode:e.target.value})}
+                onChange={(e) => setNewLoan(prev => ({...prev, barcode:e.target.value}))}
               />
             </div>
              
             <div>
-              <label htmlFor="member">Member :</label>
+              <label htmlFor="nationalId">National Number :</label>
               <input
-              id="member"
+              id="nationalId"
               required
-               type="text" 
-               placeholder="enter national number"
-                className="border-gray-400 w-full border rounded-md h-15 p-2" 
-                onChange={(e) => setNewLloan({nationalNumber:e.target.value})}/>
+              type="text" 
+              disabled={isPersonExisting}
+              value={newLoan.nationalNumber}
+              placeholder="enter national number"
+              className="border-gray-400 disabled:border-green-500 w-full border rounded-md h-15 p-2" 
+              onChange={(e) => setNewLoan(prev =>({...prev, nationalNumber:e.target.value}))}/>
             </div>
 
             <div>
@@ -62,9 +90,10 @@ export default function LoanForm({bookCopy, setCopy}){
               required
               id="fees" 
               type="number" 
-              placeholder="enter national number" 
-              className="border-gray-400 w-full border rounded-md h-15 p-2" />
-              onChange={(e) => setNewLloan({fees:e.target.value})}
+              placeholder="enter fees" 
+              className="border-gray-400 w-full border rounded-md h-15 p-2"
+              onChange={(e) => setNewLoan(prev =>({...prev, initialFees:e.target.value}))}/>
+              
             </div>
 
             <div>
@@ -75,7 +104,7 @@ export default function LoanForm({bookCopy, setCopy}){
               min={new Date().toISOString().split('T')[0]}
               type="date" 
               className="border-gray-400 w-full border rounded-md h-15 p-2"
-              onChange={(e) => setNewLloan({dueDate:e.target.value})} />
+              onChange={(e) => setNewLoan(prev => ({...prev ,dueDate:e.target.value}))} />
             </div>
             
             <div className="flex justify-between w-full h-12 gap-2 mt-4">

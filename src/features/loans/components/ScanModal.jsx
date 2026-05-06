@@ -15,7 +15,7 @@ export default function ScanModal({onClose}) {
     
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/bookCopy/${barcode}/GetBookCopyByBarcode`);
+      const res = await fetch(`${API_URL}bookCopy/${barcode}/GetBookCopyByBarcode`);
       if (res.ok) {
         const copyData = await res.json();
         // 2. تحديث الـ copy مباشرة هنا بالبيانات القادمة فوراً

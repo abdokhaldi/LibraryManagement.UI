@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaTimes, FaMoneyBillWave, FaHandHoldingHeart } from 'react-icons/fa';
-
+import { getLoanFine } from '../../services/fineService';
 
 export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   const [finesData, setFinesData] = useState([]);
@@ -9,27 +9,25 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   const [takeWaive, setTakeWaive] = useState(false);
 
 
-  const fetchFinesHistory = async () => {
+  const loadFineOfLoan = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:5016/api/Fines?BorrowingID=${borrowingId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setFinesData(Array.isArray(data) ? data : []);
-        } else {
-          setError('Failed to load fines history');
-        }
-      } catch (err) {
-        setError('Error fetching fines: ' + err.message);
+        const result = await getLoanFine(borrowingId);
+        
+          setFinesData(result.data);
+        
+   } catch (error) {
+        setError('Server error occurred while fetching fine');
       } finally {
         setLoading(false);
       }
     };
+
   useEffect(() => {
     if (!isOpen || !borrowingId) return;
     
-    fetchFinesHistory();
+    loadFineOfLoan();
   }, [isOpen, borrowingId]);
  
  const handlePay = async (id)=> {
@@ -43,7 +41,7 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
 
     if(res.ok){
        console.log("fine paid succeessfully");
-        fetchFinesHistory();
+        loadFineOfLoan();
     }
     console.log("fine not paid");
 
@@ -75,7 +73,7 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
    
     if(res.ok){
        console.log("fine waived succeessfully");
-      fetchFinesHistory(); 
+      loadFineOfLoan(); 
       setTakeWaive(false);
         
     }else{

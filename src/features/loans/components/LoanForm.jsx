@@ -5,20 +5,26 @@ import {checkPersonExist} from '../../../services/memberService';
 
 export default function LoanForm({bookCopy, setCopy}){
    
-  const [newLoan , setNewLoan] = useState({barcode:"", nationalNumber:"", dueDate:null, initialFees:0});
+  const [newLoan , setNewLoan] = useState({barcode:bookCopy?.barcode|| "", nationalNumber:"", dueDate:null, initialFees:0});
   
   const [isPersonExisting,setIsPersonExisting] = useState(false);
 
-    const handleLoanBook = async () => {
-      
+
+  const handleLoanBook = async (e) => {
+        e.preventDefault();
        try{
+
+        if(!newLoan.barcode) setNewLoan(prev => ({...prev , barcode:bookCopy.barcode}));
+        // setTimeout(() => {console.log(newLoan);},2000) ;
          const result = await loanBook(newLoan);
-    
+              
          if(result.success){
             
             console.log("go to new loan : ", result?.location || "no location");
-         }
+            
+          }else{
          alert(result?.errorMessage);
+          }
        }catch(error){
          console.log("Network error: ", error);
        }
@@ -48,14 +54,13 @@ export default function LoanForm({bookCopy, setCopy}){
 
   }, [newLoan.nationalNumber]);
 
-  
+
     return (
         <div  className="flex justify-center items-center top-0 left-0 w-full h-full">
           <form
-          action="submit"
            onSubmit={handleLoanBook}
-           className="flex flex-col h-fit rounded-md p-10 gap-5 bg-white shadow-md shadow-gray-500">
-           
+           className="flex flex-col h-fit rounded-md p-10 gap-5 bg-white shadow-md shadow-gray-500"
+           >
             <div>
               <label htmlFor="book-copy"
               className="font-bold text-lg">Book copy :</label>
@@ -67,8 +72,8 @@ export default function LoanForm({bookCopy, setCopy}){
                 value={bookCopy?.barcode} 
                 disabled 
                 className="w-full border border-gray-400 rounded-md h-15 p-2 bg-gray-100 " 
-                onChange={(e) => setNewLoan(prev => ({...prev, barcode:e.target.value}))}
-              />
+             />
+
             </div>
              
             <div>
@@ -111,12 +116,11 @@ export default function LoanForm({bookCopy, setCopy}){
               
               <button 
               type="button" 
-              onClick={setCopy} className="bg-gray-400 w-[30%] text-white rounded">
+               onClick={setCopy} className="bg-gray-400 w-[30%] text-white rounded">
                 Cancel
               </button>
               <button 
-              onClick={setCopy}
-              type="submit" className="bg-[#10b981] w-[60%] text-white rounded">
+               type="submit" className="bg-[#10b981] w-[60%] text-white rounded">
                 Confirm
               </button>
             </div>

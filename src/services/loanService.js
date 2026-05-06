@@ -54,47 +54,39 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
 
  export const loanBook = async (newLoan) => {
    
-    if (!newLoan || !newLoan.barcode || !newLoan.nationalNumber || !newLoan.dueDate || !newLoan.fees) {
-        return { success: false, errorMessage: "Missing required loan data!" };
+    if (!newLoan || !newLoan.barcode || !newLoan.nationalNumber || !newLoan.dueDate || !newLoan.initialFees) {
+        console.log(newLoan);
+       return { success: false, errorMessage: "Missing required loan data!" };
     }
 
     try {
-        const res = await fetch(`${API_URL}Borrowing`, {
+        const {ok,status,data,headers} = await apiRequest(`Borrowing`, {
             method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify(newLoan)
         });
 
-        const dataHeader = res.headers.get("location");
-        const contentType = res.headers.get("content-type");
-        let data = null;
-
-        if (contentType && contentType.includes("application/json")) {
-            data = await res.json();
-        }
-
-        if (!res.ok) {
+        const dataHeader = headers.get("location");
+     
+        if (!ok) {
            
             return { 
                 success: false, 
-                errorMessage: data?.message || data?.title || "Operation failed" 
+                errorMessage: data?.message || data?.title || "Operation failed" ,
+                status: status,
             };
         }
 
-       
+       console.log("location: ", dataHeader);
+
         return {
             success: true,
-            location: dataHeader || "no location provided"
+            location: dataHeader || "no location provided",
+             status: status,
         };
 
     } catch (error) {
        
-        console.error("Service Error:", error);
-        return { 
-            success: false, 
-            errorMessage: "Network error: Could not connect to server" 
-        };
+        console.error("Service Error:", error.message);
+        throw error;
     }
 };

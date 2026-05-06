@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaTimes, FaMoneyBillWave, FaHandHoldingHeart } from 'react-icons/fa';
-import { getLoanFine } from '../../services/fineService';
+import { getLoanFine, pay } from '../../services/fineService';
 
 export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   const [finesData, setFinesData] = useState([]);
@@ -30,23 +30,18 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
     loadFineOfLoan();
   }, [isOpen, borrowingId]);
  
- const handlePay = async (id)=> {
+ const handlePayment = async (id)=> {
   try{
-    const res = await fetch(`http://localhost:5016/api/fines/${id}/Pay`, {
-      method:'PATCH',
-      headers:{
-        "Content-Type":"application/json"
-      },
-    });
+    const result = await pay(id);
 
-    if(res.ok){
-       console.log("fine paid succeessfully");
-        loadFineOfLoan();
+    if(result.success){
+         loadFineOfLoan();
+    }else{
+      alert(result.errorMessage);
     }
-    console.log("fine not paid");
-
-  }catch(error){
-   console.log("an error occured while paying the fine: " , error)
+   
+   }catch(error){
+   alert("An unexpected error occurred while processing the payment");
   }
  }
  
@@ -161,7 +156,7 @@ export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
                       <td className="px-4 py-4">
                         <div className="flex gap-2 justify-center">
                           <button 
-                          onClick={() => handlePay(fine.fineID)}
+                          onClick={() => handlePayment(fine.fineID)}
                           className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow-sm transition-all">
                             <FaMoneyBillWave /> Pay
                           </button>

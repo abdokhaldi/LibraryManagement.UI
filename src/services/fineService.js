@@ -18,3 +18,30 @@ export const getLoanFine = async (borrowingID) => {
        throw error
       } 
     };
+
+  export  const pay = async (id)=> {
+    try{
+    const {ok,data,status} = await apiRequest(`fines/${id}/Pay`, {
+      method:'PATCH',
+    });
+
+    if(!ok){
+       console.log("fine pay was failed with status code:", status);
+       return {
+        success: false,
+        errorMessage: data.message || 'Failed to pay fine',
+       }
+    }
+
+    console.log("The fine was paid successfully");
+     
+    return {
+        success: true,
+
+     }
+
+  }catch(error){
+   console.log("an error occured while paying the fine: " , error.message);
+   throw error;
+  }
+ }

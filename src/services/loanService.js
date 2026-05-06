@@ -30,7 +30,9 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
         if(!id) return {success:false, errorMessage:"Invalid ID"};
         try{
 
-            const {ok, data, status, headers} = await apiRequest(`Borrowing/${id}/ReturnBook`);
+            const {ok, data, status} = await apiRequest(`Borrowing/${id}/ReturnBook`,{
+                method:'PATCH',
+            });
              
              if(ok){
 

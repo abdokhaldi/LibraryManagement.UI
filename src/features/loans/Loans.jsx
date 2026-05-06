@@ -20,8 +20,7 @@ export default function Loans() {
     const pageSize = 8; // 
 
     // Logic: Loading Data
-    useEffect(() => {
-        const loadLoansData = async () => {
+    const loadLoansData = async () => {
             try {
                const result = await getLoans({searchTerm,currentPage,pageSize});
                setLoansData(result.data);
@@ -31,7 +30,9 @@ export default function Loans() {
                 alert("some error occurred in the server")
             }
         };
-        loadLoansData();
+
+    useEffect(() => {
+       loadLoansData();
     }, [currentPage, searchTerm]);
 
     
@@ -49,13 +50,13 @@ export default function Loans() {
         try{
            const result = await returnBook(id);
            if(result.success){
-              console.log("the book returned successfully");
+              loadLoansData();
            }else {
            alert(result.errorMessage);
            }
         }
      catch(error){
-          console.log("Network error: ", error);
+          
           alert("some error occurred in the server")
         }
     };

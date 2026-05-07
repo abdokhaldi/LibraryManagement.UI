@@ -4,6 +4,7 @@ import ScanModal from './components/ScanModal';
 import ViewFinesModal from './FinesHistoryModal';
 import {getLoans, returnBook} from '../../services/loanService';
 import LoanPagination from '../Pagination/Pagination';
+import ExtendModal from './components/ExtendModal';
 
 export default function Loans() {
     const [showFilter, setShowFilter] = useState(false);
@@ -17,6 +18,8 @@ export default function Loans() {
     const [isOpen, setIsOpen] = useState(false);
     const [borrowingId, setBorrowingId] = useState(0);
     const actionRef = useRef(null);
+    const [showExtendModal, setShowExtendModal] = useState(false);
+    const [selectedLoan, setSelectedLoan] = useState(null);
     const pageSize = 8; // 
 
     // Logic: Loading Data
@@ -73,6 +76,18 @@ export default function Loans() {
         return styles[status] || "bg-gray-100 text-gray-700 border-gray-200";
     };
 
+    const handleOpenExtendModal = (loan) => {
+    setSelectedLoan(loan);
+    setShowExtendModal(true);
+    setShowActions(null);
+};
+
+const handleCloseExtendModal = () => {
+    setShowExtendModal(false);
+    setSelectedLoan(null);
+};
+
+
 
     return (
         <div className="relative p-6 bg-slate-50 min-h-screen font-sans">
@@ -84,7 +99,15 @@ export default function Loans() {
             }
             {showBorrowModal && <ScanModal onClose={setShowBorrowModal} />}
 
-          
+            {
+            showExtendModal && <ExtendModal
+            isOpen={showExtendModal}
+            onClose={handleCloseExtendModal}
+            borrowingId={selectedLoan.borrowingID}
+            currentDueDate={selectedLoan.dueDate}
+            onLoanUpdated={loadLoansData}
+             />
+             }
           {!showBorrowModal && <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 
                 
@@ -195,7 +218,9 @@ export default function Loans() {
                                         {/* Dropdown Menu */}
                                         {showActions === loan.borrowingID && (
                                             <div ref={actionRef} className="absolute right-6 top-12 w-48 bg-white shadow-xl border border-slate-100 rounded-xl z-50 py-2 animate-in zoom-in-95 duration-100">
-                                               {loan.status !=="Returned" && <button className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600">
+                                               {loan.status !=="Returned" && <button
+                                                onClick={() => handleOpenExtendModal(loan)}
+                                                className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600">
                                                     <FaCalendarAlt className="text-blue-500" /> Extend Date
                                                 </button>
                                                  }

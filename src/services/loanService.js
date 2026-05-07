@@ -90,3 +90,35 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
         throw error;
     }
 };
+
+export const extendLoanPeriod = async (id, newDueDate) => {
+    if (!id || !newDueDate) {
+        return { success: false, errorMessage: "Invalid ID or due date" };
+    }
+
+    try {
+        console.log(newDueDate);
+        const { ok, data, status } = await apiRequest(`Borrowing/${id}/ExtendDueDate`, {
+            method: 'PATCH',
+            body: JSON.stringify({dueDate:newDueDate})
+        });
+
+        if (!ok) {
+            console.log(data?.message || data?.title || "Operation failed");
+            return {
+                success: false,
+                errorMessage: data?.message || data?.title || "Operation failed",
+                status: status
+            };
+        }
+        console.log("extended successfully") ;
+        return {
+            success: true,
+            status: status
+        };
+
+    } catch (error) {
+        console.error("Service Error:", error.message);
+        throw error;
+    }
+};

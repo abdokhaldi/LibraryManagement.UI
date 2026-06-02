@@ -7,8 +7,8 @@ const managementLinks = [
     {id:"dashboard", name:"Dashboard Analytics", href:"#"},
     {id:"books", name:"Books", href:"#"},
     {id:"loans", name:"Loans", href:"#"},
-    {id:"members", name:"members", href:"#"},
-    {id:"users", name:"users", href:"#"},
+    {id:"members", name:"Members", href:"#"},
+    {id:"users", name:"Users", href:"#"},
    ];
 const ReportLinks = [
     {name:"Fine Collections Analitics", href:"#"},

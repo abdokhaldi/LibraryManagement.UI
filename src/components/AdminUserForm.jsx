@@ -1,4 +1,5 @@
 import React from "react";
+import { FiLock, FiUser } from "react-icons/fi";
 
 export default function AdminUserForm({ data, onChange }) {
   const handle = (e) => {
@@ -6,35 +7,46 @@ export default function AdminUserForm({ data, onChange }) {
     onChange({ [name]: value });
   };
 
+  const inputClass = "w-full mt-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition duration-200 pl-10";
+  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1";
+
   return (
-    <form className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Admin User Account</h2>
+    <form className="space-y-5">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Admin User Account</h2>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Username</label>
-        <input
-          type="text"
-          name="username"
-          value={data.username}
-          onChange={handle}
-          className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          required
-        />
+      <div className="relative">
+        <label className={labelClass}>Username</label>
+        <div className="relative flex items-center">
+          <FiUser className="absolute left-3 text-gray-400" />
+          <input
+            type="text"
+            name="username"
+            value={data.username}
+            onChange={handle}
+            className={inputClass}
+            placeholder="Choose a username"
+            required
+          />
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Password</label>
-        <input
-          type="password"
-          name="password"
-          value={data.password}
-          onChange={handle}
-          className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          required
-        />
+      <div className="relative">
+        <label className={labelClass}>Password</label>
+        <div className="relative flex items-center">
+          <FiLock className="absolute left-3 text-gray-400" />
+          <input
+            type="password"
+            name="password"
+            value={data.password}
+            onChange={handle}
+            className={inputClass}
+            placeholder="••••••••"
+            required
+          />
+        </div>
       </div>
 
-      {/* Role fields are hidden because RoleName is always “Admin”. RoleID can stay default (1) */}
+      {/* Hidden Fields */}
       <input type="hidden" name="roleId" value={data.roleId} />
       <input type="hidden" name="roleName" value={data.roleName} />
       <input type="hidden" name="personId" value={data.personId} />

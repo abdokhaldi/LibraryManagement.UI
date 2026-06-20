@@ -6,107 +6,54 @@ export default function PersonForm({ data, onChange }) {
     onChange({ [name]: value });
   };
 
+  // تنسيقات موحدة لضمان التناسق البصري
+  const inputClass = "w-full mt-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition duration-200";
+  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1";
+
   return (
-    <form className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Person Details</h2>
+    <form className="space-y-5">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Person Details</h2>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">First Name</label>
-          <input
-            type="text"
-            name="firstName"
-            value={data.firstName}
-            onChange={handle}
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <label className={labelClass}>First Name</label>
+          <input type="text" name="firstName" value={data.firstName} onChange={handle} className={inputClass} required />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700">Last Name</label>
-          <input
-            type="text"
-            name="lastName"
-            value={data.lastName}
-            onChange={handle}
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <label className={labelClass}>Last Name</label>
+          <input type="text" name="lastName" value={data.lastName} onChange={handle} className={inputClass} required />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">National Number</label>
-        <input
-          type="text"
-          name="nationalNumber"
-          value={data.nationalNumber}
-          onChange={handle}
-          className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          required
-        />
+        <label className={labelClass}>National Number</label>
+        <input type="text" name="nationalNumber" value={data.nationalNumber} onChange={handle} className={inputClass} required />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Phone</label>
-          <input
-            type="tel"
-            name="phone"
-            value={data.phone}
-            onChange={handle}
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <label className={labelClass}>Phone</label>
+          <input type="tel" name="phone" value={data.phone} onChange={handle} className={inputClass} required />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={data.email}
-            onChange={handle}
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <label className={labelClass}>Email</label>
+          <input type="email" name="email" value={data.email} onChange={handle} className={inputClass} required />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Address</label>
-        <input
-          type="text"
-          name="address"
-          value={data.address}
-          onChange={handle}
-          className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          required
-        />
+        <label className={labelClass}>Address</label>
+        <input type="text" name="address" value={data.address} onChange={handle} className={inputClass} required />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">City</label>
-          <input
-            type="text"
-            name="city"
-            value={data.city}
-            onChange={handle}
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <label className={labelClass}>City</label>
+          <input type="text" name="city" value={data.city} onChange={handle} className={inputClass} required />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700">Gender</label>
-          <select
-            name="gender"
-            value={data.gender}
-            onChange={handle}
-            className="mt-1 block w-full rounded border-gray-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
+          <label className={labelClass}>Gender</label>
+          <select name="gender" value={data.gender} onChange={handle} className={`${inputClass} bg-gray-50`}>
             <option value="M">Male</option>
             <option value="F">Female</option>
             <option value="O">Other</option>

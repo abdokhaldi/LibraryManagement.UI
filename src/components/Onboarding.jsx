@@ -1,42 +1,22 @@
 import React, { useState } from "react";
-import { FiCheckCircle, FiUser, FiHome } from "react-icons/fi";
+import { FiCheckCircle, FiUser, FiHome, FiArrowLeft, FiArrowRight } from "react-icons/fi";
 
 import TenantForm from "./TenantForm";
 import PersonForm from "./PersonForm";
 import AdminUserForm from "./AdminUserForm";
 
 const steps = [
-  { id: 0, title: "Tenant", icon: <FiHome className="text-2xl" /> },
-  { id: 1, title: "Person", icon: <FiUser className="text-2xl" /> },
-  { id: 2, title: "Admin User", icon: <FiCheckCircle className="text-2xl" /> },
+  { id: 0, title: "Tenant", icon: <FiHome className="text-xl" /> },
+  { id: 1, title: "Person", icon: <FiUser className="text-xl" /> },
+  { id: 2, title: "Admin User", icon: <FiCheckCircle className="text-xl" /> },
 ];
 
-export default function Onboarding({onCompleted}) {
+export default function Onboarding({ onCompleted }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
-    // TenantForCreationDTO
     tenant: { name: "", identifier: "", defaultLanguage: "", timeZone: "" },
-
-    // PersonForCreationDTO
-    person: {
-      firstName: "",
-      lastName: "",
-      nationalNumber: "",
-      phone: "",
-      email: "",
-      address: "",
-      city: "",
-      gender: "M",
-    },
-
-    // UserForAdminCreationDTO
-    adminUser: {
-      username: "",
-      password: "",
-      roleId: 1,
-      roleName: "Admin",
-      personId: "", // will be filled after person creation
-    },
+    person: { firstName: "", lastName: "", nationalNumber: "", phone: "", email: "", address: "", city: "", gender: "M" },
+    adminUser: { username: "", password: "", roleId: 1, roleName: "Admin", personId: "" },
   });
 
   const updateSection = (section, values) => {
@@ -50,74 +30,56 @@ export default function Onboarding({onCompleted}) {
   const prev = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
   const handleFinalSubmit = async () => {
-    // TODO: replace with real API calls (POST tenant → POST person → POST adminUser)
     console.log("Submitting payload:", formData);
-    alert("All data logged to console – replace with your API call.");
-     
     onCompleted();
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      {/* Header with step indicators */}
-      <div className="flex justify-between mb-8">
-        {steps.map((step) => (
-          <div
-            key={step.id}
-            className={`flex-1 flex flex-col items-center ${
-              currentStep === step.id ? "text-blue-600 font-semibold" : "text-gray-400"
-            }`}
-          >
-            {step.icon}
-            <span className="mt-1">{step.title}</span>
-            {currentStep > step.id && (
-              <span className="text-xs text-green-500 mt-0.5">✓ Completed</span>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center p-4">
+      {/* البطاقة الرئيسية */}
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-6 md:p-10 border border-white/50">
+        
+        {/* Header Steps */}
+        <div className="flex justify-between mb-10">
+          {steps.map((step) => (
+            <div key={step.id} className="flex flex-col items-center flex-1">
+              <div className={`p-4 rounded-full transition-all duration-300 ${
+                currentStep === step.id ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : 
+                currentStep > step.id ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
+              }`}>
+                {step.icon}
+              </div>
+              <span className={`mt-2 text-sm font-semibold ${currentStep === step.id ? "text-teal-800" : "text-gray-400"}`}>
+                {step.title}
+              </span>
+            </div>
+          ))}
+        </div>
 
-      {/* Step content */}
-      <div className="space-y-6">
-        {currentStep === 0 && (
-          <TenantForm data={formData.tenant} onChange={(v) => updateSection("tenant", v)} />
-        )}
-        {currentStep === 1 && (
-          <PersonForm data={formData.person} onChange={(v) => updateSection("person", v)} />
-        )}
-        {currentStep === 2 && (
-          <AdminUserForm
-            data={formData.adminUser}
-            onChange={(v) => updateSection("adminUser", v)}
-          />
-        )}
-      </div>
+        {/* Content Area */}
+        <div className="min-h-[300px]">
+          {currentStep === 0 && <TenantForm data={formData.tenant} onChange={(v) => updateSection("tenant", v)} />}
+          {currentStep === 1 && <PersonForm data={formData.person} onChange={(v) => updateSection("person", v)} />}
+          {currentStep === 2 && <AdminUserForm data={formData.adminUser} onChange={(v) => updateSection("adminUser", v)} />}
+        </div>
 
-      {/* Navigation buttons */}
-      <div className="flex justify-between mt-8">
-        <button
-          onClick={prev}
-          disabled={currentStep === 0}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
-        >
-          Previous
-        </button>
-
-        {currentStep < steps.length - 1 ? (
+        {/* Navigation buttons */}
+        <div className="flex justify-between mt-10 pt-6 border-t border-gray-100">
           <button
-            onClick={next}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={prev}
+            disabled={currentStep === 0}
+            className="flex items-center gap-2 px-6 py-2 rounded-xl text-gray-600 hover:bg-gray-100 disabled:opacity-30 transition"
           >
-            Next
+            <FiArrowLeft /> Previous
           </button>
-        ) : (
+
           <button
-            onClick={handleFinalSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            onClick={currentStep === steps.length - 1 ? handleFinalSubmit : next}
+            className="flex items-center gap-2 px-8 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition shadow-lg shadow-teal-600/20 active:scale-95"
           >
-            Register
+            {currentStep === steps.length - 1 ? "Register" : "Next"} <FiArrowRight />
           </button>
-        )}
+        </div>
       </div>
     </div>
   );

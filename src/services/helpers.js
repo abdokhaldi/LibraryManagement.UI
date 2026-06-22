@@ -1,4 +1,5 @@
 
+import { AuthService } from './authService';
 import {API_URL} from './config';
 
 /**
@@ -9,21 +10,23 @@ import {API_URL} from './config';
  */
 export async function apiRequest(endpoint, options = {}) {
   try {
-
+    const token = AuthService.getAccessToken();
     let defaultHeader = {};
 
+    const headers = {
+      ...options.headers,
+      ...(token? { 'Authorization': `Bearer ${token}` } : {}),
+    }
+
     if(!(options.body instanceof FormData)){
-        defaultHeader['Content-Type'] = 'application/json';
+        headers['Content-Type'] = 'application/json';
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
-      headers: {
-        ...defaultHeader,
-        ...(options.headers || {}),
-      },
+      headers,
     });
-
+   
     const contentType = response.headers.get('content-type');
     let data = null;
     if (contentType && contentType.includes('application/json')) {
@@ -33,7 +36,7 @@ export async function apiRequest(endpoint, options = {}) {
     return {
       ok: response.ok,
       status: response.status,
-      data,
+      data, 
       headers: response.headers,
     };
   } catch (error) {

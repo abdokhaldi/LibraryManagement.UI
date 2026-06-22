@@ -3,7 +3,7 @@ import BookInventory from './features/book/pages/BookInventory';
 import Dashboard from './features/dashboard/pages/Dashboard';
 import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
-import Onboarding from './components/Onboarding';
+import Onboarding from './auth/components/Onboarding';
 import { useState } from 'react'; 
 
 function App() {

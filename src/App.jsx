@@ -5,18 +5,17 @@ import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
 import Onboarding from './auth/components/Onboarding';
 import { useState } from 'react'; 
+import LandingPage from './landingPage/components/LandingPage';
 
 function App() {
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isLandingPageOpen, setIsLandingPageOpen] = useState(false);
 const [activePage, setActivePage] = useState("dashboard");
 
-if(!isOnboardingOpen){
+if(!isLandingPageOpen){
     
   return (
-   
-      <Onboarding onCompleted={() => setIsOnboardingOpen(true)}/>
-    
-  );
+   <LandingPage onCompleted={() => setIsLandingPageOpen(true)}/>
+   );
 }
 
   return (

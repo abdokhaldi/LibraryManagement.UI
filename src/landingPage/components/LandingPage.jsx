@@ -4,7 +4,7 @@ import Register from '../../auth/components/Onboarding';
 import Login from '../../auth/components/LoginForm';
 import myImage from '../../assets/lib-image.png';
 
-const LandingPage = () => {
+const LandingPage = ({onCompleted}) => {
 
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
@@ -12,11 +12,11 @@ const LandingPage = () => {
   return (
     <> 
     {
-      openLogin && <Login />
+      openLogin && <Login onCompleted={onCompleted}/>
     }
 
     {
-      openRegister && <Register />
+      openRegister && <Register onCompleted={onCompleted}/>
     }
 
    { (!openLogin && !openRegister) &&<div className="min-h-screen bg-white text-slate-900">

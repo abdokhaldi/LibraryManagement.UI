@@ -1,6 +1,7 @@
 import React from "react";
 
 export default function PersonForm({ data, onChange }) {
+ 
   const handle = (e) => {
     const { name, value } = e.target;
     onChange({ [name]: value });

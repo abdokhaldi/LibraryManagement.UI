@@ -38,36 +38,6 @@ export default function TenantForm({ data, onChange }) {
           required
         />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Default Language</label>
-          <select
-            name="defaultLanguage"
-            value={data.defaultLanguage}
-            onChange={handle}
-            className={inputClass}
-          >
-            <option value="" disabled>Select language</option>
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="ar">العربية</option>
-          </select>
-        </div>
-
-        <div>
-          <label className={labelClass}>Time Zone</label>
-          <input
-            type="text"
-            name="timeZone"
-            value={data.timeZone}
-            onChange={handle}
-            className={inputClass}
-            placeholder="e.g. UTC"
-          />
-        </div>
-      </div>
-    </form>
+ </form>
   );
 }

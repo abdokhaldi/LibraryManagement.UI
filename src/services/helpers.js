@@ -11,7 +11,7 @@ import {API_URL} from './config';
 export async function apiRequest(endpoint, options = {}) {
   try {
     const token = AuthService.getAccessToken();
-    let defaultHeader = {};
+   
 
     const headers = {
       ...options.headers,

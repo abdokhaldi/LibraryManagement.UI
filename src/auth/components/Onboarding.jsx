@@ -4,6 +4,7 @@ import { FiCheckCircle, FiUser, FiHome, FiArrowLeft, FiArrowRight } from "react-
 import TenantForm from "./TenantForm";
 import PersonForm from "./PersonForm";
 import AdminUserForm from "./AdminUserForm";
+import { registerOwner } from "../../services/authService";
 
 const steps = [
   { id: 0, title: "Tenant", icon: <FiHome className="text-xl" /> },
@@ -13,11 +14,17 @@ const steps = [
 
 export default function Onboarding({ onCompleted }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
-    tenant: { name: "", identifier: "", defaultLanguage: "", timeZone: "" },
-    person: { firstName: "", lastName: "", nationalNumber: "", phone: "", email: "", address: "", city: "", gender: "M" },
-    adminUser: { username: "", password: "", roleId: 1, roleName: "Admin", personId: "" },
-  });
+ 
+const [formData, setFormData] = useState({
+  tenant: { name: "", identifier: "", defaultLanguage: "", timeZone: "" },
+  person: {
+    firstName: "", lastName: "", nationalNumber: "", phone: "", email: "",
+    address: "", city: "", gender: "M",
+  },
+  adminUser: {
+    username: "", password: "", roleId: 1, roleName: "Admin", personId: null,
+  },
+});
 
   const updateSection = (section, values) => {
     setFormData((prev) => ({
@@ -30,16 +37,29 @@ export default function Onboarding({ onCompleted }) {
   const prev = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
   const handleFinalSubmit = async () => {
-    console.log("Submitting payload:", formData);
-    onCompleted();
+    try{
+     const result = await registerOwner(formData);
+     if(result.success){
+      
+      alert(result.message);
+      onCompleted();
+      return;
+     }
+     
+    alert(result.message);
+    
+  }catch(ex)
+  {
+    console.error("Error during final submission:", ex);
+  }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center p-4">
-      {/* البطاقة الرئيسية */}
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center p-4">
+      
       <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-6 md:p-10 border border-white/50">
         
-        {/* Header Steps */}
+       
         <div className="flex justify-between mb-10">
           {steps.map((step) => (
             <div key={step.id} className="flex flex-col items-center flex-1">
@@ -57,7 +77,7 @@ export default function Onboarding({ onCompleted }) {
         </div>
 
         {/* Content Area */}
-        <div className="min-h-[300px]">
+        <div className="min-h-75">
           {currentStep === 0 && <TenantForm data={formData.tenant} onChange={(v) => updateSection("tenant", v)} />}
           {currentStep === 1 && <PersonForm data={formData.person} onChange={(v) => updateSection("person", v)} />}
           {currentStep === 2 && <AdminUserForm data={formData.adminUser} onChange={(v) => updateSection("adminUser", v)} />}

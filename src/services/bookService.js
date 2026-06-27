@@ -1,5 +1,6 @@
 import { apiRequest } from "./helpers";
 import { API_URL } from "./config";
+import { AuthService } from "./authService";
 
 
   export const getBooksList = async ({ 
@@ -19,6 +20,7 @@ import { API_URL } from "./config";
 
     const { ok, data, status, headers } = await apiRequest(`Book?${query}`);
     console.log('Received books list response:', { ok, status, headers });
+   
     if (!ok) {
       throw new Error(`Failed to fetch books, status code: ${status}`, status.text);
        }
@@ -57,21 +59,25 @@ import { API_URL } from "./config";
   
  export const addBook = async (newBook) => {
    
-  const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID', 'image'];
+  const requiredFields = ['title', 'isbn', 'author', 'publisher', 'yearPublished', 'categoryID', 'description', 'image'];
   
   const formData = new FormData();
-
+ const missing = [];
   for (const key of requiredFields) {
-    
-       if(!newBook[key] && newBook[key] !== 'image') 
-          return {
-           success: false,
-           errorMessage : "Missing one or more required properties",
-        }
-     
-       formData.append(key, newBook[key] || "");
-     }
+   
+    if (key !== 'image' && (newBook[key] === undefined || newBook[key] === null || newBook[key] === '')) {
+      missing.push(key);
+      continue;
+    }
+         formData.append(key, newBook[key] ?? '');
+  }
 
+   if (missing.length) {
+    return {
+      success: false,
+      errorMessage: `Missing required properties: ${missing.join(', ')}`,
+    };
+  }
       try{
 
       const {ok,data,status,headers} = await apiRequest('Book', {
@@ -83,12 +89,13 @@ import { API_URL } from "./config";
 
 
       if (!ok) {
-
-        console.log("error message: " + data.message);
+        
+        const msgError = data?.message || 'Failed to add book';
+        console.log("error message: " , msgError, "status code: ", status);
 
         return {
           success: false,
-          errorMessage : data.message,
+          errorMessage : msgError ,
         }
       }
      
@@ -100,7 +107,7 @@ import { API_URL } from "./config";
         data : data , //the value of data is newBookId
         location : locationHeader ,
         newBook : newBook,
-      }
+      }  
 
   } catch (error) {
       console.log('Server error : ', error);

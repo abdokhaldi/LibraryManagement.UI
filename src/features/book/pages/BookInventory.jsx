@@ -95,6 +95,7 @@ fetchBooksData();
          alert(result.errorMessage);
 
    } catch (error) {
+       console.error(error);
       alert('Error adding book: ', error);
     }
   };

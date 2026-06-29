@@ -13,9 +13,52 @@ export const AuthService = {
     localStorage.setItem(EXPIRES_AT_KEY, data.expiresAt);
   },
   getAccessToken: () => localStorage.getItem(TOKEN_KEY),
+  getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN_KEY),
   isTokenExpired: () => {
     const expiresAt = localStorage.getItem(EXPIRES_AT_KEY);
-    return !expiresAt || new Date().getTime() > new Date(expiresAt).getTime();
+    if (!expiresAt) return true;
+    // Add a 30-second buffer so we refresh slightly before actual expiry
+    const expiresTime = new Date(expiresAt).getTime();
+    const now = new Date().getTime();
+    return now >= expiresTime - 30 * 1000;
+  },
+  refreshAccessToken: async () => {
+    const refreshToken =  AuthService.getRefreshToken();
+    const accessToken = AuthService.getAccessToken() ;
+    console.log(`currenst refresh token is : ${refreshToken}`);
+    if (!refreshToken || !accessToken) {
+      console.warn("No refresh token available, logging out.");
+      AuthService.logout();
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}Auth/RefreshToken`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({refreshToken, accessToken}),
+      });
+
+      if (!response.ok) {
+        console.warn("Refresh token request failed, logging out.");
+        AuthService.logout();
+        return false;
+      }
+    
+      const data = await response.json();
+      console.log(`token is : ${data.token}`);
+      AuthService.saveAuthData({
+        token: data.token,
+        refreshToken: data.refreshToken,
+        expiresAt: data.expiresAt,
+      });
+      console.log(`new token is : ${AuthService.getAccessToken()}`);
+      return true;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      AuthService.logout();
+      return false;
+    }
   },
   logout: () => {
     localStorage.removeItem(TOKEN_KEY);
@@ -97,6 +140,8 @@ export const registerOwner = async (ownerRegistrationData) => {
     return error
   }
 };
+
+
 
 export const login = async (identifier, password) => {
   if (!identifier || !password) {

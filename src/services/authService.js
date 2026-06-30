@@ -23,39 +23,38 @@ export const AuthService = {
     return now >= expiresTime - 30 * 1000;
   },
   refreshAccessToken: async () => {
-    const refreshToken =  AuthService.getRefreshToken();
-    const accessToken = AuthService.getAccessToken() ;
-    console.log(`currenst refresh token is : ${refreshToken}`);
+    const refreshToken = AuthService.getRefreshToken();
+    const accessToken = AuthService.getAccessToken();
+    
     if (!refreshToken || !accessToken) {
-      console.warn("No refresh token available, logging out.");
       AuthService.logout();
       return false;
     }
 
     try {
-      const response = await fetch(`${API_URL}Auth/RefreshToken`, {
+      
+      const response = await fetch(`${API_URL}Auth/refresh_token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({refreshToken, accessToken}),
+        body: JSON.stringify({ refreshToken, accessToken }),
       });
 
       if (!response.ok) {
-        console.warn("Refresh token request failed, logging out.");
         AuthService.logout();
         return false;
       }
-    
+       
       const data = await response.json();
-      console.log(`token is : ${data.token}`);
+
       AuthService.saveAuthData({
         token: data.token,
         refreshToken: data.refreshToken,
         expiresAt: data.expiresAt,
       });
-      console.log(`new token is : ${AuthService.getAccessToken()}`);
+      console.log(`Token refreshed successfully. New token from response : ${data.token}`);
+      console.log(`Token refreshed successfully. New token from localStorage: ${data.token}`);
       return true;
     } catch (error) {
-      console.error("Error refreshing token:", error);
       AuthService.logout();
       return false;
     }

@@ -38,12 +38,14 @@ async function ensureValidToken() {
 export async function apiRequest(endpoint, options = {}, _isRetry = false) {
   try {
     // Check if token is expired and refresh if needed before making the request
+    if(endpoint !== 'Auth/RefreshToken'){
     if (AuthService.getAccessToken() && AuthService.isTokenExpired()) {
       const refreshed = await ensureValidToken();
       if (!refreshed) {
         console.warn("Token refresh failed, proceeding without valid token.");
       }
     }
+  }
 
     const token = AuthService.getAccessToken();
 

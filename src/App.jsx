@@ -14,7 +14,7 @@ const [activePage, setActivePage] = useState("dashboard");
 if(!isLandingPageOpen){
     
   return (
-   <LandingPage onCompleted={() => setIsLandingPageOpen(true)}/>
+   <LandingPage onCompleted={(q) => setIsLandingPageOpen(true)}/>
    );
 }
 

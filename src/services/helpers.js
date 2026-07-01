@@ -38,20 +38,21 @@ async function ensureValidToken() {
 export async function apiRequest(endpoint, options = {}, _isRetry = false) {
   try {
     // Check if token is expired and refresh if needed before making the request
-    if(endpoint !== 'Auth/RefreshToken'){
-    if (AuthService.getAccessToken() && AuthService.isTokenExpired()) {
+    const authEndpoints = ['Auth/refresh_token', 'Auth/Login', 'Auth/RegisterOwner'];
+    const isAuthEndpoint = authEndpoints.includes(endpoint);
+
+    if(!isAuthEndpoint && AuthService.getAccessToken() && AuthService.isTokenExpired()){
       const refreshed = await ensureValidToken();
       if (!refreshed) {
         console.warn("Token refresh failed, proceeding without valid token.");
       }
     }
-  }
 
+    
     const token = AuthService.getAccessToken();
-
     const headers = {
       ...options.headers,
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...(!isAuthEndpoint && token ? { 'Authorization': `Bearer ${token}` } : {}),
     }
 
     if(!(options.body instanceof FormData)){

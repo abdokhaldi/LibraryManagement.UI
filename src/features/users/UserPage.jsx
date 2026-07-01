@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import Pagination from '../../features/Pagination/Pagination';
 import StatCard from '../../features/commonCards/StatCard';
 import {
   HiOutlineSearch,
@@ -482,14 +483,12 @@ export default function UserPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50/80 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div>
+      <div className="mx-auto space-y-6">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              Users
-            </h1>
+           
             <p className="mt-1 text-sm text-gray-500">
               Manage system users — control access, roles, and account status.
             </p>
@@ -923,57 +922,14 @@ export default function UserPage() {
 
           {/* ── Pagination ────────────────────────────────────────────────── */}
           {filteredUsers.length > 0 && (
-            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-              <p className="text-xs text-gray-500">
-                Showing{" "}
-                <span className="font-medium text-gray-700">
-                  {(currentPage - 1) * pageSize + 1}
-                </span>{" "}
-                to{" "}
-                <span className="font-medium text-gray-700">
-                  {Math.min(currentPage * pageSize, filteredUsers.length)}
-                </span>{" "}
-                of{" "}
-                <span className="font-medium text-gray-700">
-                  {filteredUsers.length}
-                </span>{" "}
-                users
-              </p>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  ← Prev
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`h-8 w-8 rounded-lg text-xs font-medium transition ${
-                        currentPage === page
-                          ? "bg-green-500 text-white shadow-sm"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
-
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
+           
+              <Pagination 
+                onNext={() => handlePageChange(totalPages)}
+                onPrev={() => handlePageChange(currentPage - 1)}
+                currentPage={currentPage}
+                totalPages={totalPages}
+               />
+             
           )}
         </div>
       </div>

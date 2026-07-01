@@ -1,6 +1,6 @@
 
 
-function StateCard({ label, value, icon, color }) {
+function StatCard({ label, value, icon, color }) {
   const colorMap = {
     green: "bg-white text-green-800 border-white shadow-2xs",
     emerald: "bg-white text-green-800 border-white shadow-2xs",

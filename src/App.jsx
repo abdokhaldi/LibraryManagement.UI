@@ -3,6 +3,7 @@ import BookInventory from './features/book/pages/BookInventory';
 import Dashboard from './features/dashboard/pages/Dashboard';
 import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
+import User from './features/users/UserPage';
 import Onboarding from './auth/components/Onboarding';
 import { useState } from 'react'; 
 import LandingPage from './landingPage/components/LandingPage';
@@ -26,7 +27,7 @@ if(!isLandingPageOpen){
         {activePage === 'books' && <BookInventory/>}
         {activePage === 'loans' && <Loan/>}
         {activePage === 'members' && <Member/>}
-        
+        {activePage === 'users' && <User/>}
            
     </Layout>
   );

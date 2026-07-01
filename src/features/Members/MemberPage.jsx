@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import StatCard from '../../features/commonCards/StatCard';
+import Pagination from '../Pagination/Pagination';
 import {
   HiOutlineSearch,
   HiOutlineChevronUp,
@@ -899,59 +900,13 @@ export default function MemberPage() {
           </div>
 
           {/* ── Pagination ────────────────────────────────────────────────── */}
-          {filteredMembers.length > 0 && (
-            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-              <p className="text-xs text-gray-500">
-                Showing{" "}
-                <span className="font-medium text-gray-700">
-                  {(currentPage - 1) * pageSize + 1}
-                </span>{" "}
-                to{" "}
-                <span className="font-medium text-gray-700">
-                  {Math.min(currentPage * pageSize, filteredMembers.length)}
-                </span>{" "}
-                of{" "}
-                <span className="font-medium text-gray-700">
-                  {filteredMembers.length}
-                </span>{" "}
-                members
-              </p>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  ← Prev
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`h-8 w-8 rounded-lg text-xs font-medium transition ${
-                        currentPage === page
-                          ? "bg-green-500 text-white shadow-sm"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
-
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
-          )}
+            <Pagination 
+              onPrev={() => handlePageChange(currentPage - 1)}
+              onNext={() => handlePageChange(totalPages)}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              />
+          
         </div>
         </div>
       </div>

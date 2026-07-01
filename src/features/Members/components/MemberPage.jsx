@@ -216,34 +216,31 @@ function SortIcon({ columnKey, sortConfig }) {
 
 function StatCard({ label, value, icon, color }) {
   const colorMap = {
-    green: "bg-white text-green-800 border-white shadow-2xs",
-    emerald: "bg-white text-green-800 border-white shadow-2xs",
-    gray: "bg-white text-green-800 border-white shadow-2xs",
-    teal: "bg-white text-green-800 border-white shadow-2xs",
+    green: "bg-green-50 text-green-600 border-green-100",
+    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    gray: "bg-gray-50 text-gray-500 border-gray-100",
+    teal: "bg-teal-50 text-teal-600 border-teal-100",
   };
   const iconBgMap = {
-    green: " bg-blue-300 text-white",
-    emerald: "bg-green-300 text-white",
-    gray: "bg-red-500 text-white",
-    teal: "bg-yellow-300 text-white",
+    green: "bg-green-100 text-green-600",
+    emerald: "bg-emerald-100 text-emerald-600",
+    gray: "bg-gray-100 text-gray-500",
+    teal: "bg-teal-100 text-teal-600",
   };
 
   return (
     <div
-      className={`flex items-start justify-between  gap-3 rounded-xl border p-4 ${colorMap[color] || colorMap.green}`}
+      className={`flex items-center gap-3 rounded-xl border p-4 ${colorMap[color] || colorMap.green}`}
     >
-      <div className="flex-1 flex-col items-center justify-between">
-        
-        <p className="font-bold text-gray-300">{label.toUpperCase()}</p>
-        <p className="text-3xl font-bold">{value?value:0}</p>
-      </div>
-      
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${iconBgMap[color] || iconBgMap.green}`}
       >
         {icon}
       </div>
-
+      <div>
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-xs font-medium opacity-70">{label}</p>
+      </div>
     </div>
   );
 }
@@ -251,14 +248,14 @@ function StatCard({ label, value, icon, color }) {
 function StatusBadge({ status }) {
   if (status === "active") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-xs bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-green-600/20">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-green-600/20">
         <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
         Active
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-xs bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-500 ring-1 ring-gray-500/20">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-500 ring-1 ring-gray-500/20">
       <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
       Inactive
     </span>
@@ -268,13 +265,13 @@ function StatusBadge({ status }) {
 function TypeBadge({ type }) {
   if (type === "Premium") {
     return (
-      <span className="inline-flex items-center rounded-xs bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-600/20">
+      <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-600/20">
         ★ Premium
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center rounded-xs bg-gray-80 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+    <span className="inline-flex items-center rounded-full bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
       Regular
     </span>
   );
@@ -285,11 +282,11 @@ function MemberDetailModal({ member, onClose, onToggleStatus }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center   p-4 bg-black/40 "
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl p-6 shadow-xl bg-white "
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
@@ -314,7 +311,7 @@ function MemberDetailModal({ member, onClose, onToggleStatus }) {
           </button>
         </div>
 
-        <div className="mt-6 space-y-4 ">
+        <div className="mt-6 space-y-4">
           <DetailRow icon={<HiOutlineMail className="h-4 w-4" />} label="Email" value={member.email} />
           <DetailRow icon={<HiOutlinePhone className="h-4 w-4" />} label="Phone" value={member.phone} />
           <DetailRow icon={<HiOutlineCalendar className="h-4 w-4" />} label="Member since" value={formatDate(member.membershipDate)} />
@@ -505,14 +502,15 @@ export default function MemberPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div className="bg-gray-100 p-4 sm:p-2 lg:p-4 w-full" onClick={handleTableClick}>
-
-     
-      <div className="mx-auto space-y-10 bg-gray-100 w-full">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8" onClick={handleTableClick}>
+      <div className="mx-auto max-w-7xl space-y-6">
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-           <p className=" mt-1 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              Members
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
               Manage library members — people are added automatically when they
               borrow their first book.
             </p>
@@ -531,7 +529,7 @@ export default function MemberPage() {
         </div>
 
         {/* ── Stats Cards ────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 ">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard
             label="Total Members"
             value={stats.total}
@@ -559,8 +557,7 @@ export default function MemberPage() {
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
-        <div  >
-        <div className="rounded-t-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -725,11 +722,11 @@ export default function MemberPage() {
         </div>
 
         {/* ── Table ──────────────────────────────────────────────────────── */}
-        <div className="overflow-hidden rounded-b-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-100 ">
+                <tr className="border-b border-gray-100 bg-gray-50/80">
                   <th className="w-12 px-4 py-3.5">
                     <input
                       type="checkbox"
@@ -984,7 +981,6 @@ export default function MemberPage() {
               </div>
             </div>
           )}
-        </div>
         </div>
       </div>
 

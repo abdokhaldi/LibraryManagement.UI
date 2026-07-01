@@ -2,13 +2,10 @@ import { useState, useMemo, useCallback } from "react";
 import Pagination from '../../features/Pagination/Pagination';
 import StatCard from '../../features/commonCards/StatCard';
 import {
-  HiOutlineSearch,
   HiOutlineChevronUp,
   HiOutlineChevronDown,
-  HiOutlineX,
   HiOutlineCheck,
   HiOutlineBan,
-  HiOutlineRefresh,
   HiOutlineCalendar,
   HiOutlineShieldCheck,
   HiOutlineLockClosed,
@@ -20,8 +17,8 @@ import {
   MdBlock,
   MdAdminPanelSettings,
 } from "react-icons/md";
-import { IoFilter } from "react-icons/io5";
 import { RiUserAddLine } from "react-icons/ri";
+import SearchBar from '../commonCards/SearchBar';
 import UserFormModal from "./UserFormModal";
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
@@ -431,11 +428,6 @@ export default function UserPage() {
     setSelectedUsers(new Set());
   }, []);
 
-  const handleSearchChange = useCallback((e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
-  }, []);
-
   const handleResetFilters = useCallback(() => {
     setSearchQuery("");
     setStatusFilter("all");
@@ -483,35 +475,26 @@ export default function UserPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div>
+    <div >
       <div className="mx-auto space-y-6">
+      
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-           
             <p className="mt-1 text-sm text-gray-500">
               Manage system users — control access, roles, and account status.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <HiOutlineCalendar className="h-4 w-4" />
-              <span>
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-            <button
-              onClick={handleOpenAddModal}
-              className="inline-flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-green-600"
-            >
-              <RiUserAddLine className="h-4 w-4" />
-              Add User
-            </button>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <HiOutlineCalendar className="h-4 w-4" />
+            <span>
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
           </div>
         </div>
 
@@ -544,66 +527,27 @@ export default function UserPage() {
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <HiOutlineSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by name, username, or role…"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-500/20"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setCurrentPage(1);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <HiOutlineX className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Filter toggle & reset */}
-            <div className="flex items-center gap-2">
-              {hasActiveFilters && (
-                <button
-                  onClick={handleResetFilters}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
-                >
-                  <HiOutlineRefresh className="h-3.5 w-3.5" />
-                  Reset
-                </button>
-              )}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-medium transition ${
-                  showFilters
-                    ? "border-green-500 bg-green-50 text-green-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                <IoFilter className="h-3.5 w-3.5" />
-                Filters
-                {hasActiveFilters && (
-                  <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-[10px] font-bold text-white">
-                    {(statusFilter !== "all" ? 1 : 0) +
-                      (blockFilter !== "all" ? 1 : 0) +
-                      (roleFilter !== "all" ? 1 : 0)}
-                  </span>
-                )}
-              </button>
-            </div>
+        <div className="bg-white p-4 rounded-t-lg shadow-sm">
+          <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
+            <SearchBar
+              placeholder="Search by name, username, or role…"
+              searchTerm={searchQuery}
+              setSearchTerm={(val) => { setSearchQuery(val); setCurrentPage(1); }}
+              onFilterClick={() => setShowFilters(!showFilters)}
+              isFilterActive={showFilters}
+            />
+            <button
+              onClick={handleOpenAddModal}
+              className="px-8 py-2.5 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-bold text-xm gap-2"
+            >
+              <RiUserAddLine className="h-4 w-4" />
+              Add User
+            </button>
           </div>
 
           {/* ── Expandable Filters ────────────────────────────────────────── */}
           {showFilters && (
-            <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4">
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg flex flex-wrap gap-4 animate-in fade-in">
               {/* Status filter */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-gray-500">
@@ -617,7 +561,8 @@ export default function UserPage() {
                   ].map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setStatusFilter(opt.value);
                         setCurrentPage(1);
                       }}
@@ -646,7 +591,8 @@ export default function UserPage() {
                   ].map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setBlockFilter(opt.value);
                         setCurrentPage(1);
                       }}
@@ -676,7 +622,8 @@ export default function UserPage() {
                   ].map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setRoleFilter(opt.value);
                         setCurrentPage(1);
                       }}
@@ -696,7 +643,7 @@ export default function UserPage() {
 
           {/* ── Bulk Actions ──────────────────────────────────────────────── */}
           {selectedUsers.size > 0 && (
-            <div className="mt-4 flex items-center gap-3 border-t border-green-100 bg-green-50/50 -mx-4 -mb-4 px-4 py-3 rounded-b-xl">
+            <div className="mt-4 flex items-center gap-3 border-t border-green-100 bg-green-50/50 -mx-4 -mb-4 px-4 py-3 rounded-b-lg">
               <span className="text-xs font-medium text-green-700">
                 {selectedUsers.size} selected
               </span>
@@ -739,7 +686,7 @@ export default function UserPage() {
         </div>
 
         {/* ── Table ──────────────────────────────────────────────────────── */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-b-xl border border-gray-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
@@ -922,14 +869,12 @@ export default function UserPage() {
 
           {/* ── Pagination ────────────────────────────────────────────────── */}
           {filteredUsers.length > 0 && (
-           
-              <Pagination 
+              <Pagination
                 onNext={() => handlePageChange(totalPages)}
                 onPrev={() => handlePageChange(currentPage - 1)}
                 currentPage={currentPage}
                 totalPages={totalPages}
                />
-             
           )}
         </div>
       </div>

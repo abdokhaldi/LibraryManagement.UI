@@ -2,7 +2,7 @@
 import { FaEllipsisV } from "react-icons/fa";
 import DropDownActions from './DropDownActions';
 
-function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef }) {
+function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef, isLastRow }) {
  const bookCoverUrl = "http://localhost:5016/images/covers/";
   return (
     <tr
@@ -56,7 +56,7 @@ function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, i
       </button>
 
       {isActionsOpen && (
-        <div className="absolute right-0 top-full mt-1">
+        <div className={`absolute right-0 ${isLastRow ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
            <DropDownActions 
              onEdit={(e) => { e.stopPropagation(); onEdit(book); }}
              onDelete={(e) => { e.stopPropagation(); onDelete(book.bookID); }}

@@ -2,7 +2,7 @@ import BookRow from './BookRow';
 
 function BookTable({books, selectedRowId, onRowClick, onKeyDown, onOpenDetails, onEdit, onDelete, actionRow, setActionRow, actionRef }) {
   return (
-    <div className="bg-white rounded-lg overflow-hidden">
+    <div className="bg-white rounded-lg overflow-visible">
       <table 
         className="w-full text-left border-collapse"
         onKeyDown={onKeyDown}
@@ -30,7 +30,7 @@ function BookTable({books, selectedRowId, onRowClick, onKeyDown, onOpenDetails, 
               isActionsOpen={actionRow === book.bookID}
               setActionRow={setActionRow}
               actionRef={actionRef}
-             
+              isLastRow={index === books.length - 1}
             />
           ))}
         </tbody>

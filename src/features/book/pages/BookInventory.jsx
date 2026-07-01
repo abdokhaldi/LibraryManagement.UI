@@ -1,7 +1,9 @@
 
-import SearchBar from '../components/SearchBar';
+import SearchBar from '../../commonCards/SearchBar';
+import StatCard from '../../commonCards/StatCard';
 import { useEffect, useRef, useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
+import { FaBook, FaCopy, FaCheckCircle } from 'react-icons/fa';
 import BookForm from '../components/BookForm';
 import BookDetailsModal from './BookDetailsModal';
 import BookTable from '../components/BookTable';
@@ -230,10 +232,31 @@ if (loading) {
         book={selectedBook}
         onAddCopy={handleAddCopy}
       />
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard
+            label="Total Books"
+            value={booksData.length}
+            icon={<FaBook size={18} />}
+            color="green"
+        />
+        <StatCard
+            label="Total Copies"
+            value={booksData.reduce((sum, b) => sum + (b.totalCopies || 0), 0)}
+            icon={<FaCopy size={18} />}
+            color="teal"
+        />
+        <StatCard
+            label="Available Books"
+            value={booksData.reduce((sum, b) => sum + (b.availableCopies || 0), 0)}
+            icon={<FaCheckCircle size={18} />}
+            color="emerald"
+        />
+      </div>
       <div className={`${(showModal||showDetails) ? 'filter blur-sm' : ''} `}>        
         <div className="bg-white p-4 rounded-t-lg shadow-sm">
-        <div className="flex justify-between items-center gap-4 mb-4">
+        <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
           <SearchBar 
+            placeholder="Search by title, isbn, author..."
             searchTerm={searchTerm} 
             setSearchTerm={setSearchTerm} 
             onFilterClick={() => setShowFilter(!showFilter)} 
@@ -241,7 +264,7 @@ if (loading) {
           />
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-3 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-bold text-xm  gap-2"
+            className="px-8 py-2.5 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-bold text-xm  gap-2"
           >
             <FiPlus size={20} />
             Add New Book
@@ -261,7 +284,7 @@ if (loading) {
           </div>
         )}
       </div>
-      <div className="bg-white shadow-md overflow-y-visible">
+      <div className="bg-white shadow-md overflow-visible">
       
      
        <BookTable 
@@ -288,6 +311,7 @@ if (loading) {
     />}  
      
     </div>
+
     </div>
   );
 }

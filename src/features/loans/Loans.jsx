@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { FaSearch, FaFilter, FaEllipsisV, FaPlus, FaCalendarAlt, FaInfoCircle } from 'react-icons/fa';
+import { FaEllipsisV, FaPlus, FaCalendarAlt, FaInfoCircle, FaBook, FaExclamationTriangle, FaCheckCircle, FaClock } from 'react-icons/fa';
+import SearchBar from '../commonCards/SearchBar';
+import StatCard from '../commonCards/StatCard';
 import ScanModal from './components/ScanModal';
 import ViewFinesModal from './FinesHistoryModal';
 import {getLoans, returnBook} from '../../services/loanService';
@@ -90,7 +92,7 @@ const handleCloseExtendModal = () => {
 
 
     return (
-        <div className="relative p-6 bg-slate-50 min-h-screen font-sans">
+        <div className="relative p-6 bg-gray-100 min-h-screen font-sans">
             {
             isOpen && <ViewFinesModal 
             isOpen={isOpen} 
@@ -108,31 +110,48 @@ const handleCloseExtendModal = () => {
             onLoanUpdated={loadLoansData}
              />
              }
+            <div className=" mx-auto mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                    label="Total Loans"
+                    value={loansData.length}
+                    icon={<FaBook size={18} />}
+                    color="green"
+                />
+                <StatCard
+                    label="Borrowed"
+                    value={loansData.filter(l => l.status === "Borrowed").length}
+                    icon={<FaClock size={18} />}
+                    color="teal"
+                />
+                <StatCard
+                    label="Overdue"
+                    value={loansData.filter(l => l.status === "Overdue").length}
+                    icon={<FaExclamationTriangle size={18} />}
+                    color="gray"
+                />
+                <StatCard
+                    label="Returned"
+                    value={loansData.filter(l => l.status === "Returned").length}
+                    icon={<FaCheckCircle size={18} />}
+                    color="emerald"
+                />
+            </div>
+
           {!showBorrowModal && <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 
                 
                 <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
-                    <div className="flex items-center gap-3 flex-1 min-w-75">
-                        <div className="relative flex-1">
-                            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input 
-                                type="text"
-                                placeholder="Search by barcode, member, or book title..."
-                                className="w-full pl-11 pr-4 py-2.5 bg-slate-200 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 placeholder:text-slate-400"
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <button 
-                            onClick={() => setShowFilter(!showFilter)}
-                            className={`p-2.5 rounded-xl transition-all ${showFilter ? 'bg-green-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-200'}`}
-                        >
-                            <FaFilter size={18} />
-                        </button>
-                    </div>
+                    <SearchBar
+                        placeholder="Search by barcode, member, or book title..."
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        onFilterClick={() => setShowFilter(!showFilter)}
+                        isFilterActive={showFilter}
+                    />
 
                     <button 
                         onClick={() => setShowBorrowModal(true)}
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-green-500 hover:bg-green-700 text-white px-8 py-2.5 rounded-md font-bold shadow-lg shadow-blue-200 transition-all active:scale-95"
                     >
                         <FaPlus /> New Loan
                     </button>
@@ -256,6 +275,7 @@ const handleCloseExtendModal = () => {
                 }
             </div>
             }
+
         </div>
     );
 }

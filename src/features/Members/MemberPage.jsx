@@ -2,14 +2,12 @@ import { useState, useMemo, useCallback } from "react";
 import StatCard from '../../features/commonCards/StatCard';
 import Pagination from '../Pagination/Pagination';
 import {
-  HiOutlineSearch,
   HiOutlineChevronUp,
   HiOutlineChevronDown,
   HiOutlineX,
   HiOutlineCheck,
   HiOutlineBan,
   HiOutlineEye,
-  HiOutlineRefresh,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineBookOpen,
@@ -18,6 +16,7 @@ import {
 } from "react-icons/hi";
 import { MdPeopleAlt, MdPersonOff } from "react-icons/md";
 import { IoFilter } from "react-icons/io5";
+import SearchBar from '../commonCards/SearchBar';
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const MOCK_MEMBERS = [
@@ -451,11 +450,6 @@ export default function MemberPage() {
     setSelectedMembers(new Set());
   }, []);
 
-  const handleSearchChange = useCallback((e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
-  }, []);
-
   const handleResetFilters = useCallback(() => {
     setSearchQuery("");
     setStatusFilter("all");
@@ -474,10 +468,10 @@ export default function MemberPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div className="bg-gray-100 p-4 sm:p-2 lg:p-4 w-full" onClick={handleTableClick}>
+    <div className="bg-gray-100 sm:p-2 lg:p-0 w-full" onClick={handleTableClick}>
 
      
-      <div className="mx-auto space-y-10 bg-gray-100 w-full">
+      <div className="space-y-10 bg-gray-100 w-full">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
           <div>
@@ -528,70 +522,20 @@ export default function MemberPage() {
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
-        <div  >
-        <div className="rounded-t-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <HiOutlineSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by name, email, or phone…"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-500/20"
-              />
-              {searchQuery && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSearchQuery("");
-                    setCurrentPage(1);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <HiOutlineX className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Filter toggle & reset */}
-            <div className="flex items-center gap-2">
-              {hasActiveFilters && (
-                <button
-                  onClick={handleResetFilters}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
-                >
-                  <HiOutlineRefresh className="h-3.5 w-3.5" />
-                  Reset
-                </button>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFilters(!showFilters);
-                }}
-                className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-medium transition ${
-                  showFilters
-                    ? "border-green-500 bg-green-50 text-green-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                <IoFilter className="h-3.5 w-3.5" />
-                Filters
-                {hasActiveFilters && (
-                  <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-[10px] font-bold text-white">
-                    {(statusFilter !== "all" ? 1 : 0) +
-                      (typeFilter !== "all" ? 1 : 0)}
-                  </span>
-                )}
-              </button>
-            </div>
+        <div className="bg-white p-4 rounded-t-lg shadow-sm">
+          <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
+            <SearchBar
+              placeholder="Search by name, email, or phone…"
+              searchTerm={searchQuery}
+              setSearchTerm={(val) => { setSearchQuery(val); setCurrentPage(1); }}
+              onFilterClick={() => setShowFilters(!showFilters)}
+              isFilterActive={showFilters}
+            />
           </div>
 
           {/* ── Expandable Filters ────────────────────────────────────────── */}
           {showFilters && (
-            <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4">
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg flex flex-wrap gap-4 animate-in fade-in">
               {/* Status filter */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-gray-500">
@@ -908,7 +852,6 @@ export default function MemberPage() {
               />
           
         </div>
-        </div>
       </div>
 
       {/* ── Detail Modal ──────────────────────────────────────────────────── */}
@@ -920,6 +863,7 @@ export default function MemberPage() {
           setDetailModal(null);
         }}
       />
+
     </div>
   );
 }

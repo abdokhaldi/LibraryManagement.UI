@@ -12,7 +12,6 @@ const LandingPage = ({onCompleted}) => {
   return (
     <> 
     
-
    { <div className="min-h-screen bg-white text-slate-900">
       {/* Navigation - متجاوب: تظهر الأزرار بشكل مريح في كل الشاشات */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">

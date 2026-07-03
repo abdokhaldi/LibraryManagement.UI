@@ -471,7 +471,7 @@ export default function MemberPage() {
     <div className="bg-gray-100 sm:p-2 lg:p-0 w-full" onClick={handleTableClick}>
 
      
-      <div className="space-y-10 bg-gray-100 w-full">
+      <div className="space-y-6 bg-gray-100 w-full">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
           <div>
@@ -522,6 +522,7 @@ export default function MemberPage() {
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
+        <div>
         <div className="bg-white p-4 rounded-t-lg shadow-sm">
           <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
             <SearchBar
@@ -841,6 +842,7 @@ export default function MemberPage() {
                 )}
               </tbody>
             </table>
+          </div>
           </div>
 
           {/* ── Pagination ────────────────────────────────────────────────── */}

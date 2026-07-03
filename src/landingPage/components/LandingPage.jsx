@@ -3,23 +3,17 @@ import { FaBookReader, FaShieldAlt } from 'react-icons/fa';
 import Register from '../../auth/components/Onboarding';
 import Login from '../../auth/components/LoginForm';
 import myImage from '../../assets/lib-image.png';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = ({onCompleted}) => {
-
-  const [openLogin, setOpenLogin] = useState(false);
-  const [openRegister, setOpenRegister] = useState(false);
+  const navigate = useNavigate()
+  
 
   return (
     <> 
-    {
-      openLogin && <Login onCompleted={onCompleted}/>
-    }
+    
 
-    {
-      openRegister && <Register onCompleted={onCompleted}/>
-    }
-
-   { (!openLogin && !openRegister) &&<div className="min-h-screen bg-white text-slate-900">
+   { <div className="min-h-screen bg-white text-slate-900">
       {/* Navigation - متجاوب: تظهر الأزرار بشكل مريح في كل الشاشات */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
         <div className="flex items-center gap-2 text-emerald-700 font-bold text-xl md:text-2xl">
@@ -29,12 +23,12 @@ const LandingPage = ({onCompleted}) => {
         
         <div className="flex items-center gap-2 md:gap-4">
           <button 
-          onClick={() => setOpenLogin(true)}
+          onClick={() => navigate('/login', {replace:true})}
           className="px-3 md:px-5 py-2 text-slate-600 font-medium hover:text-emerald-600 transition text-sm md:text-base">
             Login
           </button>
           <button 
-          onClick={() => setOpenRegister(true)}
+          onClick={() => navigate('/register', {replace:true})}
           className="px-3 md:px-5 py-2 bg-slate-900 text-white font-semibold rounded-full hover:bg-emerald-600 transition shadow-lg text-sm md:text-base">
             Get Started
           </button>

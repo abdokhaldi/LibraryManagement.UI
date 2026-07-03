@@ -12,6 +12,7 @@ import LandingPage from './landingPage/components/LandingPage';
 
 import LoginPage from './auth/components/LoginForm';
 import { Routes,Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from './ProtectedRoute';
 
 function App() {
  
@@ -20,23 +21,21 @@ function App() {
   
     return (
        <Routes>
-        <Route path="/welcome" element={<LandingPage/>}/>
-        <Route path="/login" element={<LoginPage onCompleted={() => setIsAuthenticated(true)}/>}/>
+        <Route path="/welcome" element={<LandingPage onCompleted={() => setIsAuthenticated(true)}/>}/>
+        <Route path="/login" element={<LoginPage onCompleted={ () => setIsAuthenticated(true)}/>}/>
         <Route path="/register" element={<Onboarding onCompleted={() => setIsAuthenticated(true)}/>}/>
-    { isAuthenticated ? ( <Route path="/" element={<Layout />}>
+       <Route element={<ProtectedRoute isAuthenticated={isAuthenticated}/>}>
+           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard/>}/>
             <Route path="dashboard" element={<Dashboard/>}/>
             <Route path="books" element={<BookInventory/>}/>
             <Route path="loans" element={<Loan/>}/>
             <Route path="members" element={<Member/>}/>
             <Route path="users" element={<User/>}/>
-          
-     
-   </Route> 
-  ) : (
-         <Route path='*' element ={ <Navigate to="/welcome" />} />
-    )
-  }
+          </Route> 
+      </Route>
+   
+      <Route path='*' element={<Navigate to='/welcome' replace/>}/>
      
       </Routes>
     );

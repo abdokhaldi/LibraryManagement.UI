@@ -2,10 +2,12 @@ import React from 'react';
 import { FaBookReader, FaArrowRight } from 'react-icons/fa';
 import { login } from '../../services/authService';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage({onCompleted}) {
 
   const [credentials , setCredentials] = useState({identifier : "", password : ""});
+  const navigate = useNavigate();
   
   const HandleLogin = async (identifier, password) => {
      try{
@@ -19,7 +21,7 @@ export default function LoginPage({onCompleted}) {
       
       alert(result.message); 
       onCompleted();
-      
+      navigate('/');
      }catch(error){
       console.log(error.message);
      }

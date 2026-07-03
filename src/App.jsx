@@ -1,3 +1,5 @@
+import { useState } from 'react'; 
+
 import Layout from './layouts/Layout';
 import BookInventory from './features/book/pages/BookInventory';
 import Dashboard from './features/dashboard/pages/Dashboard';
@@ -5,33 +7,41 @@ import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
 import User from './features/users/UserPage';
 import Onboarding from './auth/components/Onboarding';
-import { useState } from 'react'; 
+
 import LandingPage from './landingPage/components/LandingPage';
 
+import LoginPage from './auth/components/LoginForm';
+import { Routes,Route, Navigate } from 'react-router-dom';
+
 function App() {
-  const [isLandingPageOpen, setIsLandingPageOpen] = useState(false);
-const [activePage, setActivePage] = useState("dashboard");
-
-if(!isLandingPageOpen){
-    
-  return (
-   <LandingPage onCompleted={(q) => setIsLandingPageOpen(true)}/>
-   );
-}
-
-  return (
-    <Layout setActivePage={setActivePage}>
-      
-         
-        {activePage === 'dashboard' && <Dashboard />}
-        {activePage === 'books' && <BookInventory/>}
-        {activePage === 'loans' && <Loan/>}
-        {activePage === 'members' && <Member/>}
-        {activePage === 'users' && <User/>}
-           
-    </Layout>
-  );
+ 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+ 
+  
+    return (
+       <Routes>
+        <Route path="/welcome" element={<LandingPage/>}/>
+        <Route path="/login" element={<LoginPage onCompleted={() => setIsAuthenticated(true)}/>}/>
+        <Route path="/register" element={<Onboarding onCompleted={() => setIsAuthenticated(true)}/>}/>
+    { isAuthenticated ? ( <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard/>}/>
+            <Route path="dashboard" element={<Dashboard/>}/>
+            <Route path="books" element={<BookInventory/>}/>
+            <Route path="loans" element={<Loan/>}/>
+            <Route path="members" element={<Member/>}/>
+            <Route path="users" element={<User/>}/>
+          
+     
+   </Route> 
+  ) : (
+         <Route path='*' element ={ <Navigate to="/welcome" />} />
+    )
+  }
+     
+      </Routes>
+    );
   }
 
+ 
+
 export default App;
-      

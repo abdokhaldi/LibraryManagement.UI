@@ -27,7 +27,7 @@ function Dashboard() {
 
   return (
     
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-gray-100 gap-6'>
+    <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-gray-100 gap-6'>
     
       {
            cardInfo.map( (card) => (
@@ -35,11 +35,12 @@ function Dashboard() {
              <TotalAnalyticsCard key={card.title} color={card.color} title={card.title} value={card.value} percentage={card.percentage}/>
             ) )
      }
-    
+   
     <WeekChartCard title={title[1]} />
       <PopularCategoriesCard title={title[2]} />
+      
       <TableCard activities={activities} />
-    </div>
+   </div>
    );
   }
 

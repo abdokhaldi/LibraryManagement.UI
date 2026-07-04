@@ -121,6 +121,7 @@ export const registerOwner = async (ownerRegistrationData) => {
     };
   }
   
+
   AuthService.saveAuthData({
     token: data.token,
     refreshToken: data.refreshToken,
@@ -190,3 +191,33 @@ console.log(`referesh token is : ${data.refreshToken}`);
      }
   }    
   }
+
+ export const getBookById = async (bookId)=> {
+      if(!bookId){
+         return {
+          success: false,
+          errorMessage:"invalid book id"
+         }
+        }
+         try{
+          const {ok,data,message} = await apiRequest(`book/${bookId}`);
+          if(!ok){
+             console.log("faild to fetch the book");
+           return {
+            success: false,
+            errorMessage :message
+           }
+           return;
+         }
+        
+         console.log("the book was fetched successfully");
+         return {
+          success : true,
+          data : data,
+         }
+
+         }catch(error){
+           return error
+         }
+      }
+  

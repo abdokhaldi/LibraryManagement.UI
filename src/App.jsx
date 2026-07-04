@@ -13,11 +13,13 @@ import LandingPage from './landingPage/components/LandingPage';
 import LoginPage from './auth/components/LoginForm';
 import { Routes,Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
+import BookDetailsModal from './features/book/pages/BookDetailsModal';
+import { useEffect } from 'react';
+import { AuthService } from './services/authService';
 
 function App() {
  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
- 
   
     return (
        <Routes>
@@ -28,7 +30,9 @@ function App() {
            <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard/>}/>
             <Route path="dashboard" element={<Dashboard/>}/>
-            <Route path="books" element={<BookInventory/>}/>
+            <Route path="books" element={<BookInventory/>}>
+            <Route path="/books/:bookId" element={<BookDetailsModal/>}/>
+            </Route>
             <Route path="loans" element={<Loan/>}/>
             <Route path="members" element={<Member/>}/>
             <Route path="users" element={<User/>}/>

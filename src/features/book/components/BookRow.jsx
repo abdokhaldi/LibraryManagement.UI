@@ -1,10 +1,13 @@
 
 import { FaEllipsisV } from "react-icons/fa";
 import DropDownActions from './DropDownActions';
+import { Link } from "react-router-dom";
 
 function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef, isLastRow }) {
  const bookCoverUrl = "http://localhost:5016/images/covers/";
+
   return (
+    
     <tr
       className={`border-b cursor-pointer  ${isSelected ? 'relative z-50 bg-slate-100' : ''}`}
       onClick={onSelect}
@@ -12,12 +15,13 @@ function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, i
     >
       <td className="p-4 flex items-center gap-5">
        {isSelected && <span className={`mr-2 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
-          <button
-            onClick={(e) => {e.stopPropagation(); onOpenDetails(book); }}
-            className="text-green-300 underline text-sm"
-          >
+          <Link
+            className="text-blue-400"
+            to={`/books/${book.bookID}`}
+           >
             Details
-          </button>
+            
+          </Link>
         </span>
       }
         

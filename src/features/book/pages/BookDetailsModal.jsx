@@ -1,13 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; // FiTool للصيانة
+import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; 
 import { FaEllipsisV, FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
 import BookCopyPagination from '../../Pagination/Pagination';
-import { apiRequest } from '../../../services/helpers';
 import { getBookCopies } from '../../../services/bookCopiesService';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getBookById } from '../../../services/authService';
 
-function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
+function BookDetailsModal({ onClose, onAddCopy }) {
   const bookCover = "http://localhost:5016/images/covers/";
+  const { bookId } = useParams();
+  const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [numberOfCopies, setNumberOfCopies] = useState(1);
@@ -17,41 +21,53 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
 
   const [loadedCopies, setLoadedCopies] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true); // إضافة حالة التحميل لحماية التطبيق
 
- 
   const statusConfig = {
     available: { label: 'Loan', color: 'bg-green-500', text: 'Available' },
     borrowed: { label: 'Return', color: 'bg-blue-500', text: 'Borrowed' },
     damaged: { label: 'Repair', color: 'bg-orange-500', text: 'Damaged' },
     lost: { label: '---', color: 'bg-red-600', text: 'Lost' }
   };
-  
+
   useEffect(() => {
-   
-    if (!isOpen || !book?.bookID) { 
-        setLoadedCopies([]);
-        setTotalPages(0);
-        return;
-    }
-    const loadBookCopies = async () => {
+    if (!bookId) return;
+    console.log(bookId);
+    const loadBookData = async () => {
       try {
-        console.log(`currentPage:${currentPage} pageSize:${itemsPerPage} searchTerm:${searchTerm} bookID:${book.bookID}`);
+        setLoading(true);
+        const queryProps = { pageNumber: currentPage, pageSize: itemsPerPage, searchTerm: searchTerm, bookID: bookId };
+        
+       
+        const [copiesResult, bookResult] = await Promise.all([
+          getBookCopies({ ...queryProps }),
+          getBookById(bookId),
+        ]); 
 
-        const queryProps = {pageNumber:currentPage, pageSize:itemsPerPage, searchTerm:searchTerm,bookID:book.bookID};
-        const result = await getBookCopies({...queryProps});
+        
+        if (bookResult && bookResult.data) {
+          setBook(bookResult.data);
+        } else {
+          alert(bookResult.errorMessage);
+        }
 
-          setLoadedCopies(result.data);
+        if (copiesResult) {
+          setLoadedCopies(copiesResult.data || []);
+          setTotalPages(copiesResult.totalPages || 0);
+        }
 
-         setTotalPages(result.totalPages);
-
-        } catch (error) {
-        console.log("Network error while fetching book copies :", error)
-        alert("Network error while fetching book copies");
+      } catch (error) {
+        console.log("Network error while fetching data :", error);
+        alert("Network error while fetching data");
+      } finally {
+        setLoading(false);
       }
     };
-    loadBookCopies();
-  }, [book, currentPage, isOpen, searchTerm]);
 
+    loadBookData();
+    // ✅ تم حذف isOpen من مصفوفة التبعيات بالأسفل لمنع الـ ReferenceError
+  }, [bookId, currentPage, searchTerm]); 
 
   useEffect(() => {
     if (!actionRow) return;
@@ -64,7 +80,27 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [actionRow]);
 
-  if (!isOpen || !book) return null;
+  // شاشة حماية أثناء جلب البيانات من الـ API لمنع الـ Crash
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="bg-white p-6 rounded-lg text-xl font-semibold text-gray-600">
+          Loading book information from server...
+        </div>
+      </div>
+    );
+  }
+
+  // إذا لم يعثر السيرفر على الكتاب
+  if (!book) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="bg-white p-6 rounded-lg text-xl font-semibold text-red-600">
+          Book profile not found!
+        </div>
+      </div>
+    );
+  }
 
   const handleAction = (type, copy) => {
     console.log(`${type} copy:`, copy);
@@ -75,8 +111,8 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col border-green-400 border-2">
         
-        
         <div className="flex justify-between items-center mb-6">
+          {/* الـ book.title الآن آمن تماماً ولن يسبب انهيار */}
           <h2 className="text-2xl font-bold italic">"{book.title}" Details</h2>
           <div className="flex items-center gap-3">
             <input
@@ -96,7 +132,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
         </div>
 
         <div className="flex gap-8 overflow-y-auto">
-          
           <div className="w-1/4 h-full sticky top-0">
             <img 
               src={`${bookCover}${book.imagePath}`} 
@@ -111,7 +146,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
             </div>
           </div>
 
-         
           <div className="flex-1">
             <div className="mb-4">
               <input
@@ -134,7 +168,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
               </thead>
               <tbody>
                 {loadedCopies.map((copy)=> (
-                 
                   <tr key={copy.bookCopyID} className="border-b hover:bg-gray-50 transition-colors h-16">
                     <td className="p-3 font-mono">{copy.barcode}</td>
                     <td className="p-3">
@@ -145,7 +178,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                     <td className="p-3 text-gray-600">{copy.condition}</td>
                     <td className="p-3 relative">
                       <div className="flex items-center justify-center gap-2">
-                        
                         <button 
                           disabled={copy.status.toLowerCase() === 'lost'}
                           className={`px-4 py-1 text-white rounded shadow-sm text-sm w-24 transition-transform active:scale-95 ${statusConfig[copy.status.toLowerCase()]?.color} disabled:bg-gray-300`}
@@ -153,7 +185,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                           {statusConfig[copy.status.toLowerCase()]?.label}
                         </button>
 
-                       
                         <div className="relative">
                           <button
                             onClick={(e) => {
@@ -170,7 +201,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                               ref={actionRef}
                               className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-xl z-60 flex flex-col py-1 animate-in fade-in zoom-in duration-100"
                             >
-                              
                               {copy.status.toLowerCase() === 'available' && (
                                 <>
                                   <button onClick={() => handleAction('edit', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FiEdit className="text-blue-500" /> Edit Copy</button>
@@ -179,7 +209,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                                 </>
                               )}
 
-                              
                               {copy.status.toLowerCase() === 'borrowed' && (
                                 <>
                                   <button onClick={() => handleAction('extend', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FaArrowsRotate className="text-blue-600" /> Extend Date</button>
@@ -188,12 +217,10 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
                                 </>
                               )}
 
-                             
                               {copy.status.toLowerCase() === 'damaged' && (
                                 <button onClick={() => handleAction('repair', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm"><FiTool className="text-orange-500" /> Fixed / Ready</button>
                               )}
 
-                              
                               {(['available', 'lost', 'damaged'].includes(copy.status.toLowerCase())) && (
                                 <button onClick={() => handleAction('delete', copy)} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-sm text-red-700 border-t"><FiTrash /> Delete</button>
                               )}
@@ -207,7 +234,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
               </tbody>
             </table>
 
-           
             {totalPages === 0 && (
               <div className='flex flex-col justify-center items-center py-10 opacity-40'>
                 <FiBook size={50} />
@@ -215,7 +241,6 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
               </div>
             )}
 
-           
             {totalPages > 0 && (
               <BookCopyPagination 
                onNext={() => setCurrentPage(prev => prev +1)}
@@ -230,7 +255,7 @@ function BookDetailsModal({ isOpen, onClose, book, onAddCopy }) {
         {/* Footer */}
         <div className="flex justify-end mt-6 pt-4 border-t">
           <button
-            onClick={() => { setCurrentPage(1); onClose(); }}
+            onClick={() => { setCurrentPage(1); navigate("/books", { replace: true }); }}
             className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-black transition-colors"
           >
             Close

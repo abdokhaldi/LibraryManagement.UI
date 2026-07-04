@@ -8,6 +8,7 @@ import BookForm from '../components/BookForm';
 import BookDetailsModal from './BookDetailsModal';
 import BookTable from '../components/BookTable';
 import BookPagination from '../../Pagination/Pagination';
+import { Outlet } from 'react-router-dom';
 import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../../services/bookService';
 
 function BookInventory() {
@@ -226,12 +227,7 @@ if (loading) {
         onAdd={handleAddBook}
         onEdit={handleUpdateBook}
       />
-      <BookDetailsModal
-        isOpen={showDetails}
-        onClose={closeDetails}
-        book={selectedBook}
-        onAddCopy={handleAddCopy}
-      />
+      
       <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
             label="Total Books"
@@ -311,8 +307,9 @@ if (loading) {
     />}  
      
     </div>
-
+    <Outlet/>
     </div>
+    
   );
 }
 

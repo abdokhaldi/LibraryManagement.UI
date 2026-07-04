@@ -13,7 +13,7 @@ const LandingPage = ({onCompleted}) => {
     <> 
     
    { <div className="min-h-screen bg-white text-slate-900">
-      {/* Navigation - متجاوب: تظهر الأزرار بشكل مريح في كل الشاشات */}
+      
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
         <div className="flex items-center gap-2 text-emerald-700 font-bold text-xl md:text-2xl">
           <FaBookReader />
@@ -34,13 +34,13 @@ const LandingPage = ({onCompleted}) => {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      
       <main className="max-w-6xl mx-auto mt-10 md:mt-16 px-6 flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs md:text-sm font-semibold mb-6 border border-emerald-100">
           <FaShieldAlt /> <span>Secure Library Management</span>
         </div>
         
-        {/* تغيير حجم الخط ليتناسب مع الجوال */}
+        
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 md:mb-8 leading-[1.1] tracking-tight">
           Manage your library <br className="hidden md:block" />
           <span className="text-emerald-600">with absolute ease.</span>
@@ -56,7 +56,7 @@ const LandingPage = ({onCompleted}) => {
           </button>
         </div>
 
-        {/* Dashboard Preview - تكييف الحجم */}
+       
         <div className="mt-12 md:mt-20 w-full px-2 md:px-0">
           <img 
             src={myImage} 
@@ -66,7 +66,7 @@ const LandingPage = ({onCompleted}) => {
         </div>
       </main>
 
-      {/* Footer */}
+      
       <footer className="py-10 mt-10 border-t border-slate-100 text-center text-slate-400 text-xs md:text-sm">
         <div className="flex justify-center gap-6 md:gap-8 mb-4">
           <a href="#" className="hover:text-emerald-600">Documentation</a>

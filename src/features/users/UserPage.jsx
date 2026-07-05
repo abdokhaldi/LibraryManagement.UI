@@ -476,7 +476,7 @@ export default function UserPage() {
   // ── Render ──────────────────────────────────────────────────────────────
   return (
     <div >
-      <div className="mx-auto space-y-6">
+      <div className="mx-auto space-y-6 ">
       
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -499,7 +499,7 @@ export default function UserPage() {
         </div>
 
         {/* ── Stats Cards ────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-4">
           <StatCard
             label="Total Users"
             value={stats.total}

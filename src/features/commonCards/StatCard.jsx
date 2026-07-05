@@ -16,7 +16,7 @@ function StatCard({ label, value, icon, color }) {
 
   return (
     <div
-      className={`flex items-start justify-between  gap-3 rounded-xl border p-4 ${colorMap[color] || colorMap.green}`}
+      className={`flex items-start justify-between col-span-4 sm:col-span-2 md:col-span-2 lg:col-span-1 gap-3 rounded-xl border p-4 ${colorMap[color] || colorMap.green}`}
     >
       <div className="flex-1 flex-col items-center justify-between">
         

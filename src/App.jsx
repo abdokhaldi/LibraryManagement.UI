@@ -7,9 +7,7 @@ import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
 import User from './features/users/UserPage';
 import Onboarding from './auth/components/Onboarding';
-
 import LandingPage from './landingPage/components/LandingPage';
-
 import LoginPage from './auth/components/LoginForm';
 import { Routes,Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -20,7 +18,26 @@ import { AuthService } from './services/authService';
 function App() {
  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
+  useEffect(() => {
+  const checkAuth = async () => {
+    const token = AuthService.getAccessToken();
+    if (token) {
+     
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+    setIsLoading(false);
+  };
+  checkAuth();
+}, []);
+
+    if(isLoading){
+   return (<div className='bg-gray-100 h-full w-full'> Loading ... </div>);
+    }
+
     return (
        <Routes>
         <Route path="/welcome" element={<LandingPage onCompleted={() => setIsAuthenticated(true)}/>}/>

@@ -90,7 +90,7 @@ import { AuthService } from "./authService";
 
       if (!ok) {
         
-        const msgError = data?.message || 'Failed to add book';
+        const msgError = data || 'Failed to add book';
         console.log("error message: " , msgError, "status code: ", status);
 
         return {

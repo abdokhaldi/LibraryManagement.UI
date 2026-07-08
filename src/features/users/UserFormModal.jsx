@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   HiOutlineX,
   HiOutlineUser,
@@ -13,7 +13,7 @@ import { RiLockPasswordLine } from "react-icons/ri";
 const ROLES = [
   { id: 1, name: "Admin" },
   { id: 2, name: "Librarian" },
-  { id: 3, name: "Staff" },
+  { id: 3, name: "Member" },
 ];
 
 const GENDER_OPTIONS = [
@@ -44,6 +44,73 @@ const initialUserForm = {
   roleID: "",
 };
 
+// ── InputField Component ──
+const InputField = ({ label, name, value, onChange, type = "text", placeholder, error, icon, required = true }) => (
+  <div>
+    <label className="mb-1.5 block text-sm font-medium text-gray-700">
+      {label} {required && <span className="text-red-400">*</span>}
+    </label>
+    <div className="relative">
+      {icon && (
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          {icon}
+        </span>
+      )}
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(name, e.target.value)}
+        placeholder={placeholder}
+        className={`w-full rounded-lg border bg-gray-50/50 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:ring-2 ${
+          icon ? "pl-10 pr-4" : "px-4"
+        } ${
+          error
+            ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+            : "border-gray-200 focus:border-green-500 focus:ring-green-500/20"
+        }`}
+      />
+    </div>
+    {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+  </div>
+);
+
+// ── SelectField Component ──
+const SelectField = ({ label, name, value, onChange, options, placeholder, error, icon, required = true }) => (
+  <div>
+    <label className="mb-1.5 block text-sm font-medium text-gray-700">
+      {label} {required && <span className="text-red-400">*</span>}
+    </label>
+    <div className="relative">
+      {icon && (
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          {icon}
+        </span>
+      )}
+      <select
+        value={value}
+        onChange={(e) => onChange(name, e.target.value)}
+        className={`w-full appearance-none rounded-lg border bg-gray-50/50 py-2.5 text-sm text-gray-900 outline-none transition-all focus:ring-2 ${
+          icon ? "pl-10 pr-4" : "px-4"
+        } ${
+          error
+            ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+            : "border-gray-200 focus:border-green-500 focus:ring-green-500/20"
+        } ${!value ? "text-gray-400" : ""}`}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </div>
+    {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+  </div>
+);
+
 export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit }) {
   const [step, setStep] = useState(0);
   const [personForm, setPersonForm] = useState(initialPersonForm);
@@ -52,7 +119,43 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
 
   const isEdit = mode === "edit";
 
-  // Reset form when modal opens
+  // Reset or populate form when modal opens or user changes
+  useEffect(() => {
+    if (isOpen) {
+      if (isEdit && user) {
+        // Populate form with existing user data
+        const nameParts = (user.person.fullName || "").split(" ");
+        setPersonForm({
+          firstName: nameParts[0] || "",
+          lastName: nameParts.slice(1).join(" ") || "",
+          nationalNumber: user.person.nationalNumber || "",
+          phone: user.person.phone || "",
+          email: user.person.email || "",
+          address: user.person.address || "",
+          city: user.person.city || "",
+          gender: user.person.gender || "",
+        });
+        setUserForm({
+          username: user.username || "",
+          password: "",
+          confirmPassword: "",
+          roleID:parseInt(user.role.roleID) 
+            ? String(user.role.roleID)
+            : user.role.roleName
+              ? String(ROLES.find((r) => r.name === user.role.roleName)?.id || "")
+              : "",
+        });
+        setStep(0);
+        setErrors({});
+      } else {
+        setPersonForm(initialPersonForm);
+        setUserForm(initialUserForm);
+        setStep(0);
+        setErrors({});
+      }
+    }
+  }, [isOpen, isEdit, user]);
+
   const resetAndClose = () => {
     setStep(0);
     setPersonForm(initialPersonForm);
@@ -64,32 +167,37 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
   // ── Validation ──────────────────────────────────────────────────────────
   const validatePersonStep = () => {
     const errs = {};
-    if (!personForm.firstName.trim()) errs.firstName = "First name is required";
-    if (!personForm.lastName.trim()) errs.lastName = "Last name is required";
-    if (!personForm.nationalNumber.trim()) errs.nationalNumber = "National number is required";
-    if (!personForm.phone.trim()) errs.phone = "Phone is required";
-    if (!personForm.email.trim()) {
-      errs.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personForm.email)) {
-      errs.email = "Invalid email format";
+    if (!isEdit) {
+      if (!personForm.firstName.trim()) errs.firstName = "First name is required";
+      if (!personForm.lastName.trim()) errs.lastName = "Last name is required";
+      if (!personForm.nationalNumber.trim()) errs.nationalNumber = "National number is required";
+      if (!personForm.phone.trim()) errs.phone = "Phone is required";
+      if (!personForm.address.trim()) errs.address = "Address is required";
+      if (!personForm.city.trim()) errs.city = "City is required";
+      if (!personForm.gender) errs.gender = "Gender is required";
     }
-    if (!personForm.address.trim()) errs.address = "Address is required";
-    if (!personForm.city.trim()) errs.city = "City is required";
-    if (!personForm.gender) errs.gender = "Gender is required";
+    // Email: always validate format if provided, but only require in add mode
+    if (personForm.email.trim()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personForm.email)) {
+        errs.email = "Invalid email format";
+      }
+    } else if (!isEdit) {
+      errs.email = "Email is required";
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const validateUserStep = () => {
     const errs = {};
-    if (!userForm.username.trim()) errs.username = "Username is required";
     if (!isEdit) {
+      if (!userForm.username.trim()) errs.username = "Username is required";
       if (!userForm.password) errs.password = "Password is required";
       else if (userForm.password.length < 6) errs.password = "Password must be at least 6 characters";
       if (!userForm.confirmPassword) errs.confirmPassword = "Please confirm password";
       else if (userForm.password !== userForm.confirmPassword) errs.confirmPassword = "Passwords do not match";
+      if (!userForm.roleID) errs.roleID = "Role is required";
     }
-    if (!userForm.roleID) errs.roleID = "Role is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -108,24 +216,46 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
 
   const handleSubmit = () => {
     if (validateUserStep()) {
-      const payload = {
-        person: {
-          FirstName: personForm.firstName.trim(),
-          LastName: personForm.lastName.trim(),
-          NationalNumber: personForm.nationalNumber.trim(),
-          Phone: personForm.phone.trim(),
-          Email: personForm.email.trim(),
-          Address: personForm.address.trim(),
-          City: personForm.city.trim(),
-          Gender: personForm.gender,
-        },
-        user: {
+      if (isEdit) {
+        // For edit, send the update payload matching UserForUpdateDTO
+        // Send null for empty fields so the API can leave them unchanged
+        const payload = {
+          personID: null,
+          username: userForm.username.trim() || null,
+          roleID: userForm.roleID ? parseInt(userForm.roleID) : null,
+          person: {
+            firstName: personForm.firstName.trim() || null,
+            lastName: personForm.lastName.trim() || null,
+            nationalNumber: personForm.nationalNumber.trim() || null,
+            phone: personForm.phone.trim() || null,
+            email: personForm.email.trim() || null,
+            address: personForm.address.trim() || null,
+            city: personForm.city.trim() || null,
+            gender: personForm.gender || null,
+          },
+        };
+        onSubmit(payload);
+      } else {
+        // For add, send the full creation payload matching UserForCreationDTO
+        const payload = {
           Username: userForm.username.trim(),
           Password: userForm.password,
           RoleID: parseInt(userForm.roleID),
-        },
-      };
-      onSubmit(payload);
+          person: {
+            FirstName: personForm.firstName.trim(),
+            LastName: personForm.lastName.trim(),
+            NationalNumber: personForm.nationalNumber.trim(),
+            Phone: personForm.phone.trim(),
+            Email: personForm.email.trim(),
+            Address: personForm.address.trim(),
+            City: personForm.city.trim(),
+            Gender: personForm.gender,
+          },
+          
+        };
+        onSubmit(payload);
+      }
+
       resetAndClose();
     }
   };
@@ -141,72 +271,6 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
   };
 
   if (!isOpen) return null;
-
-  // ── Input component ─────────────────────────────────────────────────────
-  const InputField = ({ label, name, value, onChange, type = "text", placeholder, error, icon, required = true }) => (
-    <div>
-      <label className="mb-1.5 block text-sm font-medium text-gray-700">
-        {label} {required && <span className="text-red-400">*</span>}
-      </label>
-      <div className="relative">
-        {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {icon}
-          </span>
-        )}
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(name, e.target.value)}
-          placeholder={placeholder}
-          className={`w-full rounded-lg border bg-gray-50/50 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:ring-2 ${
-            icon ? "pl-10 pr-4" : "px-4"
-          } ${
-            error
-              ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-              : "border-gray-200 focus:border-green-500 focus:ring-green-500/20"
-          }`}
-        />
-      </div>
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-    </div>
-  );
-
-  const SelectField = ({ label, name, value, onChange, options, placeholder, error, icon, required = true }) => (
-    <div>
-      <label className="mb-1.5 block text-sm font-medium text-gray-700">
-        {label} {required && <span className="text-red-400">*</span>}
-      </label>
-      <div className="relative">
-        {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {icon}
-          </span>
-        )}
-        <select
-          value={value}
-          onChange={(e) => onChange(name, e.target.value)}
-          className={`w-full appearance-none rounded-lg border bg-gray-50/50 py-2.5 text-sm text-gray-900 outline-none transition-all focus:ring-2 ${
-            icon ? "pl-10 pr-4" : "px-4"
-          } ${
-            error
-              ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-              : "border-gray-200 focus:border-green-500 focus:ring-green-500/20"
-          } ${!value ? "text-gray-400" : ""}`}
-        >
-          <option value="" disabled>
-            {placeholder}
-          </option>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-    </div>
-  );
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
@@ -293,7 +357,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
             <div className="space-y-5">
               <div className="rounded-lg bg-green-50/50 border border-green-100 px-4 py-3">
                 <p className="text-xs font-medium text-green-700">
-                  Step 1 — Fill in the personal information for the new user.
+                  {isEdit ? "Edit personal information of the user." : "Step 1 — Fill in the personal information for the new user."}
                 </p>
               </div>
 
@@ -306,6 +370,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                   placeholder="Enter first name"
                   error={errors.firstName}
                   icon={<HiOutlineUser className="h-4 w-4" />}
+                  required={!isEdit}
                 />
                 <InputField
                   label="Last Name"
@@ -315,6 +380,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                   placeholder="Enter last name"
                   error={errors.lastName}
                   icon={<HiOutlineUser className="h-4 w-4" />}
+                  required={!isEdit}
                 />
               </div>
 
@@ -326,6 +392,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                   onChange={handlePersonChange}
                   placeholder="e.g. AB123456"
                   error={errors.nationalNumber}
+                  required={!isEdit}
                 />
                 <InputField
                   label="Phone"
@@ -334,6 +401,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                   onChange={handlePersonChange}
                   placeholder="+212 6XX XXX XXX"
                   error={errors.phone}
+                  required={!isEdit}
                 />
               </div>
 
@@ -344,6 +412,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                 onChange={handlePersonChange}
                 placeholder="user@example.com"
                 error={errors.email}
+                required={!isEdit}
               />
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -354,6 +423,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                   onChange={handlePersonChange}
                   placeholder="Street address"
                   error={errors.address}
+                  required={!isEdit}
                 />
                 <InputField
                   label="City"
@@ -362,6 +432,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                   onChange={handlePersonChange}
                   placeholder="City name"
                   error={errors.city}
+                  required={!isEdit}
                 />
               </div>
 
@@ -373,6 +444,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                 options={GENDER_OPTIONS}
                 placeholder="Select gender"
                 error={errors.gender}
+                required={!isEdit}
               />
             </div>
           )}
@@ -382,20 +454,32 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
             <div className="space-y-5">
               <div className="rounded-lg bg-green-50/50 border border-green-100 px-4 py-3">
                 <p className="text-xs font-medium text-green-700">
-                  Step 2 — Set up the user account credentials and role.
+                  {isEdit ? "Update the user account credentials and role." : "Step 2 — Set up the user account credentials and role."}
                 </p>
               </div>
 
-              {/* Person summary */}
-              <div className="rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-3">
-                <p className="text-xs font-medium text-gray-500 mb-2">Person Summary</p>
-                <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-700">
-                  <span><span className="font-medium">Name:</span> {personForm.firstName} {personForm.lastName}</span>
-                  <span><span className="font-medium">Email:</span> {personForm.email}</span>
-                  <span><span className="font-medium">Phone:</span> {personForm.phone}</span>
-                  <span><span className="font-medium">City:</span> {personForm.city}</span>
+              {!isEdit && (
+                <div className="rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-3">
+                  <p className="text-xs font-medium text-gray-500 mb-2">Person Summary</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-700">
+                    <span><span className="font-medium">Name:</span> {personForm.firstName} {personForm.lastName}</span>
+                    <span><span className="font-medium">Email:</span> {personForm.email}</span>
+                    <span><span className="font-medium">Phone:</span> {personForm.phone}</span>
+                    <span><span className="font-medium">City:</span> {personForm.city}</span>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {isEdit && (
+                <div className="rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-3">
+                  <p className="text-xs font-medium text-gray-500 mb-2">Current User</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-700">
+                    <span><span className="font-medium">Name:</span> {user?.fullName}</span>
+                    <span><span className="font-medium">Username:</span> {user?.username}</span>
+                    <span><span className="font-medium">Role:</span> {user?.roleName}</span>
+                  </div>
+                </div>
+              )}
 
               <InputField
                 label="Username"
@@ -405,6 +489,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                 placeholder="Choose a username"
                 error={errors.username}
                 icon={<HiOutlineUser className="h-4 w-4" />}
+                required={!isEdit}
               />
 
               {!isEdit && (
@@ -441,6 +526,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
                 placeholder="Select a role"
                 error={errors.roleID}
                 icon={<HiOutlineShieldCheck className="h-4 w-4" />}
+                required={!isEdit}
               />
             </div>
           )}

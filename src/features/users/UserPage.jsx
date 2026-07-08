@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Pagination from '../../features/Pagination/Pagination';
 import StatCard from '../../features/commonCards/StatCard';
 import {
@@ -20,130 +20,7 @@ import {
 import { RiUserAddLine } from "react-icons/ri";
 import SearchBar from '../commonCards/SearchBar';
 import UserFormModal from "./UserFormModal";
-
-// ─── Mock Data ───────────────────────────────────────────────────────────────
-const MOCK_USERS = [
-  {
-    userID: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    fullName: "Amina Benali",
-    username: "amina.benali",
-    roleName: "Admin",
-    roleID: 1,
-    createdAt: "2024-01-15T10:30:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    fullName: "Youssef El Amrani",
-    username: "youssef.elamrani",
-    roleName: "Librarian",
-    roleID: 2,
-    createdAt: "2024-02-20T14:15:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "c3d4e5f6-a7b8-9012-cdef-123456789012",
-    fullName: "Fatima Zahra Chraibi",
-    username: "fatima.chraibi",
-    roleName: "Staff",
-    roleID: 3,
-    createdAt: "2023-11-05T09:00:00",
-    isActive: false,
-    isBlocked: false,
-  },
-  {
-    userID: "d4e5f6a7-b8c9-0123-defa-234567890123",
-    fullName: "Mohammed Al-Fassi",
-    username: "mohammed.alfassi",
-    roleName: "Admin",
-    roleID: 1,
-    createdAt: "2024-03-10T16:45:00",
-    isActive: true,
-    isBlocked: true,
-  },
-  {
-    userID: "e5f6a7b8-c9d0-1234-efab-345678901234",
-    fullName: "Khadija Tazi",
-    username: "khadija.tazi",
-    roleName: "Librarian",
-    roleID: 2,
-    createdAt: "2023-06-22T11:20:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "f6a7b8c9-d0e1-2345-fabc-456789012345",
-    fullName: "Omar Berrada",
-    username: "omar.berrada",
-    roleName: "Staff",
-    roleID: 3,
-    createdAt: "2024-05-18T08:30:00",
-    isActive: false,
-    isBlocked: true,
-  },
-  {
-    userID: "a7b8c9d0-e1f2-3456-abcd-567890123456",
-    fullName: "Salma Idrissi",
-    username: "salma.idrissi",
-    roleName: "Librarian",
-    roleID: 2,
-    createdAt: "2024-04-02T13:00:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "b8c9d0e1-f2a3-4567-bcde-678901234567",
-    fullName: "Rachid Ouazzani",
-    username: "rachid.ouazzani",
-    roleName: "Staff",
-    roleID: 3,
-    createdAt: "2023-09-14T15:10:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "c9d0e1f2-a3b4-5678-cdef-789012345678",
-    fullName: "Nadia Bensouda",
-    username: "nadia.bensouda",
-    roleName: "Admin",
-    roleID: 1,
-    createdAt: "2024-06-01T10:00:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "d0e1f2a3-b4c5-6789-defa-890123456789",
-    fullName: "Hassan Lahlou",
-    username: "hassan.lahlou",
-    roleName: "Staff",
-    roleID: 3,
-    createdAt: "2023-12-30T17:30:00",
-    isActive: false,
-    isBlocked: false,
-  },
-  {
-    userID: "e1f2a3b4-c5d6-7890-efab-901234567890",
-    fullName: "Zineb Belhaj",
-    username: "zineb.belhaj",
-    roleName: "Librarian",
-    roleID: 2,
-    createdAt: "2024-07-08T09:45:00",
-    isActive: true,
-    isBlocked: false,
-  },
-  {
-    userID: "f2a3b4c5-d6e7-8901-fabc-012345678901",
-    fullName: "Karim Sefrioui",
-    username: "karim.sefrioui",
-    roleName: "Staff",
-    roleID: 3,
-    createdAt: "2024-01-28T12:00:00",
-    isActive: true,
-    isBlocked: true,
-  },
-];
+import { fetchUsers, addUser, updateUser } from '../../services/userService';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -207,8 +84,6 @@ function SortIcon({ columnKey, sortConfig }) {
   return <span className="ml-1 text-gray-300">⇅</span>;
 }
 
-
-
 function StatusBadge({ isActive }) {
   if (isActive) {
     return (
@@ -265,7 +140,7 @@ function RoleBadge({ roleName }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function UserPage() {
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [blockFilter, setBlockFilter] = useState("all");
@@ -280,63 +155,35 @@ export default function UserPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [editingUser, setEditingUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
   const pageSize = 8;
 
+  // ── Fetch users from API ────────────────────────────────────────────────
+  const fetchUsersData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await fetchUsers({
+        pageNumber: currentPage,
+        pageSize: pageSize,
+        searchTerm: searchQuery,
+        orderBy: "",
+    });
+      setUsers(result.data);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      console.log('Failed to fetch users:');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, pageSize,searchQuery, sortConfig]);
+
+   useEffect(() => {
+    fetchUsersData();
+  }, [fetchUsersData]);
+ 
+
   // ── Derived data ────────────────────────────────────────────────────────
-  const filteredUsers = useMemo(() => {
-    let result = [...users];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (u) =>
-          u.fullName.toLowerCase().includes(q) ||
-          u.username.toLowerCase().includes(q) ||
-          u.roleName.toLowerCase().includes(q)
-      );
-    }
-
-    if (statusFilter !== "all") {
-      const isActive = statusFilter === "active";
-      result = result.filter((u) => u.isActive === isActive);
-    }
-
-    if (blockFilter !== "all") {
-      const isBlocked = blockFilter === "blocked";
-      result = result.filter((u) => u.isBlocked === isBlocked);
-    }
-
-    if (roleFilter !== "all") {
-      result = result.filter((u) => u.roleName === roleFilter);
-    }
-
-    if (sortConfig.direction !== SORT_DIR.NONE) {
-      result.sort((a, b) => {
-        let valA = a[sortConfig.key];
-        let valB = b[sortConfig.key];
-        if (typeof valA === "string") {
-          valA = valA.toLowerCase();
-          valB = valB.toLowerCase();
-        }
-        if (typeof valA === "boolean") {
-          valA = valA ? 1 : 0;
-          valB = valB ? 1 : 0;
-        }
-        if (valA < valB) return sortConfig.direction === SORT_DIR.ASC ? -1 : 1;
-        if (valA > valB) return sortConfig.direction === SORT_DIR.ASC ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return result;
-  }, [users, searchQuery, statusFilter, blockFilter, roleFilter, sortConfig]);
-
-  const totalPages = Math.ceil(filteredUsers.length / pageSize);
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredUsers.slice(start, start + pageSize);
-  }, [filteredUsers, currentPage]);
-
   const stats = useMemo(() => {
     const active = users.filter((u) => u.isActive).length;
     const inactive = users.filter((u) => !u.isActive).length;
@@ -352,6 +199,7 @@ export default function UserPage() {
       }
       return { key, direction: SORT_DIR.ASC };
     });
+    setCurrentPage(1);
   }, []);
 
   const handleToggleActive = useCallback((userID) => {
@@ -371,12 +219,12 @@ export default function UserPage() {
   }, []);
 
   const handleSelectAll = useCallback(() => {
-    if (selectedUsers.size === paginatedUsers.length) {
+    if (selectedUsers.size === users.length) {
       setSelectedUsers(new Set());
     } else {
-      setSelectedUsers(new Set(paginatedUsers.map((u) => u.userID)));
+      setSelectedUsers(new Set(users.map((u) => u.userID)));
     }
-  }, [paginatedUsers, selectedUsers]);
+  }, [users, selectedUsers]);
 
   const handleSelectUser = useCallback((userID) => {
     setSelectedUsers((prev) => {
@@ -424,9 +272,11 @@ export default function UserPage() {
   }, [selectedUsers]);
 
   const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
-    setSelectedUsers(new Set());
-  }, []);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      setSelectedUsers(new Set());
+    }
+  }, [totalPages]);
 
   const handleResetFilters = useCallback(() => {
     setSearchQuery("");
@@ -435,8 +285,9 @@ export default function UserPage() {
     setRoleFilter("all");
     setSortConfig({ key: "fullName", direction: SORT_DIR.ASC });
     setCurrentPage(1);
+    
   }, []);
-
+ 
   const hasActiveFilters =
     searchQuery !== "" ||
     statusFilter !== "all" ||
@@ -454,26 +305,43 @@ export default function UserPage() {
     setEditingUser(user);
     setModalOpen(true);
   };
-
-  const handleFormSubmit = (payload) => {
-    // Mock: just log for now, will be wired to API later
+ 
+  // handle add/edit user
+  const handleFormSubmit = async (payload) => {
     console.log("Form submitted:", payload);
     if (modalMode === "add") {
-      const newUser = {
-        userID: crypto.randomUUID(),
-        fullName: `${payload.person.FirstName} ${payload.person.LastName}`,
-        username: payload.user.Username,
-        roleName: ["Admin", "Librarian", "Staff"][payload.user.RoleID - 1] || "Staff",
-        roleID: payload.user.RoleID,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-        isBlocked: false,
-      };
-      setUsers((prev) => [newUser, ...prev]);
+      const result = await addUser(payload);
+      if (result.success) {
+        console.log('User added successfully');
+        fetchUsersData();
+      } else {
+        alert(result.errorMessage || 'Failed to add user');
+        return; // Don't close modal on error
+      }
+    } else if (modalMode === "edit" && editingUser) {
+      const result = await updateUser(editingUser.userID, payload);
+      if (result.success) {
+        console.log('User updated successfully');
+        fetchUsersData();
+      } else {
+        alert(result.errorMessage || 'Failed to update user');
+        return; // Don't close modal on error
+      }
     }
+    setModalOpen(false);
   };
 
   // ── Render ──────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-xl font-semibold text-gray-600">
+          Loading users from server...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div >
       <div className="mx-auto space-y-6 ">
@@ -695,8 +563,8 @@ export default function UserPage() {
                     <input
                       type="checkbox"
                       checked={
-                        paginatedUsers.length > 0 &&
-                        selectedUsers.size === paginatedUsers.length
+                        users.length > 0 &&
+                        selectedUsers.size === users.length
                       }
                       onChange={handleSelectAll}
                       className="h-4 w-4 rounded border-gray-300 text-green-500 focus:ring-green-500/20 cursor-pointer"
@@ -729,7 +597,7 @@ export default function UserPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {paginatedUsers.length === 0 ? (
+                {users.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -755,7 +623,7 @@ export default function UserPage() {
                     </td>
                   </tr>
                 ) : (
-                  paginatedUsers.map((user) => (
+                  users.map((user) => (
                     <tr
                       key={user.userID}
                       className={`group transition ${
@@ -780,11 +648,11 @@ export default function UserPage() {
                           <div
                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${getAvatarColor(user.userID)}`}
                           >
-                            {getInitials(user.fullName)}
+                            {getInitials(user.person.fullName)}
                           </div>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-gray-900">
-                              {user.fullName}
+                              {user.person.fullName}
                             </p>
                             <p className="truncate text-xs text-gray-500">
                               @{user.username}
@@ -795,7 +663,7 @@ export default function UserPage() {
 
                       {/* Role */}
                       <td className="px-4 py-3.5">
-                        <RoleBadge roleName={user.roleName} />
+                        <RoleBadge roleName={user.role.roleName} />
                       </td>
 
                       {/* Created */}
@@ -868,9 +736,9 @@ export default function UserPage() {
           </div>
 
           {/* ── Pagination ────────────────────────────────────────────────── */}
-          {filteredUsers.length > 0 && (
+          {users.length > 0 && (
               <Pagination
-                onNext={() => handlePageChange(totalPages)}
+                onNext={() => handlePageChange(currentPage + 1)}
                 onPrev={() => handlePageChange(currentPage - 1)}
                 currentPage={currentPage}
                 totalPages={totalPages}

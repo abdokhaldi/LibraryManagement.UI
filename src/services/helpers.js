@@ -74,14 +74,24 @@ export async function apiRequest(endpoint, options = {}, _isRetry = false) {
 
     const contentType = response.headers.get('content-type');
     let data = null;
+    let message = null;
+
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
+      message = data?.message || data?.title || null;
+    } else {
+      // Try to read as text for non-JSON error responses
+      const text = await response.text();
+      if (text) {
+        message = text;
+      }
     }
 
     return {
       ok: response.ok,
       status: response.status,
-      data, 
+      data,
+      message,
       headers: response.headers,
     };
   } catch (error) {

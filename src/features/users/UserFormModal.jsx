@@ -214,24 +214,34 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
     setStep(0);
   };
 
+  // Helper: convert gender to single char or null (PersonForUpdateDTO expects char?)
+  const normalizeGender = (gender) => {
+    if (!gender || gender.trim() === "") return null;
+    const g = gender.trim().toUpperCase();
+    // Map full words to single char
+    if (g === "MALE" || g === "M") return "M";
+    if (g === "FEMALE" || g === "F") return "F";
+    // Take first char as fallback
+    return g.charAt(0);
+  };
+
   const handleSubmit = () => {
     if (validateUserStep()) {
       if (isEdit) {
         // For edit, send the update payload matching UserForUpdateDTO
         // Send null for empty fields so the API can leave them unchanged
         const payload = {
-          personID: null,
-          username: userForm.username.trim() || null,
-          roleID: userForm.roleID ? parseInt(userForm.roleID) : null,
-          person: {
-            firstName: personForm.firstName.trim() || null,
-            lastName: personForm.lastName.trim() || null,
-            nationalNumber: personForm.nationalNumber.trim() || null,
-            phone: personForm.phone.trim() || null,
-            email: personForm.email.trim() || null,
-            address: personForm.address.trim() || null,
-            city: personForm.city.trim() || null,
-            gender: personForm.gender || null,
+          PersonID: user?.person?.personID || null,
+          Username: userForm.username.trim() || null,
+          RoleID: userForm.roleID ? parseInt(userForm.roleID) : null,
+          Person: {
+            FirstName: personForm.firstName.trim() || null,
+            LastName: personForm.lastName.trim() || null,
+            Phone: personForm.phone.trim() || null,
+            Email: personForm.email.trim() || null,
+            Address: personForm.address.trim() || null,
+            City: personForm.city.trim() || null,
+            Gender: normalizeGender(personForm.gender),
           },
         };
         onSubmit(payload);
@@ -249,7 +259,7 @@ export default function UserFormModal({ isOpen, onClose, mode, user, onSubmit })
             Email: personForm.email.trim(),
             Address: personForm.address.trim(),
             City: personForm.city.trim(),
-            Gender: personForm.gender,
+            Gender: normalizeGender(personForm.gender),
           },
           
         };

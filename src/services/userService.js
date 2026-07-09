@@ -94,7 +94,18 @@ export const updateUser = async (userId, userData) => {
     console.log('Update user response:', { ok, status, message, data, headers });
 
     if (!ok) {
-      const errorMessage = message || 'Failed to update user';
+      // Try to extract error message from various response formats
+      let errorMessage = message;
+      if (!errorMessage && data) {
+        if (typeof data === 'string') {
+          errorMessage = data;
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (data.title) {
+          errorMessage = data.title;
+        }
+      }
+      errorMessage = errorMessage || `Failed to update user (status: ${status})`;
       console.log('Error updating user:', errorMessage, 'status:', status);
       return {
         success: false,

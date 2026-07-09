@@ -20,7 +20,7 @@ import {
 import { RiUserAddLine } from "react-icons/ri";
 import SearchBar from '../commonCards/SearchBar';
 import UserFormModal from "./UserFormModal";
-import { fetchUsers, addUser, updateUser } from '../../services/userService';
+import { fetchUsers, addUser, updateUser, deactivateUser, activateUser, blockUser, unblockUser } from '../../services/userService';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -202,21 +202,83 @@ export default function UserPage() {
     setCurrentPage(1);
   }, []);
 
-  const handleToggleActive = useCallback((userID) => {
+  const handleToggleActive = useCallback(async (userID) => {
+    const user = users.find(u => u.userID === userID);
+    if (!user) return;
+    
+    // Optimistic update
     setUsers((prev) =>
       prev.map((u) =>
         u.userID === userID ? { ...u, isActive: !u.isActive } : u
       )
     );
-  }, []);
+    
+    try {
+      let result;
+      if (user.isActive) {
+        result = await deactivateUser(userID);
+      } else {
+        result = await activateUser(userID);
+      }
+      
+      if (!result.success) {
+        // Revert optimistic update on failure
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.userID === userID ? { ...u, isActive: user.isActive } : u
+          )
+        );
+        alert(result.errorMessage || 'Failed to update user status');
+      }
+    } catch (error) {
+      // Revert optimistic update on error
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.userID === userID ? { ...u, isActive: user.isActive } : u
+        )
+      );
+      alert('An error occurred while updating user status');
+    }
+  }, [users]);
 
-  const handleToggleBlocked = useCallback((userID) => {
+  const handleToggleBlocked = useCallback(async (userID) => {
+    const user = users.find(u => u.userID === userID);
+    if (!user) return;
+    
+    // Optimistic update
     setUsers((prev) =>
       prev.map((u) =>
         u.userID === userID ? { ...u, isBlocked: !u.isBlocked } : u
       )
     );
-  }, []);
+    
+    try {
+      let result;
+      if (user.isBlocked) {
+        result = await unblockUser(userID);
+      } else {
+        result = await blockUser(userID);
+      }
+      
+      if (!result.success) {
+        // Revert optimistic update on failure
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.userID === userID ? { ...u, isBlocked: user.isBlocked } : u
+          )
+        );
+        alert(result.errorMessage || 'Failed to update user access');
+      }
+    } catch (error) {
+      // Revert optimistic update on error
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.userID === userID ? { ...u, isBlocked: user.isBlocked } : u
+        )
+      );
+      alert('An error occurred while updating user access');
+    }
+  }, [users]);
 
   const handleSelectAll = useCallback(() => {
     if (selectedUsers.size === users.length) {
@@ -235,41 +297,158 @@ export default function UserPage() {
     });
   }, []);
 
-  const handleBulkActivate = useCallback(() => {
+  const handleBulkActivate = useCallback(async () => {
+    const selectedUserIds = Array.from(selectedUsers);
+    const usersToUpdate = users.filter(u => selectedUsers.has(u.userID));
+    
+    // Optimistic update
     setUsers((prev) =>
       prev.map((u) =>
         selectedUsers.has(u.userID) ? { ...u, isActive: true } : u
       )
     );
-    setSelectedUsers(new Set());
-  }, [selectedUsers]);
+    
+    try {
+      for (const user of usersToUpdate) {
+        if (!user.isActive) {
+          const result = await activateUser(user.userID);
+          if (!result.success) {
+            // Revert on failure
+            setUsers((prev) =>
+              prev.map((u) =>
+                selectedUsers.has(u.userID) ? { ...u, isActive: u.isActive } : u
+              )
+            );
+            alert(result.errorMessage || 'Failed to activate some users');
+            return;
+          }
+        }
+      }
+      setSelectedUsers(new Set());
+    } catch (error) {
+      // Revert on error
+      setUsers((prev) =>
+        prev.map((u) =>
+          selectedUsers.has(u.userID) ? { ...u, isActive: u.isActive } : u
+        )
+      );
+      alert('An error occurred while activating users');
+    }
+  }, [selectedUsers, users]);
 
-  const handleBulkDeactivate = useCallback(() => {
+  const handleBulkDeactivate = useCallback(async () => {
+    const usersToUpdate = users.filter(u => selectedUsers.has(u.userID));
+    
+    // Optimistic update
     setUsers((prev) =>
       prev.map((u) =>
         selectedUsers.has(u.userID) ? { ...u, isActive: false } : u
       )
     );
-    setSelectedUsers(new Set());
-  }, [selectedUsers]);
+    
+    try {
+      for (const user of usersToUpdate) {
+        if (user.isActive) {
+          const result = await deactivateUser(user.userID);
+          if (!result.success) {
+            // Revert on failure
+            setUsers((prev) =>
+              prev.map((u) =>
+                selectedUsers.has(u.userID) ? { ...u, isActive: u.isActive } : u
+              )
+            );
+            alert(result.errorMessage || 'Failed to deactivate some users');
+            return;
+          }
+        }
+      }
+      setSelectedUsers(new Set());
+    } catch (error) {
+      // Revert on error
+      setUsers((prev) =>
+        prev.map((u) =>
+          selectedUsers.has(u.userID) ? { ...u, isActive: u.isActive } : u
+        )
+      );
+      alert('An error occurred while deactivating users');
+    }
+  }, [selectedUsers, users]);
 
-  const handleBulkBlock = useCallback(() => {
+  const handleBulkBlock = useCallback(async () => {
+    const usersToUpdate = users.filter(u => selectedUsers.has(u.userID));
+    
+    // Optimistic update
     setUsers((prev) =>
       prev.map((u) =>
         selectedUsers.has(u.userID) ? { ...u, isBlocked: true } : u
       )
     );
-    setSelectedUsers(new Set());
-  }, [selectedUsers]);
+    
+    try {
+      for (const user of usersToUpdate) {
+        if (!user.isBlocked) {
+          const result = await blockUser(user.userID);
+          if (!result.success) {
+            // Revert on failure
+            setUsers((prev) =>
+              prev.map((u) =>
+                selectedUsers.has(u.userID) ? { ...u, isBlocked: u.isBlocked } : u
+              )
+            );
+            alert(result.errorMessage || 'Failed to block some users');
+            return;
+          }
+        }
+      }
+      setSelectedUsers(new Set());
+    } catch (error) {
+      // Revert on error
+      setUsers((prev) =>
+        prev.map((u) =>
+          selectedUsers.has(u.userID) ? { ...u, isBlocked: u.isBlocked } : u
+        )
+      );
+      alert('An error occurred while blocking users');
+    }
+  }, [selectedUsers, users]);
 
-  const handleBulkUnblock = useCallback(() => {
+  const handleBulkUnblock = useCallback(async () => {
+    const usersToUpdate = users.filter(u => selectedUsers.has(u.userID));
+    
+    // Optimistic update
     setUsers((prev) =>
       prev.map((u) =>
         selectedUsers.has(u.userID) ? { ...u, isBlocked: false } : u
       )
     );
-    setSelectedUsers(new Set());
-  }, [selectedUsers]);
+    
+    try {
+      for (const user of usersToUpdate) {
+        if (user.isBlocked) {
+          const result = await unblockUser(user.userID);
+          if (!result.success) {
+            // Revert on failure
+            setUsers((prev) =>
+              prev.map((u) =>
+                selectedUsers.has(u.userID) ? { ...u, isBlocked: u.isBlocked } : u
+              )
+            );
+            alert(result.errorMessage || 'Failed to unblock some users');
+            return;
+          }
+        }
+      }
+      setSelectedUsers(new Set());
+    } catch (error) {
+      // Revert on error
+      setUsers((prev) =>
+        prev.map((u) =>
+          selectedUsers.has(u.userID) ? { ...u, isBlocked: u.isBlocked } : u
+        )
+      );
+      alert('An error occurred while unblocking users');
+    }
+  }, [selectedUsers, users]);
 
   const handlePageChange = useCallback((page) => {
     if (page >= 1 && page <= totalPages) {

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import StatCard from '../../features/commonCards/StatCard';
 import Pagination from '../Pagination/Pagination';
 import {
@@ -17,142 +17,7 @@ import {
 import { MdPeopleAlt, MdPersonOff } from "react-icons/md";
 import { IoFilter } from "react-icons/io5";
 import SearchBar from '../commonCards/SearchBar';
-
-// ─── Mock Data ───────────────────────────────────────────────────────────────
-const MOCK_MEMBERS = [
-  {
-    id: 1,
-    fullName: "Amina Benali",
-    email: "amina.benali@email.com",
-    phone: "+212 6 12 34 56 78",
-    membershipDate: "2024-01-15",
-    status: "active",
-    borrowedBooks: 3,
-    totalBorrowed: 12,
-    membershipType: "Regular",
-  },
-  {
-    id: 2,
-    fullName: "Youssef El Amrani",
-    email: "youssef.elamrani@email.com",
-    phone: "+212 6 22 33 44 55",
-    membershipDate: "2024-02-20",
-    status: "active",
-    borrowedBooks: 1,
-    totalBorrowed: 8,
-    membershipType: "Premium",
-  },
-  {
-    id: 3,
-    fullName: "Fatima Zahra Chraibi",
-    email: "fatima.chraibi@email.com",
-    phone: "+212 6 55 66 77 88",
-    membershipDate: "2023-11-05",
-    status: "inactive",
-    borrowedBooks: 0,
-    totalBorrowed: 5,
-    membershipType: "Regular",
-  },
-  {
-    id: 4,
-    fullName: "Mohammed Al-Fassi",
-    email: "mohammed.alfassi@email.com",
-    phone: "+212 6 99 88 77 66",
-    membershipDate: "2024-03-10",
-    status: "active",
-    borrowedBooks: 2,
-    totalBorrowed: 15,
-    membershipType: "Premium",
-  },
-  {
-    id: 5,
-    fullName: "Khadija Tazi",
-    email: "khadija.tazi@email.com",
-    phone: "+212 6 11 22 33 44",
-    membershipDate: "2023-06-22",
-    status: "active",
-    borrowedBooks: 0,
-    totalBorrowed: 3,
-    membershipType: "Regular",
-  },
-  {
-    id: 6,
-    fullName: "Omar Berrada",
-    email: "omar.berrada@email.com",
-    phone: "+212 6 44 55 66 77",
-    membershipDate: "2024-05-18",
-    status: "inactive",
-    borrowedBooks: 0,
-    totalBorrowed: 1,
-    membershipType: "Regular",
-  },
-  {
-    id: 7,
-    fullName: "Salma Idrissi",
-    email: "salma.idrissi@email.com",
-    phone: "+212 6 77 88 99 00",
-    membershipDate: "2024-04-02",
-    status: "active",
-    borrowedBooks: 4,
-    totalBorrowed: 20,
-    membershipType: "Premium",
-  },
-  {
-    id: 8,
-    fullName: "Rachid Ouazzani",
-    email: "rachid.ouazzani@email.com",
-    phone: "+212 6 33 22 11 00",
-    membershipDate: "2023-09-14",
-    status: "active",
-    borrowedBooks: 1,
-    totalBorrowed: 7,
-    membershipType: "Regular",
-  },
-  {
-    id: 9,
-    fullName: "Nadia Bensouda",
-    email: "nadia.bensouda@email.com",
-    phone: "+212 6 66 55 44 33",
-    membershipDate: "2024-06-01",
-    status: "active",
-    borrowedBooks: 2,
-    totalBorrowed: 2,
-    membershipType: "Regular",
-  },
-  {
-    id: 10,
-    fullName: "Hassan Lahlou",
-    email: "hassan.lahlou@email.com",
-    phone: "+212 6 88 77 66 55",
-    membershipDate: "2023-12-30",
-    status: "inactive",
-    borrowedBooks: 0,
-    totalBorrowed: 4,
-    membershipType: "Regular",
-  },
-  {
-    id: 11,
-    fullName: "Zineb Belhaj",
-    email: "zineb.belhaj@email.com",
-    phone: "+212 6 00 11 22 33",
-    membershipDate: "2024-07-08",
-    status: "active",
-    borrowedBooks: 1,
-    totalBorrowed: 6,
-    membershipType: "Premium",
-  },
-  {
-    id: 12,
-    fullName: "Karim Sefrioui",
-    email: "karim.sefrioui@email.com",
-    phone: "+212 6 22 11 00 99",
-    membershipDate: "2024-01-28",
-    status: "active",
-    borrowedBooks: 3,
-    totalBorrowed: 11,
-    membershipType: "Regular",
-  },
-];
+import { getMembers } from '../../services/memberService';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -188,7 +53,9 @@ const AVATAR_COLORS = [
 ];
 
 function getAvatarColor(id) {
-  return AVATAR_COLORS[id % AVATAR_COLORS.length];
+  const key = String(id);
+  const hash = key.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
 }
 
 // ─── Sort helpers ────────────────────────────────────────────────────────────
@@ -215,63 +82,47 @@ function SortIcon({ columnKey, sortConfig }) {
   return <span className="ml-1 text-gray-300">⇅</span>;
 }
 
-
-function StatusBadge({ status }) {
-  if (status === "active") {
+function StatusBadge({ isActive }) {
+  if (isActive) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-xs bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-green-600/20">
+      <span className="inline-flex items-center gap-1.5 rounded-sm bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-green-600/20">
         <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
         Active
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-xs bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-500 ring-1 ring-gray-500/20">
+    <span className="inline-flex items-center gap-1.5 rounded-sm bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-500 ring-1 ring-gray-500/20">
       <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
       Inactive
     </span>
   );
 }
 
-function TypeBadge({ type }) {
-  if (type === "Premium") {
-    return (
-      <span className="inline-flex items-center rounded-xs bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-600/20">
-        ★ Premium
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center rounded-xs bg-gray-80 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
-      Regular
-    </span>
-  );
-}
-
-function MemberDetailModal({ member, onClose, onToggleStatus }) {
+function MemberDetailModal({ member, onClose }) {
   if (!member) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center   p-4 bg-black/40 "
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl p-6 shadow-xl bg-white "
+        className="w-full max-w-md rounded-2xl p-6 shadow-xl bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold ${getAvatarColor(member.id)}`}
+              className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold ${getAvatarColor(member.memberID)}`}
             >
-              {getInitials(member.fullName)}
+              {getInitials(member.person?.fullName || "")}
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {member.fullName}
+                {member.person?.fullName}
               </h3>
-              <StatusBadge status={member.status} />
+              <StatusBadge isActive={member.isActive} />
             </div>
           </div>
           <button
@@ -282,29 +133,19 @@ function MemberDetailModal({ member, onClose, onToggleStatus }) {
           </button>
         </div>
 
-        <div className="mt-6 space-y-4 ">
-          <DetailRow icon={<HiOutlineMail className="h-4 w-4" />} label="Email" value={member.email} />
-          <DetailRow icon={<HiOutlinePhone className="h-4 w-4" />} label="Phone" value={member.phone} />
+        <div className="mt-6 space-y-4">
+          <DetailRow icon={<HiOutlineMail className="h-4 w-4" />} label="Email" value={member.person?.email || "—"} />
+          <DetailRow icon={<HiOutlinePhone className="h-4 w-4" />} label="Phone" value={member.person?.phoneNumber || "—"} />
           <DetailRow icon={<HiOutlineCalendar className="h-4 w-4" />} label="Member since" value={formatDate(member.membershipDate)} />
-          <DetailRow icon={<HiOutlineBookOpen className="h-4 w-4" />} label="Currently borrowed" value={`${member.borrowedBooks} book${member.borrowedBooks !== 1 ? "s" : ""}`} />
-          <DetailRow icon={<MdPeopleAlt className="h-4 w-4" />} label="Total borrowed" value={`${member.totalBorrowed} book${member.totalBorrowed !== 1 ? "s" : ""}`} />
-          <DetailRow icon={<IoFilter className="h-4 w-4" />} label="Membership type" value={member.membershipType} />
+          <DetailRow icon={<HiOutlineBookOpen className="h-4 w-4" />} label="Currently borrowed" value={`${member.currentlyBorrowedBooks ?? 0} book(s)`} />
+          <DetailRow icon={<MdPeopleAlt className="h-4 w-4" />} label="Total borrowed" value={`${member.totalBorrowedBooks ?? 0} book(s)`} />
+          <DetailRow icon={<IoFilter className="h-4 w-4" />} label="Membership type" value={member.membershipType || "—"} />
         </div>
 
         <div className="mt-6 flex gap-3">
           <button
-            onClick={() => onToggleStatus(member.id)}
-            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-sm transition ${
-              member.status === "active"
-                ? "bg-gray-600 hover:bg-gray-700"
-                : "bg-green-500 hover:bg-green-600"
-            }`}
-          >
-            {member.status === "active" ? "Deactivate Member" : "Activate Member"}
-          </button>
-          <button
             onClick={onClose}
-            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+            className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
           >
             Close
           </button>
@@ -328,10 +169,8 @@ function DetailRow({ icon, label, value }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function MemberPage() {
-  const [members, setMembers] = useState(MOCK_MEMBERS);
+  const [members, setMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
   const [sortConfig, setSortConfig] = useState({
     key: "fullName",
     direction: SORT_DIR.ASC,
@@ -341,57 +180,41 @@ export default function MemberPage() {
   const [detailModal, setDetailModal] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
   const pageSize = 8;
 
-  // ── Derived data ────────────────────────────────────────────────────────
-  const filteredMembers = useMemo(() => {
-    let result = [...members];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (m) =>
-          m.fullName.toLowerCase().includes(q) ||
-          m.email.toLowerCase().includes(q) ||
-          m.phone.includes(q)
-      );
-    }
-
-    if (statusFilter !== "all") {
-      result = result.filter((m) => m.status === statusFilter);
-    }
-
-    if (typeFilter !== "all") {
-      result = result.filter((m) => m.membershipType === typeFilter);
-    }
-
-    if (sortConfig.direction !== SORT_DIR.NONE) {
-      result.sort((a, b) => {
-        let valA = a[sortConfig.key];
-        let valB = b[sortConfig.key];
-        if (typeof valA === "string") {
-          valA = valA.toLowerCase();
-          valB = valB.toLowerCase();
-        }
-        if (valA < valB) return sortConfig.direction === SORT_DIR.ASC ? -1 : 1;
-        if (valA > valB) return sortConfig.direction === SORT_DIR.ASC ? 1 : -1;
-        return 0;
+  // ── Fetch members from API ─────────────────────────────────────────────
+  const fetchMembersData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await getMembers({
+        pageNumber: currentPage,
+        pageSize: pageSize,
+        searchTerm: searchQuery,
+        orderBy: "",
       });
+      setMembers(result.data);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      console.log("Failed to fetch members:", error);
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage, pageSize, searchQuery, sortConfig]);
 
-    return result;
-  }, [members, searchQuery, statusFilter, typeFilter, sortConfig]);
+  useEffect(() => {
+    fetchMembersData();
+  }, [fetchMembersData]);
 
-  const totalPages = Math.ceil(filteredMembers.length / pageSize);
-  const paginatedMembers = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredMembers.slice(start, start + pageSize);
-  }, [filteredMembers, currentPage]);
-
+  // ── Derived data ────────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const active = members.filter((m) => m.status === "active").length;
-    const inactive = members.filter((m) => m.status === "inactive").length;
-    const totalBorrowed = members.reduce((sum, m) => sum + m.borrowedBooks, 0);
+    const active = members.filter((m) => m.isActive).length;
+    const inactive = members.filter((m) => !m.isActive).length;
+    const totalBorrowed = members.reduce(
+      (sum, m) => sum + (m.currentlyBorrowedBooks || 0),
+      0
+    );
     return { total: members.length, active, inactive, totalBorrowed };
   }, [members]);
 
@@ -403,63 +226,40 @@ export default function MemberPage() {
       }
       return { key, direction: SORT_DIR.ASC };
     });
-  }, []);
-
-  const handleToggleStatus = useCallback((id) => {
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? { ...m, status: m.status === "active" ? "inactive" : "active" }
-          : m
-      )
-    );
-    setActionMenuOpen(null);
+    setCurrentPage(1);
   }, []);
 
   const handleSelectAll = useCallback(() => {
-    if (selectedMembers.size === paginatedMembers.length) {
+    if (selectedMembers.size === members.length) {
       setSelectedMembers(new Set());
     } else {
-      setSelectedMembers(new Set(paginatedMembers.map((m) => m.id)));
+      setSelectedMembers(new Set(members.map((m) => m.memberID)));
     }
-  }, [paginatedMembers, selectedMembers]);
+  }, [members, selectedMembers]);
 
-  const handleSelectMember = useCallback((id) => {
+  const handleSelectMember = useCallback((memberID) => {
     setSelectedMembers((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(memberID)) next.delete(memberID);
+      else next.add(memberID);
       return next;
     });
   }, []);
 
-  const handleBulkToggle = useCallback(
-    (newStatus) => {
-      setMembers((prev) =>
-        prev.map((m) =>
-          selectedMembers.has(m.id) ? { ...m, status: newStatus } : m
-        )
-      );
-      setSelectedMembers(new Set());
-    },
-    [selectedMembers]
-  );
-
   const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
-    setSelectedMembers(new Set());
-  }, []);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      setSelectedMembers(new Set());
+    }
+  }, [totalPages]);
 
   const handleResetFilters = useCallback(() => {
     setSearchQuery("");
-    setStatusFilter("all");
-    setTypeFilter("all");
     setSortConfig({ key: "fullName", direction: SORT_DIR.ASC });
     setCurrentPage(1);
   }, []);
 
-  const hasActiveFilters =
-    searchQuery !== "" || statusFilter !== "all" || typeFilter !== "all";
+  const hasActiveFilters = searchQuery !== "";
 
   // Close action menu on outside click
   const handleTableClick = useCallback(() => {
@@ -467,15 +267,23 @@ export default function MemberPage() {
   }, []);
 
   // ── Render ──────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-xl font-semibold text-gray-600">
+          Loading members from server...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-100 sm:p-2 lg:p-0 w-full" onClick={handleTableClick}>
-
-     
       <div className="space-y-6 bg-gray-100 w-full">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
           <div>
-           <p className=" mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500">
               Manage library members — people are added automatically when they
               borrow their first book.
             </p>
@@ -494,7 +302,7 @@ export default function MemberPage() {
         </div>
 
         {/* ── Stats Cards ────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid gap-4 sm:grid-cols-4">
           <StatCard
             label="Total Members"
             value={stats.total}
@@ -522,82 +330,19 @@ export default function MemberPage() {
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
-        <div>
         <div className="bg-white p-4 rounded-t-lg shadow-sm">
           <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
             <SearchBar
-              placeholder="Search by name, email, or phone…"
+              placeholder="Search members…"
               searchTerm={searchQuery}
-              setSearchTerm={(val) => { setSearchQuery(val); setCurrentPage(1); }}
+              setSearchTerm={(val) => {
+                setSearchQuery(val);
+                setCurrentPage(1);
+              }}
               onFilterClick={() => setShowFilters(!showFilters)}
               isFilterActive={showFilters}
             />
           </div>
-
-          {/* ── Expandable Filters ────────────────────────────────────────── */}
-          {showFilters && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg flex flex-wrap gap-4 animate-in fade-in">
-              {/* Status filter */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-gray-500">
-                  Status:
-                </span>
-                <div className="flex rounded-lg border border-gray-200 p-0.5">
-                  {[
-                    { value: "all", label: "All" },
-                    { value: "active", label: "Active" },
-                    { value: "inactive", label: "Inactive" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setStatusFilter(opt.value);
-                        setCurrentPage(1);
-                      }}
-                      className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                        statusFilter === opt.value
-                          ? "bg-green-500 text-white shadow-sm"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Type filter */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-gray-500">
-                  Type:
-                </span>
-                <div className="flex rounded-lg border border-gray-200 p-0.5">
-                  {[
-                    { value: "all", label: "All" },
-                    { value: "Regular", label: "Regular" },
-                    { value: "Premium", label: "Premium" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setTypeFilter(opt.value);
-                        setCurrentPage(1);
-                      }}
-                      className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                        typeFilter === opt.value
-                          ? "bg-green-500 text-white shadow-sm"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* ── Bulk Actions ──────────────────────────────────────────────── */}
           {selectedMembers.size > 0 && (
@@ -605,26 +350,6 @@ export default function MemberPage() {
               <span className="text-xs font-medium text-green-700">
                 {selectedMembers.size} selected
               </span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBulkToggle("active");
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-green-600"
-              >
-                <HiOutlineCheck className="h-3.5 w-3.5" />
-                Activate
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBulkToggle("inactive");
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
-              >
-                <HiOutlineBan className="h-3.5 w-3.5" />
-                Deactivate
-              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -643,13 +368,13 @@ export default function MemberPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-100 ">
+                <tr className="border-b border-gray-100 bg-gray-50/80">
                   <th className="w-12 px-4 py-3.5">
                     <input
                       type="checkbox"
                       checked={
-                        paginatedMembers.length > 0 &&
-                        selectedMembers.size === paginatedMembers.length
+                        members.length > 0 &&
+                        selectedMembers.size === members.length
                       }
                       onChange={handleSelectAll}
                       className="h-4 w-4 rounded border-gray-300 text-green-500 focus:ring-green-500/20 cursor-pointer"
@@ -657,11 +382,10 @@ export default function MemberPage() {
                   </th>
                   {[
                     { key: "fullName", label: "Member" },
-                    { key: "membershipType", label: "Type" },
-                    { key: "borrowedBooks", label: "Borrowed" },
-                    { key: "totalBorrowed", label: "Total" },
                     { key: "membershipDate", label: "Joined" },
-                    { key: "status", label: "Status" },
+                    { key: "currentlyBorrowedBooks", label: "Borrowed" },
+                    { key: "totalBorrowedBooks", label: "Total" },
+                    { key: "isActive", label: "Status" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -670,10 +394,7 @@ export default function MemberPage() {
                     >
                       <div className="flex items-center gap-1">
                         {col.label}
-                        <SortIcon
-                          columnKey={col.key}
-                          sortConfig={sortConfig}
-                        />
+                        <SortIcon columnKey={col.key} sortConfig={sortConfig} />
                       </div>
                     </th>
                   ))}
@@ -683,19 +404,16 @@ export default function MemberPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {paginatedMembers.length === 0 ? (
+                {members.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={8}
-                      className="px-4 py-16 text-center"
-                    >
+                    <td colSpan={7} className="px-4 py-16 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <MdPeopleAlt className="h-10 w-10 text-gray-300" />
                         <p className="text-sm font-medium text-gray-500">
                           No members found
                         </p>
                         <p className="text-xs text-gray-400">
-                          Try adjusting your search or filter criteria
+                          Try adjusting your search criteria
                         </p>
                         {hasActiveFilters && (
                           <button
@@ -709,11 +427,11 @@ export default function MemberPage() {
                     </td>
                   </tr>
                 ) : (
-                  paginatedMembers.map((member) => (
+                  members.map((member) => (
                     <tr
-                      key={member.id}
+                      key={member.memberID}
                       className={`group transition ${
-                        selectedMembers.has(member.id)
+                        selectedMembers.has(member.memberID)
                           ? "bg-green-50/60"
                           : "hover:bg-gray-50/80"
                       }`}
@@ -722,8 +440,8 @@ export default function MemberPage() {
                       <td className="px-4 py-3.5">
                         <input
                           type="checkbox"
-                          checked={selectedMembers.has(member.id)}
-                          onChange={() => handleSelectMember(member.id)}
+                          checked={selectedMembers.has(member.memberID)}
+                          onChange={() => handleSelectMember(member.memberID)}
                           className="h-4 w-4 rounded border-gray-300 text-green-500 focus:ring-green-500/20 cursor-pointer"
                         />
                       </td>
@@ -732,43 +450,19 @@ export default function MemberPage() {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${getAvatarColor(member.id)}`}
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${getAvatarColor(member.memberID)}`}
                           >
-                            {getInitials(member.fullName)}
+                            {getInitials(member.person?.fullName || "")}
                           </div>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-gray-900">
-                              {member.fullName}
+                              {member.person?.fullName}
                             </p>
                             <p className="truncate text-xs text-gray-500">
-                              {member.email}
+                              {member.person?.email}
                             </p>
                           </div>
                         </div>
-                      </td>
-
-                      {/* Type */}
-                      <td className="px-4 py-3.5">
-                        <TypeBadge type={member.membershipType} />
-                      </td>
-
-                      {/* Borrowed */}
-                      <td className="px-4 py-3.5">
-                        <span
-                          className={`inline-flex items-center gap-1 text-sm font-medium ${
-                            member.borrowedBooks > 0
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          <HiOutlineBookOpen className="h-3.5 w-3.5" />
-                          {member.borrowedBooks}
-                        </span>
-                      </td>
-
-                      {/* Total */}
-                      <td className="px-4 py-3.5 text-sm text-gray-600">
-                        {member.totalBorrowed}
                       </td>
 
                       {/* Joined */}
@@ -776,9 +470,28 @@ export default function MemberPage() {
                         {formatDate(member.membershipDate)}
                       </td>
 
+                      {/* Borrowed */}
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={`inline-flex items-center gap-1 text-sm font-medium ${
+                            (member.currentlyBorrowedBooks || 0) > 0
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          <HiOutlineBookOpen className="h-3.5 w-3.5" />
+                          {member.currentlyBorrowedBooks ?? 0}
+                        </span>
+                      </td>
+
+                      {/* Total */}
+                      <td className="px-4 py-3.5 text-sm text-gray-600">
+                        {member.totalBorrowedBooks ?? 0}
+                      </td>
+
                       {/* Status */}
                       <td className="px-4 py-3.5">
-                        <StatusBadge status={member.status} />
+                        <StatusBadge isActive={member.isActive} />
                       </td>
 
                       {/* Actions */}
@@ -788,9 +501,9 @@ export default function MemberPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setActionMenuOpen(
-                                actionMenuOpen === member.id
+                                actionMenuOpen === member.memberID
                                   ? null
-                                  : member.id
+                                  : member.memberID
                               );
                             }}
                             className="rounded-lg p-1.5 text-gray-400 opacity-0 transition group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-600 focus:opacity-100"
@@ -798,7 +511,7 @@ export default function MemberPage() {
                             <HiOutlineDotsVertical className="h-4 w-4" />
                           </button>
 
-                          {actionMenuOpen === member.id && (
+                          {actionMenuOpen === member.memberID && (
                             <div
                               className="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
                               onClick={(e) => e.stopPropagation()}
@@ -813,26 +526,6 @@ export default function MemberPage() {
                                 <HiOutlineEye className="h-4 w-4 text-gray-400" />
                                 View Details
                               </button>
-                              <button
-                                onClick={() => handleToggleStatus(member.id)}
-                                className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition hover:bg-gray-50 ${
-                                  member.status === "active"
-                                    ? "text-red-600"
-                                    : "text-green-600"
-                                }`}
-                              >
-                                {member.status === "active" ? (
-                                  <>
-                                    <HiOutlineBan className="h-4 w-4" />
-                                    Deactivate
-                                  </>
-                                ) : (
-                                  <>
-                                    <HiOutlineCheck className="h-4 w-4" />
-                                    Activate
-                                  </>
-                                )}
-                              </button>
                             </div>
                           )}
                         </div>
@@ -843,16 +536,16 @@ export default function MemberPage() {
               </tbody>
             </table>
           </div>
-          </div>
 
           {/* ── Pagination ────────────────────────────────────────────────── */}
-            <Pagination 
+          {members.length > 0 && (
+            <Pagination
+              onNext={() => handlePageChange(currentPage + 1)}
               onPrev={() => handlePageChange(currentPage - 1)}
-              onNext={() => handlePageChange(totalPages)}
               currentPage={currentPage}
               totalPages={totalPages}
-              />
-          
+            />
+          )}
         </div>
       </div>
 
@@ -860,12 +553,7 @@ export default function MemberPage() {
       <MemberDetailModal
         member={detailModal}
         onClose={() => setDetailModal(null)}
-        onToggleStatus={(id) => {
-          handleToggleStatus(id);
-          setDetailModal(null);
-        }}
       />
-
     </div>
   );
 }

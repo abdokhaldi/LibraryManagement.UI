@@ -10,6 +10,7 @@ import {
   PeopleTableHeader,
   PeopleTableBody,
   PersonDetailModal,
+  PersonFormModal,
 } from "./components";
 
 const ASSOCIATION_OPTIONS = [
@@ -52,6 +53,7 @@ export default function PeoplePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [detailModal, setDetailModal] = useState(null);
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // ── Derived data / Stats ────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -202,6 +204,17 @@ export default function PeoplePage() {
     setActionMenuOpen(null);
   }, []);
 
+  const handleAddPerson = useCallback((personData) => {
+    const newId = Math.max(...MOCK_PEOPLE.map((p) => p.personID), 0) + 1;
+    const newPerson = {
+      personID: newId,
+      ...personData,
+      associationDetails: personData.association === "none" ? null : { type: "Member" },
+    };
+    MOCK_PEOPLE.push(newPerson);
+    setShowAddModal(false);
+  }, []);
+
   // ── Render ──────────────────────────────────────────────────────────────
   return (
     <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
@@ -213,7 +226,7 @@ export default function PeoplePage() {
           month: "long",
           day: "numeric",
         })}
-        onAddPerson={() => {}}
+        onAddPerson={() => setShowAddModal(true)}
       />
 
       {/* Stats Cards */}
@@ -290,6 +303,13 @@ export default function PeoplePage() {
         isOpen={!!detailModal}
         onClose={() => setDetailModal(null)}
         onEdit={() => {}}
+      />
+
+      {/* Add Person Modal */}
+      <PersonFormModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleAddPerson}
       />
     </div>
   );

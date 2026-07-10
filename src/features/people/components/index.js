@@ -19,3 +19,4 @@ export * from "./filters/PeopleFilters";
 
 // Modal components
 export * from "./modals/PersonDetailModal";
+export { default as PersonFormModal } from "./modals/PersonFormModal";

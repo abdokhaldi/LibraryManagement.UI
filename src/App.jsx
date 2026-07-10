@@ -20,6 +20,7 @@ function App() {
  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+     // Default to 'dashboard'
   
   useEffect(() => {
   const checkAuth = async () => {
@@ -46,7 +47,7 @@ function App() {
         <Route path="/register" element={<Onboarding onCompleted={() => setIsAuthenticated(true)}/>}/>
        <Route element={<ProtectedRoute isAuthenticated={isAuthenticated}/>}>
            <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard/>}/>
+            <Route index element={<Dashboard/>}  />
             <Route path="dashboard" element={<Dashboard/>}/>
             <Route path="books" element={<BookInventory/>}>
             <Route path="/books/:bookId" element={<BookDetailsModal/>}/>

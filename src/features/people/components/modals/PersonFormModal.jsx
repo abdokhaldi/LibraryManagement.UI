@@ -3,8 +3,8 @@ import { HiOutlineX, HiOutlineUser, HiOutlinePhone, HiOutlineMail, HiOutlineLoca
 import { FaIdCard, FaVenusMars, FaUserTag } from "react-icons/fa";
 
 const GENDER_OPTIONS = [
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
+  { value:"M",label: "Male" },
+  { value: "F",label:"Famale"},
 ];
 
 const ASSOCIATION_OPTIONS = [
@@ -92,7 +92,7 @@ const SelectField = ({ label, name, value, onChange, options, placeholder, error
   </div>
 );
 
-export default function PersonFormModal({ isOpen, onClose, onSubmit, person }) {
+export default function PersonFormModal({ isOpen, onClose, onSubmit, person, isLoading = false }) {
   const isEditMode = !!person;
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -331,10 +331,11 @@ export default function PersonFormModal({ isOpen, onClose, onSubmit, person }) {
           </button>
           <button
             onClick={handleSubmit}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-green-600"
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <HiOutlineCheck className="h-4 w-4" />
-            {isEditMode ? "Save Changes" : "Add Person"}
+            {isLoading ? "Saving..." : (isEditMode ? "Save Changes" : "Add Person")}
           </button>
         </div>
       </div>

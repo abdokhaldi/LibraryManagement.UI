@@ -2,12 +2,12 @@
 import {FaFileDownload} from 'react-icons/fa';
 
 
- function Header(){
+ function Header({title}){
    
     return (
         <>
      <div className="bg-white border-b border-gray-300 h-20 flex items-center justify-between p-8">
-      <h2 className="font-bold text-3xl">Dashboard</h2>
+      <h2 className="font-bold text-3xl">{title}</h2>
         <div className="flex items-center h-full gap-4">
             <div className="flex items-center justify-between gap-0.5 rounded-lg w-30 bg-gray-200 text-black h-13 p-2 ">
              <p >Last 30 days</p>

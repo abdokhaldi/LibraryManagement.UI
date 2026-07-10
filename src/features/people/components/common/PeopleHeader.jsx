@@ -3,10 +3,10 @@ import { RiUserAddLine } from "react-icons/ri";
 
 export function PeopleHeader({ currentDate, onAddPerson }) {
   return (
-    <div className="border-b border-gray-200 bg-white px-6 py-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-7xl mx-auto">
+    <div className=" py-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mx-auto">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">People Management</h1>
+          
           <p className="mt-1 text-sm text-gray-500">
             Independent person entity management — view and manage all persons with their system associations.
           </p>

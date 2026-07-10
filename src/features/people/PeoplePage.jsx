@@ -1,6 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Pagination from "../Pagination/Pagination";
-import { MOCK_PEOPLE } from "./constants";
 import { getAvatarColor, getInitials, nextDirection, SORT_DIR } from "./utils/helpers";
 import {
   PeopleHeader,
@@ -12,6 +11,15 @@ import {
   PersonDetailModal,
   PersonFormModal,
 } from "./components";
+import {
+  fetchPeople,
+  getPersonDetails,
+  createPerson,
+  updatePerson,
+  activatePerson,
+  deactivatePerson,
+  checkPersonExistence,
+} from "../../services/personService";
 
 const ASSOCIATION_OPTIONS = [
   { value: "all", label: "All" },
@@ -55,100 +63,82 @@ export default function PeoplePage() {
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
+  
+  // API State
+  const [people, setPeople] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [cities, setCities] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    users: 0,
+    members: 0,
+    none: 0,
+    males: 0,
+    females: 0,
+  });
 
-  // ── Derived data / Stats ────────────────────────────────────────────────
-  const stats = useMemo(() => {
-    const users = MOCK_PEOPLE.filter((p) => p.association === "user").length;
-    const members = MOCK_PEOPLE.filter((p) => p.association === "member").length;
-    const none = MOCK_PEOPLE.filter((p) => p.association === "none").length;
-    const males = MOCK_PEOPLE.filter((p) => p.gender === "Male").length;
-    const females = MOCK_PEOPLE.filter((p) => p.gender === "Female").length;
+  // Fetch people from API
+  const fetchPeopleData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Build orderBy string for API
+      const orderBy = sortConfig.key && sortConfig.direction !== SORT_DIR.NONE 
+        ? `${sortConfig.key}_${sortConfig.direction}` 
+        : '';
+      
+      // Build search term - API handles search across multiple fields
+      const searchTerm = searchQuery.trim();
+      
+      // Build filter parameters - we'll pass them as part of search or handle client-side for complex filters
+      // For now, we'll use the API's search and do association/gender/city filtering client-side
+      // since the API might not support all these filters
+      const result = await fetchPeople({
+        pageNumber: currentPage,
+        pageSize: 10,
+        searchTerm,
+        orderBy,
+      });
+      
+      setPeople(result.data || []);
+      setTotalPages(result.totalPages || 1);
+      setTotalCount((result.data || []).length); // We don't have total count from API, using page data length
+      
+      // Extract unique cities from fetched data
+      const uniqueCities = [...new Set((result.data || []).map(p => p.city))].filter(Boolean).sort();
+      setCities(uniqueCities);
+      
+      // Calculate stats from current page data (or we could fetch all for stats)
+      const data = result.data || [];
+      setStats({
+        total: data.length,
+        users: data.filter(p => p.association === "user").length,
+        members: data.filter(p => p.association === "member").length,
+        none: data.filter(p => p.association === "none").length,
+        males: data.filter(p => p.gender === "Male").length,
+        females: data.filter(p => p.gender === "Female").length,
+      });
+      
+    } catch (err) {
+      console.error('Error fetching people:', err);
+      setError(err.message || 'Failed to fetch people');
+      setPeople([]);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, searchQuery, sortConfig]);
 
-    return {
-      total: MOCK_PEOPLE.length,
-      users,
-      members,
-      none,
-      males,
-      females,
-    };
-  }, []);
+  // Load initial data
+  useEffect(() => {
+    fetchPeopleData();
+  }, [fetchPeopleData]);
 
-  // ── Unique cities for filter ────────────────────────────────────────────
-  const cities = useMemo(() => {
-    return [...new Set(MOCK_PEOPLE.map((p) => p.city))].sort();
-  }, []);
-
-  // ── Filtered & Sorted People ────────────────────────────────────────────
-  const filteredPeople = useMemo(() => {
-    let result = [...MOCK_PEOPLE].filter((p) => {
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesName = `${p.firstName} ${p.lastName}`.toLowerCase().includes(query);
-        const matchesEmail = p.email?.toLowerCase().includes(query);
-        const matchesNational = p.nationalNumber?.toLowerCase().includes(query);
-        const matchesPhone = p.phone?.toLowerCase().includes(query);
-        const matchesCity = p.city?.toLowerCase().includes(query);
-        const matchesAddress = p.address?.toLowerCase().includes(query);
-        if (
-          !matchesName &&
-          !matchesEmail &&
-          !matchesNational &&
-          !matchesPhone &&
-          !matchesCity &&
-          !matchesAddress
-        ) {
-          return false;
-        }
-      }
-
-      // Association filter
-      if (associationFilter !== "all" && p.association !== associationFilter) {
-        return false;
-      }
-
-      // Gender filter
-      if (genderFilter !== "all" && p.gender !== genderFilter) {
-        return false;
-      }
-
-      // City filter
-      if (cityFilter !== "all" && p.city !== cityFilter) {
-        return false;
-      }
-
-      return true;
-    });
-
-    // Sort
-    result.sort((a, b) => {
-      let aVal = a[sortConfig.key];
-      let bVal = b[sortConfig.key];
-
-      if (aVal === null || aVal === undefined) aVal = "";
-      if (bVal === null || bVal === undefined) bVal = "";
-
-      if (typeof aVal === "string") aVal = aVal.toLowerCase();
-      if (typeof bVal === "string") bVal = bVal.toLowerCase();
-
-      if (aVal < bVal) return sortConfig.direction === SORT_DIR.ASC ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === SORT_DIR.ASC ? 1 : -1;
-      return 0;
-    });
-
-    return result;
-  }, [searchQuery, associationFilter, genderFilter, cityFilter, sortConfig]);
-
-  // ── Pagination ───────────────────────────────────────────────────────────
-  const pageSize = 10;
-  const totalPages = Math.ceil(filteredPeople.length / pageSize) || 1;
-  const paginatedPeople = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredPeople.slice(start, start + pageSize);
-  }, [filteredPeople, currentPage]);
-
-  // ── Handlers ─────────────────────────────────────────────────────────────
+  // Handle sort
   const handleSort = useCallback((key) => {
     setSortConfig((prev) => {
       if (prev.key === key) {
@@ -159,13 +149,73 @@ export default function PeoplePage() {
     setCurrentPage(1);
   }, []);
 
+  // Handle page change
+  const handlePageChange = useCallback((page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      setSelectedPeople(new Set());
+    }
+  }, [totalPages]);
+
+  // Handle search change
+  const handleSearchChange = useCallback((val) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  }, []);
+
+  // Handle filter changes
+  const handleAssociationChange = useCallback((val) => {
+    setAssociationFilter(val);
+    setCurrentPage(1);
+  }, []);
+
+  const handleGenderChange = useCallback((val) => {
+    setGenderFilter(val);
+    setCurrentPage(1);
+  }, []);
+
+  const handleCityChange = useCallback((val) => {
+    setCityFilter(val);
+    setCurrentPage(1);
+  }, []);
+
+  // Reset filters
+  const handleResetFilters = useCallback(() => {
+    setSearchQuery("");
+    setAssociationFilter("all");
+    setGenderFilter("all");
+    setCityFilter("all");
+    setSortConfig({ key: "firstName", direction: SORT_DIR.ASC });
+    setCurrentPage(1);
+  }, []);
+
+  // Client-side filtering for association, gender, city (since API may not support these)
+  const filteredPeople = useMemo(() => {
+    return people.filter((p) => {
+      // Association filter
+      if (associationFilter !== "all" && p.association !== associationFilter) {
+        return false;
+      }
+      // Gender filter
+      if (genderFilter !== "all" && p.gender !== genderFilter) {
+        return false;
+      }
+      // City filter
+      if (cityFilter !== "all" && p.city !== cityFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [people, associationFilter, genderFilter, cityFilter]);
+
+  // Handle selection
   const handleSelectAll = useCallback(() => {
-    if (selectedPeople.size === paginatedPeople.length) {
+    if (selectedPeople.size === filteredPeople.length) {
       setSelectedPeople(new Set());
     } else {
-      setSelectedPeople(new Set(paginatedPeople.map((p) => p.personID)));
+      setSelectedPeople(new Set(filteredPeople.map((p) => p.personID)));
     }
-  }, [paginatedPeople, selectedPeople]);
+  }, [filteredPeople, selectedPeople]);
 
   const handleSelect = useCallback((id) => {
     setSelectedPeople((prev) => {
@@ -176,24 +226,85 @@ export default function PeoplePage() {
     });
   }, []);
 
-  const handlePageChange = useCallback(
-    (page) => {
-      if (page >= 1 && page <= totalPages) {
-        setCurrentPage(page);
-        setSelectedPeople(new Set());
+  // Handle view details - fetch full person details from API
+  const handleViewDetails = useCallback(async (person) => {
+    try {
+      setIsLoading(true);
+      const result = await getPersonDetails(person.personID);
+      if (result.success) {
+        setDetailModal(result.data);
+      } else {
+        setError(result.errorMessage || 'Failed to load person details');
       }
-    },
-    [totalPages]
-  );
-
-  const handleResetFilters = useCallback(() => {
-    setSearchQuery("");
-    setAssociationFilter("all");
-    setGenderFilter("all");
-    setCityFilter("all");
-    setSortConfig({ key: "firstName", direction: SORT_DIR.ASC });
-    setCurrentPage(1);
+    } catch (err) {
+      console.error('Error fetching person details:', err);
+      setError(err.message || 'Failed to load person details');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  // Handle form submit (create/update)
+  const handleSubmitPerson = useCallback(async (personData) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      let result;
+      if (editingPerson) {
+        // Update existing person
+        result = await updatePerson(editingPerson.personID, personData);
+      } else {
+        // Create new person
+        result = await createPerson(personData);
+      }
+      
+      if (result.success) {
+        // Refresh the list
+        await fetchPeopleData();
+        setShowFormModal(false);
+        setEditingPerson(null);
+      } else {
+        setError(result.errorMessage || 'Failed to save person');
+      }
+    } catch (err) {
+      console.error('Error saving person:', err);
+      setError(err.message || 'Failed to save person');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [editingPerson, fetchPeopleData]);
+
+  // Handle activate/deactivate
+  const handleToggleActive = useCallback(async (personId, isActive) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = isActive 
+        ? await deactivatePerson(personId)
+        : await activatePerson(personId);
+      
+      if (result.success) {
+        await fetchPeopleData();
+        // Close action menu
+        setActionMenuOpen(null);
+      } else {
+        setError(result.errorMessage || `Failed to ${isActive ? 'deactivate' : 'activate'} person`);
+      }
+    } catch (err) {
+      console.error('Error toggling person status:', err);
+      setError(err.message || `Failed to ${isActive ? 'deactivate' : 'activate'} person`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchPeopleData]);
+
+  // Handle delete (if API supports it, otherwise use deactivate)
+  const handleDeletePerson = useCallback(async (personId) => {
+    // Since there's no delete API, we'll deactivate instead
+    await handleToggleActive(personId, true);
+  }, [handleToggleActive]);
 
   const hasActiveFilters =
     searchQuery !== "" ||
@@ -205,32 +316,15 @@ export default function PeoplePage() {
     setActionMenuOpen(null);
   }, []);
 
-  const handleSubmitPerson = useCallback((personData) => {
-    if (editingPerson) {
-      // Edit mode: update existing person
-      const index = MOCK_PEOPLE.findIndex((p) => p.personID === editingPerson.personID);
-      if (index !== -1) {
-        MOCK_PEOPLE[index] = {
-          ...MOCK_PEOPLE[index],
-          ...personData,
-          associationDetails: personData.association === "none" ? null : { type: "Member" },
-        };
-      }
-    } else {
-      // Add mode: create new person
-      const newId = Math.max(...MOCK_PEOPLE.map((p) => p.personID), 0) + 1;
-      const newPerson = {
-        personID: newId,
-        ...personData,
-        associationDetails: personData.association === "none" ? null : { type: "Member" },
-      };
-      MOCK_PEOPLE.push(newPerson);
-    }
-    setShowFormModal(false);
-    setEditingPerson(null);
-  }, [editingPerson]);
+  // Render loading skeleton or error state
+  if (isLoading && people.length === 0) {
+    return (
+      <div className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-gray-500">Loading people...</div>
+      </div>
+    );
+  }
 
-  // ── Render ──────────────────────────────────────────────────────────────
   return (
     <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
       {/* Header */}
@@ -250,28 +344,23 @@ export default function PeoplePage() {
       {/* Stats Cards */}
       <PeopleStats stats={stats} />
 
+      {/* Error Message */}
+      {error && (
+        <div className="mx-4 mt-2 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
       {/* Filters & Toolbar */}
       <PeopleFilters
         searchQuery={searchQuery}
-        onSearchChange={(val) => {
-          setSearchQuery(val);
-          setCurrentPage(1);
-        }}
+        onSearchChange={handleSearchChange}
         associationFilter={associationFilter}
-        onAssociationChange={(val) => {
-          setAssociationFilter(val);
-          setCurrentPage(1);
-        }}
+        onAssociationChange={handleAssociationChange}
         genderFilter={genderFilter}
-        onGenderChange={(val) => {
-          setGenderFilter(val);
-          setCurrentPage(1);
-        }}
+        onGenderChange={handleGenderChange}
         cityFilter={cityFilter}
-        onCityChange={(val) => {
-          setCityFilter(val);
-          setCurrentPage(1);
-        }}
+        onCityChange={handleCityChange}
         cities={cities}
         showFilters={showFilters}
         onToggleFilters={setShowFilters}
@@ -280,41 +369,48 @@ export default function PeoplePage() {
       />
 
       {/* People Table */}
-      <div className="overflow-hidden rounded-b-xl border border-gray-200 bg-white shadow-sm">
+      <div className=" overflow-hidden rounded-b-xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <PeopleTableHeader
               onSort={handleSort}
               sortConfig={sortConfig}
               selectedCount={selectedPeople.size}
-              totalCount={paginatedPeople.length}
+              totalCount={filteredPeople.length}
               onSelectAll={handleSelectAll}
             />
             <PeopleTableBody
-              people={paginatedPeople}
+              people={filteredPeople}
               selectedPeople={selectedPeople}
               onSelect={handleSelect}
-              onViewDetails={setDetailModal}
+              onViewDetails={handleViewDetails}
               onActionMenuToggle={setActionMenuOpen}
               actionMenuOpen={actionMenuOpen}
               onEditPerson={(person) => {
                 setEditingPerson(person);
                 setShowFormModal(true);
               }}
-              onDeletePerson={() => {}}
+              onDeletePerson={handleDeletePerson}
+              onToggleActive={handleToggleActive}
               onRowClick={handleTableClick}
             />
           </table>
         </div>
 
         {/* Pagination */}
-        {paginatedPeople.length > 0 && (
+        {filteredPeople.length > 0 && (
           <Pagination
             onNext={() => handlePageChange(currentPage + 1)}
             onPrev={() => handlePageChange(currentPage - 1)}
             currentPage={currentPage}
             totalPages={totalPages}
           />
+        )}
+        
+        {filteredPeople.length === 0 && !isLoading && (
+          <div className="p-8 text-center text-gray-500">
+            No people found matching your criteria.
+          </div>
         )}
       </div>
 
@@ -339,6 +435,7 @@ export default function PeoplePage() {
         }}
         onSubmit={handleSubmitPerson}
         person={editingPerson}
+        isLoading={isLoading}
       />
     </div>
   );

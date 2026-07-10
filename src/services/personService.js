@@ -253,7 +253,7 @@ export const activatePerson = async (personId) => {
 
 export const deactivatePerson = async (personId) => {
   try {
-    console.log('Deactivating person...', { personId });
+    console.log('Deactivating person...', personId );
 
     const { ok, data, message, status } = await apiRequest(`Person/${personId}/DeactivatePerson`, {
       method: 'PATCH',

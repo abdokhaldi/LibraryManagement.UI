@@ -151,7 +151,7 @@ export function PeopleTableRow({
                 </button>
                 <button
                   onClick={() => {
-                    onDeletePerson(person);
+                    onDeletePerson(person.personID);
                     onActionMenuToggle(null);
                   }}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"

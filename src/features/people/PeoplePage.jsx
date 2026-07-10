@@ -53,7 +53,8 @@ export default function PeoplePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [detailModal, setDetailModal] = useState(null);
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingPerson, setEditingPerson] = useState(null);
 
   // ── Derived data / Stats ────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -204,16 +205,30 @@ export default function PeoplePage() {
     setActionMenuOpen(null);
   }, []);
 
-  const handleAddPerson = useCallback((personData) => {
-    const newId = Math.max(...MOCK_PEOPLE.map((p) => p.personID), 0) + 1;
-    const newPerson = {
-      personID: newId,
-      ...personData,
-      associationDetails: personData.association === "none" ? null : { type: "Member" },
-    };
-    MOCK_PEOPLE.push(newPerson);
-    setShowAddModal(false);
-  }, []);
+  const handleSubmitPerson = useCallback((personData) => {
+    if (editingPerson) {
+      // Edit mode: update existing person
+      const index = MOCK_PEOPLE.findIndex((p) => p.personID === editingPerson.personID);
+      if (index !== -1) {
+        MOCK_PEOPLE[index] = {
+          ...MOCK_PEOPLE[index],
+          ...personData,
+          associationDetails: personData.association === "none" ? null : { type: "Member" },
+        };
+      }
+    } else {
+      // Add mode: create new person
+      const newId = Math.max(...MOCK_PEOPLE.map((p) => p.personID), 0) + 1;
+      const newPerson = {
+        personID: newId,
+        ...personData,
+        associationDetails: personData.association === "none" ? null : { type: "Member" },
+      };
+      MOCK_PEOPLE.push(newPerson);
+    }
+    setShowFormModal(false);
+    setEditingPerson(null);
+  }, [editingPerson]);
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
@@ -226,7 +241,10 @@ export default function PeoplePage() {
           month: "long",
           day: "numeric",
         })}
-        onAddPerson={() => setShowAddModal(true)}
+        onAddPerson={() => {
+          setEditingPerson(null);
+          setShowFormModal(true);
+        }}
       />
 
       {/* Stats Cards */}
@@ -279,7 +297,10 @@ export default function PeoplePage() {
               onViewDetails={setDetailModal}
               onActionMenuToggle={setActionMenuOpen}
               actionMenuOpen={actionMenuOpen}
-              onEditPerson={() => {}}
+              onEditPerson={(person) => {
+                setEditingPerson(person);
+                setShowFormModal(true);
+              }}
               onDeletePerson={() => {}}
               onRowClick={handleTableClick}
             />
@@ -302,14 +323,22 @@ export default function PeoplePage() {
         person={detailModal}
         isOpen={!!detailModal}
         onClose={() => setDetailModal(null)}
-        onEdit={() => {}}
+        onEdit={(person) => {
+          setDetailModal(null);
+          setEditingPerson(person);
+          setShowFormModal(true);
+        }}
       />
 
-      {/* Add Person Modal */}
+      {/* Person Form Modal (Add / Edit) */}
       <PersonFormModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSubmit={handleAddPerson}
+        isOpen={showFormModal}
+        onClose={() => {
+          setShowFormModal(false);
+          setEditingPerson(null);
+        }}
+        onSubmit={handleSubmitPerson}
+        person={editingPerson}
       />
     </div>
   );

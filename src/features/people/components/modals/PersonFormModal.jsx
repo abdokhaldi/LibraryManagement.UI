@@ -92,17 +92,32 @@ const SelectField = ({ label, name, value, onChange, options, placeholder, error
   </div>
 );
 
-export default function PersonFormModal({ isOpen, onClose, onSubmit }) {
+export default function PersonFormModal({ isOpen, onClose, onSubmit, person }) {
+  const isEditMode = !!person;
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
 
-  // Reset form when modal opens
+  // Populate form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setForm(initialForm);
+      if (person) {
+        setForm({
+          firstName: person.firstName || "",
+          lastName: person.lastName || "",
+          nationalNumber: person.nationalNumber || "",
+          phone: person.phone || "",
+          email: person.email || "",
+          address: person.address || "",
+          city: person.city || "",
+          gender: person.gender || "",
+          association: person.association || "none",
+        });
+      } else {
+        setForm(initialForm);
+      }
       setErrors({});
     }
-  }, [isOpen]);
+  }, [isOpen, person]);
 
   const resetAndClose = () => {
     setForm(initialForm);
@@ -174,9 +189,13 @@ export default function PersonFormModal({ isOpen, onClose, onSubmit }) {
               <FaUserTag className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Add New Person</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                {isEditMode ? "Edit Person" : "Add New Person"}
+              </h2>
               <p className="text-xs text-gray-500">
-                Fill in the personal information for the new person
+                {isEditMode
+                  ? "Update the personal information for this person"
+                  : "Fill in the personal information for the new person"}
               </p>
             </div>
           </div>
@@ -193,7 +212,9 @@ export default function PersonFormModal({ isOpen, onClose, onSubmit }) {
           <div className="space-y-5">
             <div className="rounded-lg bg-green-50/50 border border-green-100 px-4 py-3">
               <p className="text-xs font-medium text-green-700">
-                Fill in all required fields to add a new person to the system.
+                {isEditMode
+                  ? "Update the fields you want to change and save."
+                  : "Fill in all required fields to add a new person to the system."}
               </p>
             </div>
 
@@ -313,7 +334,7 @@ export default function PersonFormModal({ isOpen, onClose, onSubmit }) {
             className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-green-600"
           >
             <HiOutlineCheck className="h-4 w-4" />
-            Add Person
+            {isEditMode ? "Save Changes" : "Add Person"}
           </button>
         </div>
       </div>

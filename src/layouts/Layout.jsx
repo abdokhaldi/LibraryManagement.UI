@@ -9,7 +9,8 @@ function Layout() {
         books: "Books",
         loans: "Loans",
         members: "Members",
-        users: "Users"
+        users: "Users",
+        people: "People"
     };
 
     //const title = pageTitles[activePage] || "Library Management";

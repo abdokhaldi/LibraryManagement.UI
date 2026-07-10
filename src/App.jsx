@@ -6,6 +6,7 @@ import Dashboard from './features/dashboard/pages/Dashboard';
 import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
 import User from './features/users/UserPage';
+import People from './features/people/PeoplePage';
 import Onboarding from './auth/components/Onboarding';
 import LandingPage from './landingPage/components/LandingPage';
 import LoginPage from './auth/components/LoginForm';
@@ -51,8 +52,9 @@ function App() {
             <Route path="/books/:bookId" element={<BookDetailsModal/>}/>
             </Route>
             <Route path="loans" element={<Loan/>}/>
-            <Route path="members" element={<Member/>}/>
+<Route path="members" element={<Member/>}/>
             <Route path="users" element={<User/>}/>
+            <Route path="people" element={<People/>}/>
           </Route> 
       </Route>
    

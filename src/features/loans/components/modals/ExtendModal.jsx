@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { extendLoanPeriod } from '../../../services/loanService';
+import { extendLoanPeriod } from '../../../../services/loanService';
 import { FaTimes, FaCalendarAlt } from 'react-icons/fa';
 
 export default function ExtendModal({ isOpen, onClose, borrowingId, currentDueDate, onLoanUpdated }) {

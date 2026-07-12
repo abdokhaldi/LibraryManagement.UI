@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaTimes, FaMoneyBillWave, FaHandHoldingHeart } from 'react-icons/fa';
-import { getLoanFine, pay, waive } from '../../services/fineService';
+import { getLoanFine, pay, waive } from '../../../../services/fineService';
 
 export default function ViewFinesModal({ isOpen, onClose, borrowingId }) {
   const [finesData, setFinesData] = useState([]);

@@ -2,7 +2,7 @@ import { useState } from "react";
 // 1. إضافة الأيقونات المفقودة
 import { FaLevelDownAlt, FaBarcode, FaArrowRight } from 'react-icons/fa';
 import LoanForm from './LoanForm';
-import { API_URL } from '../../../services/config';
+import { API_URL } from '../../../../services/config';
 
 export default function ScanModal({onClose}) {
   // اجعل الحالة الافتراضية null لتجنب مشاكل المصفوفات الفارغة

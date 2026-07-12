@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
-import {loanBook} from '../../../services/loanService';
-import {checkPersonExist} from '../../../services/memberService';
+import {loanBook} from '../../../../services/loanService';
+import {checkPersonExist} from '../../../../services/memberService';
 
 export default function LoanForm({bookCopy, setCopy}){
    

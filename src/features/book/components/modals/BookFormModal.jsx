@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function BookForm({bookForUpdate,categories, isOpen, onClose, onAdd , onEdit}) {
+export default function BookFormModal({bookForUpdate,categories, isOpen, onClose, onAdd , onEdit}) {
 
   const [title, setTitle] = useState(bookForUpdate?.title || '');
   const [author, setAuthor] = useState(bookForUpdate?.author ||'');

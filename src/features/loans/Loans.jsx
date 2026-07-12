@@ -137,7 +137,7 @@ const handleCloseExtendModal = () => {
                 />
             </div>
 
-          {!showBorrowModal && <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          {!showBorrowModal && <div className=" bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 
                 
                 <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">

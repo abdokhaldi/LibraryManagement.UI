@@ -104,8 +104,8 @@ export default function MemberPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8 mx-auto max-w-7xl">
+    <div className="bg-gray-100 min-h-screen w-full" onClick={handleTableClick}>
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8 mx-auto max-w-7xl bg-red-5">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <MemberHeader />
 

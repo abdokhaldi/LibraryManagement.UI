@@ -1,6 +1,6 @@
 
 import { FaEllipsisV } from "react-icons/fa";
-import DropDownActions from './DropDownActions';
+import DropDownActions from '../common/DropDownActions';
 import { Link } from "react-router-dom";
 
 function BookRow({book, isSelected, onSelect, onOpenDetails, onEdit, onDelete, isActionsOpen, setActionRow, actionRef, isLastRow }) {

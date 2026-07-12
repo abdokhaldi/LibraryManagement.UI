@@ -1,7 +1,7 @@
 import { useState } from 'react'; 
 
 import Layout from './layouts/Layout';
-import BookInventory from './features/book/pages/BookInventory';
+import BookPage from './features/book/BookPage';
 import Dashboard from './features/dashboard/pages/Dashboard';
 import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
@@ -12,7 +12,6 @@ import LandingPage from './landingPage/components/LandingPage';
 import LoginPage from './auth/components/LoginForm';
 import { Routes,Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
-import BookDetailsModal from './features/book/pages/BookDetailsModal';
 import { useEffect } from 'react';
 import { AuthService } from './services/authService';
 
@@ -49,8 +48,8 @@ function App() {
            <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard/>}  />
             <Route path="dashboard" element={<Dashboard/>}/>
-            <Route path="books" element={<BookInventory/>}>
-            <Route path="/books/:bookId" element={<BookDetailsModal/>}/>
+            <Route path="books" element={<BookPage/>}>
+            <Route path=":bookId" element={<BookPage />} />
             </Route>
             <Route path="loans" element={<Loan/>}/>
 <Route path="members" element={<Member/>}/>

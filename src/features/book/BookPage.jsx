@@ -1,18 +1,15 @@
-
-import SearchBar from '../../commonCards/SearchBar';
-import StatCard from '../../commonCards/StatCard';
+import SearchBar from '../commonCards/SearchBar';
+import StatCard from '../commonCards/StatCard';
 import { useEffect, useRef, useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
 import { FaBook, FaCopy, FaCheckCircle } from 'react-icons/fa';
-import BookForm from '../components/BookForm';
-import BookDetailsModal from './BookDetailsModal';
-import BookTable from '../components/BookTable';
-import BookPagination from '../../Pagination/Pagination';
+import BookFormModal from './components/modals/BookFormModal';
+import BookTable from './components/table/BookTable';
+import BookPagination from '../Pagination/Pagination';
 import { Outlet } from 'react-router-dom';
-import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../../services/bookService';
+import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../services/bookService';
 
-function BookInventory() {
-  
+export default function BookPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -38,7 +35,7 @@ function BookInventory() {
         setTotalPages(result.totalPages);
         setLoading(false);
     }catch(error){
-     console.log('Failed to fetch users :' , error);
+     console.log('Failed to fetch books :' , error);
      setLoading(false);
     }
    }
@@ -59,9 +56,6 @@ fetchBooksData();
   }
    getCategories();
  }, []);
-  
-  
-  //const [copies, setCopies] = useState([]);
   
   const [showModal, setShowModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -136,20 +130,6 @@ fetchBooksData();
     setSelectedBook(null);
   };
 
-  const handleAddCopy = (bookId, numCopies = 1) => {
-    const existingCopies = copies.filter(c => c.bookId === bookId);
-    const newCopies = [];
-    for (let i = 1; i <= numCopies; i++) {
-      newCopies.push({
-        id: copies.length + i,
-        bookId: bookId,
-        barcode: `COPY-${bookId}-${existingCopies.length + i}`,
-        status: 'available',
-      });
-    }
-    setCopies(prev => [...prev, ...newCopies]);
-  };
-
 const [bookToUpdate, setBookToUpdate] = useState(null);
 
   const handleOpenEditModal = (book) => {
@@ -193,14 +173,14 @@ const [bookToUpdate, setBookToUpdate] = useState(null);
 const handleKeyDown = (e) => {
   if (e.key === 'ArrowDown') {
     e.preventDefault();
-    const nextIndex = Math.min(selectedIndex + 1, paginatedBooks.length - 1);
+    const nextIndex = Math.min(selectedIndex + 1, booksData.length - 1);
     setSelectedIndex(nextIndex);
-    setSelectedRowId(paginatedBooks[nextIndex].id);
+    setSelectedRowId(booksData[nextIndex]?.bookID);
   } else if (e.key === 'ArrowUp') {
     e.preventDefault();
     const prevIndex = Math.max(selectedIndex - 1, 0);
     setSelectedIndex(prevIndex);
-    setSelectedRowId(paginatedBooks[prevIndex].id);
+    setSelectedRowId(booksData[prevIndex]?.bookID);
   }
 };
 
@@ -218,7 +198,7 @@ if (loading) {
   return (
    
     <div className="bg-gray-100 min-h-screen ">
-      <BookForm
+      <BookFormModal
         key={bookToUpdate?.bookID || "new"}
         bookForUpdate={bookToUpdate}
         categories={categories}
@@ -312,5 +292,3 @@ if (loading) {
     
   );
 }
-
-export default BookInventory;

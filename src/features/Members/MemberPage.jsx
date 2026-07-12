@@ -4,6 +4,7 @@ import { MemberHeader } from "./components/common/MemberHeader";
 import { MemberStats } from "./components/common/MemberStats";
 import { MemberTable } from "./components/table/MemberTable";
 import { MemberFilters } from "./components/filters/MemberFilters";
+import { MemberDetailModal } from "./components/modals/MemberDetailModal";
 import { calculateMemberStats, SORT_DIR, nextDirection } from "./utils/memberHelpers";
 
 const PAGE_SIZE = 8;
@@ -103,9 +104,19 @@ export default function MemberPage() {
   const hasActiveFilters = searchQuery !== "";
 
   // ── Render ──────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-xl font-semibold text-gray-600">
+          Loading members from server...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gray-100 min-h-screen w-full" onClick={handleTableClick}>
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8 mx-auto max-w-7xl bg-red-5">
+    <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
+      <div className="mx-auto space-y-6">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <MemberHeader />
 
@@ -166,6 +177,8 @@ export default function MemberPage() {
           emptyMessage="No members found"
         />
       </div>
+
+      <MemberDetailModal user={detailModal} onClose={() => setDetailModal(null)} />
     </div>
   );
 }

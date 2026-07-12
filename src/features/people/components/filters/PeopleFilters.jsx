@@ -16,6 +16,7 @@ const GENDER_OPTIONS = [
 ];
 
 export function PeopleFilters({
+  onAddPerson,
   searchQuery,
   onSearchChange,
   associationFilter,
@@ -67,7 +68,8 @@ export function PeopleFilters({
   );
 
   return (
-    <div className="bg-white p-4 rounded-t-lg shadow-sm">
+    <div className="bg-white p-4 rounded-t-lg shadow-sm flex-2 flex justify-between items-center">
+      <div className="flex-1">
       <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
         <SearchBar
           placeholder="Search by name, email, national number, phone, city, address…"
@@ -129,6 +131,10 @@ export function PeopleFilters({
           </div>
         </div>
       )}
+      </div>
+      <button 
+      onClick={onAddPerson}
+      className="bg-green-500 p-2  rounded-md text-white h-full" >Add new person</button>
     </div>
   );
 }

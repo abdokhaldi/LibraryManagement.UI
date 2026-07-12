@@ -162,7 +162,7 @@ export default function PersonFormModal({ isOpen, onClose, onSubmit, person, isL
         email: form.email.trim(),
         address: form.address.trim(),
         city: form.city.trim(),
-        gender: form.gender,
+        gender:String(form.gender).length ==1  ?  form.gender : form.gender== "M" ? "M" : "F",
         association: form.association,
       };
       onSubmit(payload);

@@ -16,13 +16,7 @@ export function PeopleHeader({ currentDate, onAddPerson }) {
             <HiOutlineCalendar className="h-4 w-4" />
             <span>{currentDate}</span>
           </div>
-          <button
-            onClick={onAddPerson}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-medium text-sm gap-2"
-          >
-            <RiUserAddLine className="h-4 w-4" />
-            Add Person
-          </button>
+          
         </div>
       </div>
     </div>

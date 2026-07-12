@@ -335,10 +335,7 @@ export default function PeoplePage() {
           month: "long",
           day: "numeric",
         })}
-        onAddPerson={() => {
-          setEditingPerson(null);
-          setShowFormModal(true);
-        }}
+       
       />
 
       {/* Stats Cards */}
@@ -352,7 +349,12 @@ export default function PeoplePage() {
       )}
 
       {/* Filters & Toolbar */}
+      
       <PeopleFilters
+        onAddPerson={() => {
+          setEditingPerson(null);
+          setShowFormModal(true);}
+        }
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         associationFilter={associationFilter}
@@ -368,6 +370,8 @@ export default function PeoplePage() {
         onResetFilters={handleResetFilters}
       />
 
+     
+    
       {/* People Table */}
       <div className=" overflow-hidden rounded-b-xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">

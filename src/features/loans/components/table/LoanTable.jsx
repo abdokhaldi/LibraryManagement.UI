@@ -12,31 +12,34 @@ export function LoanTable({
 }) {
   const actionRef = useRef(null);
 
-  if (loans.length === 0) {
-    return (
-      <div className="text-center py-12 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
-        <p className="text-slate-500 italic">No loans found.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <LoanTableHeader />
         <tbody className="divide-y divide-slate-100">
-          {loans.map((loan) => (
-            <LoanTableRow
-              key={loan.borrowingID}
-              loan={loan}
-              showActions={showActions}
-              setShowActions={setShowActions}
-              onReturnBook={onReturnBook}
-              onOpenExtendModal={onOpenExtendModal}
-              onViewFines={onViewFines}
-              actionRef={actionRef}
-            />
-          ))}
+          {loans.length === 0 ? (
+            <tr>
+              <td
+                colSpan={100}
+                className="text-center py-12 text-slate-500 italic"
+              >
+                No loans found.
+              </td>
+            </tr>
+          ) : (
+            loans.map((loan) => (
+              <LoanTableRow
+                key={loan.borrowingID}
+                loan={loan}
+                showActions={showActions}
+                setShowActions={setShowActions}
+                onReturnBook={onReturnBook}
+                onOpenExtendModal={onOpenExtendModal}
+                onViewFines={onViewFines}
+                actionRef={actionRef}
+              />
+            ))
+          )}
         </tbody>
       </table>
     </div>

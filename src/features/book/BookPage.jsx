@@ -1,14 +1,14 @@
 import SearchBar from '../commonCards/SearchBar';
 import StatCard from '../commonCards/StatCard';
+import AddRecordButton from '../commonCards/AddRecordButton';
 import { useEffect, useRef, useState } from 'react';
-import { FiPlus } from 'react-icons/fi';
 import { FaBook, FaCopy, FaCheckCircle } from 'react-icons/fa';
 import BookFormModal from './components/modals/BookFormModal';
 import BookTable from './components/table/BookTable';
 import BookPagination from '../Pagination/Pagination';
 import { Outlet } from 'react-router-dom';
 import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../services/bookService';
-
+import { SubHeader } from "../commonCards/SubHeader.jsx";
 export default function BookPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -196,8 +196,9 @@ if (loading) {
   );
 }
   return (
-   
+    
     <div className="bg-gray-100 min-h-screen ">
+      <SubHeader />
       <BookFormModal
         key={bookToUpdate?.bookID || "new"}
         bookForUpdate={bookToUpdate}
@@ -209,6 +210,7 @@ if (loading) {
       />
       
       <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
         <StatCard
             label="Total Books"
             value={booksData.length}
@@ -238,13 +240,7 @@ if (loading) {
             onFilterClick={() => setShowFilter(!showFilter)} 
             isFilterActive={showFilter}
           />
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-8 py-2.5 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-bold text-xm  gap-2"
-          >
-            <FiPlus size={20} />
-            Add New Book
-          </button>
+          <AddRecordButton label="Add New Book" onClick={() => setShowModal(true)} className="px-8 py-2.5" />
         </div>
         
        

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getMembers } from "../../services/memberService";
-import { MemberHeader } from "./components/common/MemberHeader";
 import { MemberStats } from "./components/common/MemberStats";
 import { MemberTable } from "./components/table/MemberTable";
 import { MemberFilters } from "./components/filters/MemberFilters";
 import { MemberDetailModal } from "./components/modals/MemberDetailModal";
 import { calculateMemberStats, SORT_DIR, nextDirection } from "./utils/memberHelpers";
+import { SubHeader } from "../commonCards/SubHeader.jsx";
 
 const PAGE_SIZE = 8;
 
@@ -117,13 +117,17 @@ export default function MemberPage() {
   return (
     <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
       <div className="mx-auto space-y-6">
+      <div className="mx-auto space-y-2">
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <MemberHeader />
+    
+       {<SubHeader />}  
 
         {/* ── Stats Cards ────────────────────────────────────────────────── */}
         <MemberStats stats={stats} />
+        </div>  
 
         {/* ── Filters & Search ───────────────────────────────────────────── */}
+        <div className="bg-white border border-gray-200 shadow-sm">
         <MemberFilters
           members={members}
           searchQuery={searchQuery}
@@ -177,7 +181,8 @@ export default function MemberPage() {
           emptyMessage="No members found"
         />
       </div>
-
+     </div>
+     
       <MemberDetailModal user={detailModal} onClose={() => setDetailModal(null)} />
     </div>
   );

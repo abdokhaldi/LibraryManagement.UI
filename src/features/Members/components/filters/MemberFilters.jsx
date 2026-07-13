@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { IoFilter } from "react-icons/io5";
 import SearchBar from "../../../commonCards/SearchBar";
+import AddRecordButton from "../../../commonCards/AddRecordButton";
 import { filterMembers, getUniqueMemberCities, sortMembers, SORT_DIR, nextDirection } from "../../utils/memberHelpers.js";
 
 export function MemberFilters({
@@ -79,62 +79,64 @@ export function MemberFilters({
           isFilterActive={showFilters}
         />
         
-        {showFilters && (
-          <div className="flex flex-wrap gap-4 w-full mt-4 pt-4 border-t border-slate-100">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-xs font-medium text-gray-500 mb-1">City</label>
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">All Cities</option>
-                {cities.map((city) => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="flex-1 min-w-[150px]">
-              <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-            
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-xs font-medium text-gray-500 mb-1">Membership Type</label>
-              <select
-                value={selectedMembershipType}
-                onChange={(e) => setSelectedMembershipType(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">All Types</option>
-                {membershipTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-
-            {hasActiveFilters && (
-              <div className="flex items-end">
-                <button
-                  onClick={handleResetFilters}
-                  className="text-xs font-medium text-green-600 hover:text-green-700 transition"
-                >
-                  Clear all filters
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        <AddRecordButton label="Add New Member" />
       </div>
+
+      {showFilters && (
+        <div className="px-5 pb-5 flex flex-wrap gap-4 w-full border-t border-slate-100 bg-white">
+          <div className="flex-1 min-w-[200px] mt-4">
+            <label className="block text-xs font-medium text-gray-500 mb-1">City</label>
+            <select
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">All Cities</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex-1 min-w-[150px] mt-4">
+            <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          
+          <div className="flex-1 min-w-[200px] mt-4">
+            <label className="block text-xs font-medium text-gray-500 mb-1">Membership Type</label>
+            <select
+              value={selectedMembershipType}
+              onChange={(e) => setSelectedMembershipType(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">All Types</option>
+              {membershipTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+
+          {hasActiveFilters && (
+            <div className="flex items-end mt-4">
+              <button
+                onClick={handleResetFilters}
+                className="text-xs font-medium text-green-600 hover:text-green-700 transition"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {filteredMembers.length > 0 && (
         <div className="mt-4 flex items-center gap-3 border-t border-green-100 bg-green-50/50 -mx-4 -mb-4 px-4 py-3 rounded-b-xl">

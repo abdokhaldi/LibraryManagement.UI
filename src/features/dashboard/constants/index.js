@@ -27,8 +27,8 @@ export const POPULAR_CATEGORIES = [
 ];
 
 export const ACTIVITY_STATUS_STYLES = {
-  borrowed: "bg-red-500",
-  Completed: "bg-red-300",
+  borrowed: "bg-red-500/50",
+  Completed: "bg-green-300/50",
   available: "bg-blue-600",
 };
 

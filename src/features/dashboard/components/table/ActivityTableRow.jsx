@@ -7,7 +7,7 @@ function ActivityTableRow({ activity }) {
       <td className="px-4 py-3 text-gray-700">{activity.bookTitle}</td>
       <td className="px-4 py-3 text-gray-700">{activity.action}</td>
       <td className="px-4 py-3">
-        <ActivityStatusBadge status={activity.status} />
+        <ActivityStatusBadge status={activity.status}  />
       </td>
       <td className="px-4 py-3 text-gray-500 text-sm">{activity.time}</td>
     </tr>

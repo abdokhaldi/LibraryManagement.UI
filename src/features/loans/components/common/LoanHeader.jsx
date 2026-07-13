@@ -1,5 +1,6 @@
 import SearchBar from "../../../commonCards/SearchBar";
 import { FaPlus } from 'react-icons/fa';
+import AddRecordButton from "../../../commonCards/AddRecordButton";
 
 export function LoanHeader({
   searchTerm,
@@ -9,7 +10,7 @@ export function LoanHeader({
   onNewLoanClick,
 }) {
   return (
-    <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
+    <div className="p-4 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
       <SearchBar
         placeholder="Search by barcode, member, or book title..."
         searchTerm={searchTerm}
@@ -17,13 +18,12 @@ export function LoanHeader({
         onFilterClick={onFilterClick}
         isFilterActive={isFilterActive}
       />
-
-      <button
-        onClick={onNewLoanClick}
-        className="flex items-center gap-2 bg-green-500 hover:bg-green-700 text-white px-8 py-2.5 rounded-md font-bold shadow-lg shadow-blue-200 transition-all active:scale-95"
-      >
-        <FaPlus /> New Loan
-      </button>
+      <AddRecordButton 
+      onClick={onNewLoanClick}
+      label="Add New Loan"
+      className="px-8 py-2.5"
+      />
+      
     </div>
   );
 }

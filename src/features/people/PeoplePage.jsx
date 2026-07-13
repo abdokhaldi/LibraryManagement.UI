@@ -21,6 +21,8 @@ import {
   checkPersonExistence,
 } from "../../services/personService";
 
+import { SubHeader } from "../commonCards/SubHeader";
+
 const ASSOCIATION_OPTIONS = [
   { value: "all", label: "All" },
   { value: "user", label: "Users" },
@@ -328,15 +330,8 @@ export default function PeoplePage() {
   return (
     <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
       {/* Header */}
-      <PeopleHeader
-        currentDate={new Date().toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-       
-      />
+      
+     < SubHeader />
 
       {/* Stats Cards */}
       <PeopleStats stats={stats} />

@@ -15,6 +15,7 @@ export function LoanFilters({ isOpen, filters, setFilters }) {
           <option value="overdue">Overdue Items</option>
           <option value="borrowed">Currently Borrowed</option>
         </select>
+        
       </div>
     )
   );

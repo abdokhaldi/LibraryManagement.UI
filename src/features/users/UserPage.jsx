@@ -22,6 +22,8 @@ import {
   sortUsers,
 } from "./utils/userHelpers.js";
 
+import { SubHeader } from "../commonCards/SubHeader.jsx";
+
 export default function UserPage() {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -334,12 +336,13 @@ export default function UserPage() {
   }
 
   return (
-    <div>
-      <div className="mx-auto space-y-6">
-        <UserHeader />
+    <div className="mx-auto space-y-2 " >
+       <SubHeader />
+      <div className="mx-auto space-y-6 ">
+       
 
         <UserStats stats={stats} />
-
+       <div>
         <UserFilters
           searchQuery={searchQuery}
           setSearchQuery={(val) => {
@@ -379,7 +382,7 @@ export default function UserPage() {
           onPageChange={handlePageChange}
         />
       </div>
-
+       </div>
       <UserFormModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -387,7 +390,7 @@ export default function UserPage() {
         user={editingUser}
         onSubmit={handleFormSubmit}
       />
-
+     
       <UserDetailModal user={detailModal} onClose={() => setDetailModal(null)} />
     </div>
   );

@@ -1,5 +1,6 @@
 import SearchBar from "../../../commonCards/SearchBar.jsx";
 import { RiUserAddLine } from "react-icons/ri";
+import AddRecordButton from "../../../commonCards/AddRecordButton.jsx";
 
 // ─── Filter button group ─────────────────────────────────────────────────────
 function FilterGroup({ label, options, value, onChange }) {
@@ -80,13 +81,11 @@ export function UserFilters({
           onFilterClick={() => setShowFilters(!showFilters)}
           isFilterActive={showFilters}
         />
-        <button
-          onClick={onAddUser}
-          className="px-8 py-2.5 bg-green-500 text-white rounded hover:bg-green-400 flex items-center font-bold text-xm gap-2"
-        >
-          <RiUserAddLine className="h-4 w-4" />
-          Add User
-        </button>
+        <AddRecordButton 
+              onClick={onAddUser}
+              label="Add New User"
+              className="px-8 py-2.5"
+              />
       </div>
 
       {/* ── Expandable Filters ─────────────────────────────────────────── */}

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { HiOutlineChevronDown } from "react-icons/hi";
 import SearchBar from "../../../commonCards/SearchBar";
+import AddRecordButton from "../../../commonCards/AddRecordButton";
 
 const ASSOCIATION_OPTIONS = [
   { value: "all", label: "All" },
@@ -132,9 +133,11 @@ export function PeopleFilters({
         </div>
       )}
       </div>
-      <button 
-      onClick={onAddPerson}
-      className="bg-green-500 p-2  rounded-md text-white h-full" >Add new person</button>
+      <AddRecordButton 
+            onClick={onAddPerson}
+            label="Add New Person"
+            className="px-8 py-2.5"
+            />
     </div>
   );
 }

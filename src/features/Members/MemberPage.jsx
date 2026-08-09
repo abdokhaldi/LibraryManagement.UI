@@ -127,7 +127,7 @@ export default function MemberPage() {
         </div>  
 
         {/* ── Filters & Search ───────────────────────────────────────────── */}
-        <div className="bg-white border border-gray-200 shadow-sm">
+        <div className="bg-white rounded-t-lg shadow-sm">
         <MemberFilters
           members={members}
           searchQuery={searchQuery}

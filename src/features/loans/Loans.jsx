@@ -10,6 +10,7 @@ import { LoanTable } from './components/table/LoanTable';
 import FinesHistoryModal from './components/modals/FinesHistoryModal';
 import ExtendModal from './components/modals/ExtendModal';
 import ScanModal from './components/modals/ScanModal';
+import { SubHeader } from '../commonCards/SubHeader.jsx';
 
 export default function Loans() {
     const [showFilter, setShowFilter] = useState(false);
@@ -113,12 +114,14 @@ export default function Loans() {
             )}
 
             {/* Stats Cards */}
+            <SubHeader />
             <LoanStats loans={loansData} />
 
             {/* Table Section */}
             {!showBorrowModal && (
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-white rounded-t-lg shadow-sm overflow-hidden ">
                     {/* Header with Search & New Loan Button */}
+                    <div className="border-b border-slate-100 bg-white p-5">
                     <LoanHeader
                         searchTerm={searchTerm}
                         setSearchTerm={setSearchTerm}
@@ -133,6 +136,8 @@ export default function Loans() {
                         filters={filters}
                         setFilters={setFilters}
                     />
+
+                   </div>
 
                     {/* Table */}
                     <LoanTable

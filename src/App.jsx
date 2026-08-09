@@ -7,6 +7,7 @@ import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
 import User from './features/users/UserPage';
 import People from './features/people/PeoplePage';
+import BookDetailsModal from './features/book/components/modals/BookDetailsModal';
 import Onboarding from './auth/components/Onboarding';
 import LandingPage from './landingPage/components/LandingPage';
 import LoginPage from './auth/components/LoginForm';
@@ -49,7 +50,7 @@ function App() {
             <Route index element={<Dashboard/>}  />
             <Route path="dashboard" element={<Dashboard/>}/>
             <Route path="books" element={<BookPage/>}>
-            <Route path=":bookId" element={<BookPage />} />
+            <Route path=":bookId" element={<BookDetailsModal />} />
             </Route>
             <Route path="loans" element={<Loan/>}/>
 <Route path="members" element={<Member/>}/>

@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; 
 import { FaEllipsisV, FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
-import BookCopyPagination from '../../Pagination/Pagination';
-import { getBookCopies } from '../../../services/bookCopiesService';
+import BookCopyPagination from '../../../Pagination/Pagination.jsx';
+import { getBookCopies } from '../../../../services/bookCopiesService.js';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getBookById } from '../../../services/authService';
+import { getBookById } from '../../../../services/authService.js';
 
 function BookDetailsModal({ onClose, onAddCopy }) {
   const bookCover = "http://localhost:5016/images/covers/";
@@ -22,7 +22,7 @@ function BookDetailsModal({ onClose, onAddCopy }) {
   const [loadedCopies, setLoadedCopies] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [book, setBook] = useState(null);
-  const [loading, setLoading] = useState(true); // إضافة حالة التحميل لحماية التطبيق
+  const [loading, setLoading] = useState(true); 
 
   const statusConfig = {
     available: { label: 'Loan', color: 'bg-green-500', text: 'Available' },

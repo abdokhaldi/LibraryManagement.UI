@@ -10,7 +10,7 @@ export function LoanHeader({
   onNewLoanClick,
 }) {
   return (
-    <div className="p-4 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
+    <div className="border-b p-4 border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-white">
       <SearchBar
         placeholder="Search by barcode, member, or book title..."
         searchTerm={searchTerm}

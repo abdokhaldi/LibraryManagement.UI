@@ -331,7 +331,7 @@ export default function PeoplePage() {
     <div className="bg-gray-100 min-h-screen" onClick={handleTableClick}>
       {/* Header */}
       
-     < SubHeader />
+     <SubHeader />
 
       {/* Stats Cards */}
       <PeopleStats stats={stats} />

@@ -38,3 +38,32 @@ return {
  throw error;
 }
 }
+
+
+export const addBookCopy = async ({ bookId, numberOfCopies, condition = "New" }) => {
+  try {
+    const payload = {
+      BookID: bookId,
+      Quantity: numberOfCopies,
+      Condition: condition,
+    };
+
+    const { ok, data, status } = await apiRequest('BookCopy', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!ok) {
+      const errorMessage = data?.message || data?.title || `Failed to add book copies, status code: ${status}`;
+      throw new Error(errorMessage);
+    }
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error('Error adding book copies:', error);
+    throw error;
+  }
+};

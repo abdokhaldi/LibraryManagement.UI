@@ -1,14 +1,26 @@
 import SearchBar from '../commonCards/SearchBar';
 import StatCard from '../commonCards/StatCard';
 import AddRecordButton from '../commonCards/AddRecordButton';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, createContext, useContext } from 'react';
 import { FaBook, FaCopy, FaCheckCircle } from 'react-icons/fa';
 import BookFormModal from './components/modals/BookFormModal';
 import BookTable from './components/table/BookTable';
 import BookPagination from '../Pagination/Pagination';
 import { Outlet } from 'react-router-dom';
 import {getCategoriesList,getBooksList,addBook,updateBook, deleteBook} from '../../services/bookService';
+import {addBookCopy} from "../../services/bookCopiesService.js";
 import { SubHeader } from "../commonCards/SubHeader.jsx";
+// Context to pass onAddCopy function to BookDetailsModal
+export const BookDetailsContext = createContext(null);
+
+// Simple context provider that only provides the onAddCopy function
+function BookDetailsProvider({ children, value }) {
+  return (
+    <BookDetailsContext.Provider value={value}>
+      {children}
+    </BookDetailsContext.Provider>
+  );
+}
 export default function BookPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,10 +42,11 @@ export default function BookPage() {
     try{
       
       const result = await getBooksList({pageNumber:currentPage,pageSize: itemsPerPage ,searchTerm:searchTerm, category: filters.category!=="All" ? filters.category : undefined});
-        
+       
         setBooksData(result.data);
         setTotalPages(result.totalPages);
         setLoading(false);
+        
     }catch(error){
      console.log('Failed to fetch books :' , error);
      setLoading(false);
@@ -143,7 +156,7 @@ const [bookToUpdate, setBookToUpdate] = useState(null);
     }
    };
 
-  const handleDelete = async (bookId) => {
+const handleDelete = async (bookId) => {
     try{
    
       const result = await deleteBook(bookId);
@@ -159,6 +172,29 @@ const [bookToUpdate, setBookToUpdate] = useState(null);
     }
     catch(error){
       alert("an error occured :", error);
+    }
+    
+  };
+
+  const handleAddCopy = async (bookId, numberOfCopies, condition = "New") => {
+    try {
+      const result = await addBookCopy({ bookId, numberOfCopies: Number(numberOfCopies), condition });
+      
+      if (result.success) {
+        // Show success message with barcode
+       
+        alert(`Successfully added ${numberOfCopies} book copy(ies)! Generated barcode: ${result.barcode}`);
+        
+        // Refresh the book details - this will be handled by the modal's useEffect
+        // when it re-fetches data (page reload or navigation trigger)
+        // For now, we just show the success message
+      } else {
+       
+        alert(`Failed to add book copy: ${result.errorMessage}`);
+      }
+    } catch (error) {
+      console.error('Error adding book copy:', error);
+      alert('An error occurred while adding book copy');
     }
     
   };
@@ -190,7 +226,7 @@ if (loading) {
   return (
     <div className="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
       <div className="text-xl font-semibold text-gray-600">
-        Loading books from server...
+        Loading books from server ...
       </div>
     </div>
   );
@@ -282,8 +318,10 @@ if (loading) {
     totalPages={totalPages}
     />}  
      
-    </div>
-    <Outlet/>
+</div>
+    <BookDetailsProvider value={{ onAddCopy: handleAddCopy }}>
+      <Outlet/>
+    </BookDetailsProvider>
     </div>
     
   );

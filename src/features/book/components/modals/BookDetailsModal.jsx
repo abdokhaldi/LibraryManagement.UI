@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { FiPlus, FiEdit, FiTrash, FiTool, FiBook } from 'react-icons/fi'; 
 import { FaEllipsisV, FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCalendarCheck, FaArrowsRotate } from "react-icons/fa6";
@@ -6,8 +6,12 @@ import BookCopyPagination from '../../../Pagination/Pagination.jsx';
 import { getBookCopies } from '../../../../services/bookCopiesService.js';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getBookById } from '../../../../services/authService.js';
+import { BookDetailsContext } from '../../../../features/book/BookPage';
 
-function BookDetailsModal({ onClose, onAddCopy }) {
+function BookDetailsModal({ onClose, onAddCopy: onAddCopyProp }) {
+  // Use context as fallback if prop not provided (e.g., when rendered directly via route in App.jsx)
+  const context = useContext(BookDetailsContext);
+  const onAddCopy = onAddCopyProp || context?.onAddCopy;
   const bookCover = "http://localhost:5016/images/covers/";
   const { bookId } = useParams();
   const navigate = useNavigate();
@@ -15,9 +19,12 @@ function BookDetailsModal({ onClose, onAddCopy }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [numberOfCopies, setNumberOfCopies] = useState(1);
+  const [condition, setCondition] = useState('New');
   const [actionRow, setActionRow] = useState(null);
   const actionRef = useRef(null);
   const itemsPerPage = 10;
+
+  const conditionOptions = ['New', 'Like New', 'Good', 'Fair', 'Poor'];
 
   const [loadedCopies, setLoadedCopies] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -114,16 +121,34 @@ function BookDetailsModal({ onClose, onAddCopy }) {
         <div className="flex justify-between items-center mb-6">
           {/* الـ book.title الآن آمن تماماً ولن يسبب انهيار */}
           <h2 className="text-2xl font-bold italic">"{book.title}" Details</h2>
-          <div className="flex items-center gap-3">
-            <input
-              type="number"
-              min="1"
-              value={numberOfCopies}
-              onChange={(e) => setNumberOfCopies(parseInt(e.target.value, 10) || 1)}
-              className="w-20 p-2 border rounded shadow-sm"
-            />
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Quantity:</label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={numberOfCopies}
+                onChange={(e) => setNumberOfCopies(parseInt(e.target.value, 10) || 1)}
+                className="w-20 p-2 border rounded shadow-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Condition:</label>
+              <select
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                className="p-2 border rounded shadow-sm bg-white"
+              >
+                {conditionOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button
-              onClick={() => onAddCopy(book.bookID, numberOfCopies)}
+              onClick={() => onAddCopy(book.bookID, numberOfCopies, condition)}
               className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2 transition-colors"
             >
               <FiPlus size={20} /> Add New Copies

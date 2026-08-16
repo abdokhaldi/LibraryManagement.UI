@@ -2,7 +2,7 @@ import { useState } from "react";
 // 1. إضافة الأيقونات المفقودة
 import { FaLevelDownAlt, FaBarcode, FaArrowRight } from 'react-icons/fa';
 import LoanForm from './LoanForm';
-import { API_URL } from '../../../../services/config';
+import { checkBookCopyByBarcode } from '../../../../services/loanService';
 
 export default function ScanModal({onClose}) {
   // اجعل الحالة الافتراضية null لتجنب مشاكل المصفوفات الفارغة
@@ -15,18 +15,18 @@ export default function ScanModal({onClose}) {
     
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}bookCopy/${barcode}/GetBookCopyByBarcode`);
-      if (res.ok) {
-        const copyData = await res.json();
+      const result = await checkBookCopyByBarcode(barcode);
+      if (result.success) {
         // 2. تحديث الـ copy مباشرة هنا بالبيانات القادمة فوراً
-        setCopy(copyData);
+        setCopy(result.data);
         console.log("book found");
       } else {
-        alert("Book copy not found!");
+        alert(result.errorMessage || "Book copy not found!");
         setCopy(null);
       }
     } catch (error) {
       console.error("Fetch error:", error);
+      alert("An error occurred while checking the book copy");
     } finally {
       setLoading(false);
     }

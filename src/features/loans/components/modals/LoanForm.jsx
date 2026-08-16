@@ -120,6 +120,7 @@ export default function LoanForm({bookCopy, setCopy}){
                 Cancel
               </button>
               <button 
+               
                type="submit" className="bg-[#10b981] w-[60%] text-white rounded">
                 Confirm
               </button>

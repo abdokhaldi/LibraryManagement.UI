@@ -122,3 +122,31 @@ export const extendLoanPeriod = async (id, newDueDate) => {
         throw error;
     }
 };
+
+export const checkBookCopyByBarcode = async (barcode) => {
+    if (!barcode) {
+        return { success: false, errorMessage: "Barcode is required" };
+    }
+
+    try {
+        const { ok, data, status } = await apiRequest(`BookCopy/${barcode}/GetBookCopyByBarcode`);
+
+        if (!ok) {
+            return {
+                success: false,
+                errorMessage: data?.message || data?.title || "Book copy not found",
+                status: status
+            };
+        }
+
+        return {
+            success: true,
+            data: data,
+            status: status
+        };
+
+    } catch (error) {
+        console.error("Service Error:", error.message);
+        throw error;
+    }
+};

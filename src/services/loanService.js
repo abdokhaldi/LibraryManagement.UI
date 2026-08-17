@@ -4,19 +4,19 @@ import { apiRequest } from './helpers';
 
 export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
             try {
-                const res = await fetch(`http://localhost:5016/api/borrowing?SearchTerm=${searchTerm}&pageNumber=${currentPage}&pageSize=${pageSize}`);
-                if (!res.ok) {
+                const {ok,data, headers} = await apiRequest(`borrowing?SearchTerm=${searchTerm}&pageNumber=${currentPage}&pageSize=${pageSize}`);
+                if (!ok) {
                    
                     throw new Error("Failed to fetch data");
 
                 }
-                    const loadedLoans = await res.json();
+                    
                    
-                    const paginationHeader = res.headers.get('x-pagination');
+                    const paginationHeader = headers.get('x-pagination');
                     console.log("new function loaded successfuly");
                  
                  return {
-                    data:loadedLoans,
+                    data,
                     totalPages: paginationHeader?JSON.parse(paginationHeader).TotalPages : 0
                  }
 
@@ -26,8 +26,10 @@ export const getLoans = async ({searchTerm,currentPage,pageSize}) => {
             }
         };
 
-      export  const returnBook = async (id) => { 
+ export  const returnBook = async (id) => { 
+       
         if(!id) return {success:false, errorMessage:"Invalid ID"};
+        
         try{
 
             const {ok, data, status} = await apiRequest(`Borrowing/${id}/ReturnBook`,{

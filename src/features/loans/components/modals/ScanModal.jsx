@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // 1. إضافة الأيقونات المفقودة
 import { FaLevelDownAlt, FaBarcode, FaArrowRight } from 'react-icons/fa';
 import LoanForm from './LoanForm';
 import { checkBookCopyByBarcode } from '../../../../services/loanService';
 
-export default function ScanModal({onClose}) {
+export default function ScanModal({onClose, initialBarcode = ""}) {
   // اجعل الحالة الافتراضية null لتجنب مشاكل المصفوفات الفارغة
   const [copy, setCopy] = useState(null);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(initialBarcode);
   const [loading, setLoading] = useState(false);
+  
+  // Auto-search if initialBarcode is provided
+  useEffect(() => {
+    if (initialBarcode && !copy && !loading) {
+      checkBookCopy(initialBarcode);
+    }
+  }, [initialBarcode, copy, loading]);
 
   const checkBookCopy = async (barcode) => {
     if (!barcode) return;
@@ -33,8 +40,8 @@ export default function ScanModal({onClose}) {
   };
 
   return (
-    <div className="fixed bg-white w-screen h-screen flex items-center justify-center inset-0">
-    <div className="relative flex-col items-center justify-center p-6 max-w-lg mx-auto bg-slate-300 rounded-xl shadow-sm z-50">
+    <div className="fixed bg-white w-screen h-screen flex items-center justify-center inset-0 z-60">
+    <div className="relative flex-col items-center justify-center p-6 max-w-lg mx-auto bg-slate-300 rounded-xl shadow-sm">
      <button 
       onClick={() => {copy && setCopy(null) || !copy && onClose(false)} }
      className="absolute top-2 right-2 text-slate-800 hover:text-slate-400">
@@ -61,7 +68,7 @@ export default function ScanModal({onClose}) {
               onChange={(e) => setInputValue(e.target.value)}
               type="text"
               autoFocus
-              className="w-full h-16 pl-14 pr-20 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-mono text-xl tracking-widest text-gray-700"
+              className ="w-full h-16 pl-14 pr-20 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-mono text-xl tracking-widest text-gray-700"
               placeholder="Barcode..."
               onKeyDown={(e) => e.key === 'Enter' && checkBookCopy(inputValue)}
             />

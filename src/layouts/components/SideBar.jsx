@@ -1,5 +1,5 @@
 
-import Profile from './Profile.jsx';
+//import Profile from './Profile.jsx';
 import Logo from './Logo.jsx';
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -57,7 +57,7 @@ const ReportLinks = [
             </ul>
         </div>
      </nav>
-      <Profile/>
+      
      </aside>
     );
 }

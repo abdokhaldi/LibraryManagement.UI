@@ -17,37 +17,25 @@ export function getAnalyticsCardColor(color) {
 
 /**
  * Get Tailwind height class based on percentage
- * @param {string|number} height - Height percentage value
+ * @param {number} height - Height percentage value (0-100)
  * @returns {string} Tailwind height class
  */
 export function getHeightClass(height) {
-  const heightPercentageMap = {
-    10: "h-[10%]",
-    20: "h-[20%]",
-    30: "h-[30%]",
-    40: "h-[40%]",
-    50: "h-[50%]",
-    60: "h-[60%]",
-    70: "h-[70%]",
-  };
-  return heightPercentageMap[height] || "h-[10%]";
+  const clampedHeight = Math.max(0, Math.min(100, Math.round(height)));
+  return `h-[${clampedHeight}%]`;
 }
 
 /**
  * Get Tailwind width class and display percentage for category line
- * @param {number} percentage - Percentage value
+ * @param {number} percentage - Percentage value (0-100)
  * @returns {{ perColor: string, perNumber: string }}
  */
 export function getPercentageClass(percentage) {
-  const percentageMap = {
-    10: { perColor: "w-[10%]", perNumber: "10%" },
-    20: { perColor: "w-[20%]", perNumber: "20%" },
-    30: { perColor: "w-[30%]", perNumber: "30%" },
-    40: { perColor: "w-[40%]", perNumber: "40%" },
-    50: { perColor: "w-[50%]", perNumber: "50%" },
-    60: { perColor: "w-[60%]", perNumber: "60%" },
+  const clampedPercentage = Math.max(0, Math.min(100, Math.round(percentage)));
+  return { 
+    perColor: `w-[${clampedPercentage}%]`, 
+    perNumber: `${clampedPercentage}%` 
   };
-  return percentageMap[percentage] || { perColor: "w-[10%]", perNumber: "10%" };
 }
 
 /**

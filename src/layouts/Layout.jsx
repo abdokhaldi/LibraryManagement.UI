@@ -12,7 +12,8 @@ function Layout() {
         loans: "Loans",
         members: "Members",
         users: "Users",
-        people: "People"
+        people: "People",
+        settings: "Global Settings"
     };
 
     const location = useLocation();

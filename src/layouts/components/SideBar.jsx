@@ -12,6 +12,7 @@ const managementLinks = [
     {id:"/members", name:"Members", href:"#"},
     {id:"/users", name:"Users", href:"#"},
     {id:"/people", name:"People", href:"#"},
+    {id:"/settings", name:"Settings", href:"#"},
    ];
 const ReportLinks = [
     {name:"Fine Collections Analitics", href:"#"},

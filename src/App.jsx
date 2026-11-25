@@ -7,6 +7,7 @@ import Loan from './features/loans/Loans';
 import Member from './features/Members/MemberPage';
 import User from './features/users/UserPage';
 import People from './features/people/PeoplePage';
+import GlobalSettingsPage from './features/globalSettings/GlobalSettingsPage';
 import BookDetailsModal from './features/book/components/modals/BookDetailsModal';
 import Onboarding from './auth/components/Onboarding';
 import LandingPage from './landingPage/components/LandingPage';
@@ -56,6 +57,7 @@ function App() {
 <Route path="members" element={<Member/>}/>
             <Route path="users" element={<User/>}/>
             <Route path="people" element={<People/>}/>
+            <Route path="settings" element={<GlobalSettingsPage/>}/>
           </Route> 
       </Route>
    
